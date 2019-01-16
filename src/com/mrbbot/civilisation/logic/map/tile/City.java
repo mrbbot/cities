@@ -8,6 +8,7 @@ public class City {
   private final HexagonGrid<Tile> grid;
 
   public ArrayList<Tile> tiles;
+  public double greatestTileHeight;
 
   public City(HexagonGrid<Tile> grid, int centerX, int centerY) {
     this.grid = grid;
@@ -25,9 +26,10 @@ public class City {
     tiles.addAll(adjacentTiles);
 
     tiles.forEach(tile -> tile.city = this);
+    updateGreatestHeight();
   }
 
-  boolean[] adjacentCityTiles(Tile tile) {
+  boolean[] getWalls(Tile tile) {
     if(!tiles.contains(tile)) return new boolean[]{false, false, false, false, false, false};
     int x = tile.x, y = tile.y;
     return new boolean[] {
@@ -38,6 +40,15 @@ public class City {
       !tiles.contains(grid.getRight(x, y, false)),
       !tiles.contains(grid.getTopRight(x, y, false)),
     };
+  }
+
+  private void updateGreatestHeight() {
+    double greatestHeight = 0.0;
+    for (Tile tile : tiles) {
+      double tileHeight = tile.getHeight();
+      if(tileHeight > greatestHeight) greatestHeight = tileHeight;
+    }
+    greatestTileHeight = greatestHeight;
   }
 
   public Tile getCenter() {

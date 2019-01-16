@@ -25,8 +25,12 @@ public class Tile implements Traversable {
     return hexagon;
   }
 
-  public boolean[] adjacentCityTiles() {
-    return city.adjacentCityTiles(this);
+  public boolean[] getCityWalls() {
+    return city.getWalls(this);
+  }
+
+  public double getHeight() {
+    return (terrain.height * 2) + 1; // 1 <= height <= 3
   }
 
   @Override

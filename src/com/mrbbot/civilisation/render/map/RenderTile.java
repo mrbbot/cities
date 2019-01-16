@@ -47,7 +47,7 @@ public class RenderTile extends RenderData<Tile> {
 
     colour = colourForTerrain(data.getTerrain());
 
-    double height = (data.getTerrain().height * 2) + 1; // 1 <= height <= 3
+    double height = data.getHeight();
     Shape3D ground = data.getHexagon().getPrism(height);
     ground.getTransforms().add(new Translate(0, height / 2, 0));
     ground.setMaterial(new PhongMaterial(colour));
@@ -61,8 +61,7 @@ public class RenderTile extends RenderData<Tile> {
     aboveGround.add(overlay);
 
     if(data.city != null) {
-      overlay.setCityWalls(data.adjacentCityTiles());
-      System.out.println("walls");
+      overlay.setCityWalls(data.getCityWalls(), height, data.city.greatestTileHeight);
     }
 
 }
