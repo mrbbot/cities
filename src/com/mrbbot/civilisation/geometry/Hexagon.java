@@ -6,7 +6,7 @@ import javafx.scene.shape.Shape3D;
 import javafx.scene.transform.Rotate;
 
 public class Hexagon {
-    static final double SQRT_3 = Math.sqrt(3);
+    public static final double SQRT_3 = Math.sqrt(3);
 
     private Point2D c;
     private double r;

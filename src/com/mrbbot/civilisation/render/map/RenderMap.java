@@ -7,6 +7,9 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.PickResult;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Box;
 
 import java.util.List;
 import java.util.PriorityQueue;
@@ -27,7 +30,14 @@ public class RenderMap extends RenderData<Map> {
 
       Point2D center = hex.getCenter();
       String coord = "(" + center.getX() + ", " + center.getY() + ")";
-      renderTile.setOnMouseClicked((e) -> System.out.println("You clicked on the tile at " + coord));
+      renderTile.setOnMouseClicked((e) -> {
+        //System.out.println("You clicked on the tile at " + coord);
+
+        if(tile.city != null) {
+          tile.city.grow(1);
+          data.hexagonGrid.forEach((gridTile, _hex, _x, _y) -> gridTile.renderer.updateOverlay());
+        }
+      });
 
       renderTile.setOnMouseDragged((e) -> {
         if (e.getButton() == MouseButton.SECONDARY) {
@@ -52,6 +62,12 @@ public class RenderMap extends RenderData<Map> {
 
       tilesToAdd.add(renderTile);
     });
+
+    Point2D topLeftCenter = data.hexagonGrid.get(0, 0).getHexagon().getCenter();
+    Box ground = new Box(Math.abs(topLeftCenter.getX() * 2) + 4.5, Math.abs(topLeftCenter.getY() * 2) + 3, 1);
+    ground.setTranslateZ(-0.5);
+    ground.setMaterial(new PhongMaterial(Color.WHITESMOKE));
+    add(ground);
 
     RenderTile t;
     while ((t = tilesToAdd.poll()) != null) add(t);

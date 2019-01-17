@@ -1,17 +1,28 @@
 package com.mrbbot.civilisation.logic.map.tile;
 
 import com.mrbbot.civilisation.geometry.HexagonGrid;
+import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.PriorityQueue;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 public class City {
+  private static final Random RANDOM = new Random();
+
   private final HexagonGrid<Tile> grid;
+  public final Color wallColour;
+  public final Color joinColour;
 
   public ArrayList<Tile> tiles;
   public double greatestTileHeight;
 
-  public City(HexagonGrid<Tile> grid, int centerX, int centerY) {
+  public City(HexagonGrid<Tile> grid, int centerX, int centerY, Color wallColour) {
     this.grid = grid;
+    this.wallColour = wallColour;
+    this.joinColour = wallColour.darker();
 
     tiles = new ArrayList<>();
 
@@ -26,6 +37,31 @@ public class City {
     tiles.addAll(adjacentTiles);
 
     tiles.forEach(tile -> tile.city = this);
+
+    updateGreatestHeight();
+  }
+
+  public void grow(int newTiles) {
+    final Point2D center = getCenter().getHexagon().getCenter();
+
+    PriorityQueue<Tile> potentialTiles = new PriorityQueue<>((a, b) -> {
+      double aDist = center.distance(a.getHexagon().getCenter());
+      double bDist = center.distance(b.getHexagon().getCenter());
+      return Double.compare(aDist, bDist);
+    });
+
+    tiles.forEach(tile -> potentialTiles.addAll(grid.getNeighbours(tile.x, tile.y, false)
+      .parallelStream()
+      .filter(adjTile -> adjTile.city == null)
+      .collect(Collectors.toList())));
+
+    while(newTiles > 0 && potentialTiles.size() >= newTiles) {
+      Tile tile = potentialTiles.remove();
+      tile.city = this;
+      tiles.add(tile);
+      newTiles--;
+    }
+
     updateGreatestHeight();
   }
 

@@ -38,6 +38,7 @@ public class RenderTile extends RenderData<Tile> {
   private Color colour;
   private Render aboveGround;
   private RenderTileOverlay overlay;
+  private double height;
 
   RenderTile(Tile data) {
     super(data);
@@ -47,7 +48,7 @@ public class RenderTile extends RenderData<Tile> {
 
     colour = colourForTerrain(data.getTerrain());
 
-    double height = data.getHeight();
+    height = data.getHeight();
     Shape3D ground = data.getHexagon().getPrism(height);
     ground.getTransforms().add(new Translate(0, height / 2, 0));
     ground.setMaterial(new PhongMaterial(colour));
@@ -60,11 +61,14 @@ public class RenderTile extends RenderData<Tile> {
     overlay = new RenderTileOverlay(data.canTraverse() ? Color.WHITE : Color.INDIANRED);
     aboveGround.add(overlay);
 
-    if(data.city != null) {
-      overlay.setCityWalls(data.getCityWalls(), height, data.city.greatestTileHeight);
-    }
+    updateOverlay();
+  }
 
-}
+  public void updateOverlay() {
+    if(data.city != null) {
+      overlay.setCityWalls(data.city, data.getCityWalls(), height);
+    }
+  }
 
   void setOverlayVisible(boolean visible) {
     overlay.setOverlayVisible(visible);

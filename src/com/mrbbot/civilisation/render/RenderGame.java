@@ -2,10 +2,15 @@ package com.mrbbot.civilisation.render;
 
 import com.mrbbot.civilisation.render.map.RenderMap;
 import com.mrbbot.generic.render.RenderRoot;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 
 public class RenderGame extends RenderRoot<RenderMap> {
+  private final static double MAX_ZOOM = 5;
+  private final static double MIN_ZOOM = 80;
+
   private double oldMouseX = -1, oldMouseY = -1;
 
   public RenderGame(RenderMap root, int width, int height) {
@@ -20,8 +25,8 @@ public class RenderGame extends RenderRoot<RenderMap> {
     //
     subScene.setOnScroll((e) -> {
       double newValue = camera.translate.getZ() + (e.getDeltaY() / 40);
-      if (newValue > -10) newValue = -10;
-      if (newValue < -30) newValue = -30;
+      if (newValue > -MAX_ZOOM) newValue = -MAX_ZOOM;
+      if (newValue < -MIN_ZOOM) newValue = -MIN_ZOOM;
       camera.translate.setZ(newValue);
     });
 
@@ -62,7 +67,7 @@ public class RenderGame extends RenderRoot<RenderMap> {
     });
   }
 
-  public void setScene(Scene scene) {
+  public void setScene(Scene scene, EventHandler<? super KeyEvent> eventHandler) {
     scene.setOnKeyPressed((e) -> {
       switch(e.getCode()) {
         case W:
@@ -72,6 +77,7 @@ public class RenderGame extends RenderRoot<RenderMap> {
           camera.rotateBy(1, 0, 0);
           break;
       }
+      eventHandler.handle(e);
     });
   }
 }
