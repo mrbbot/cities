@@ -1,6 +1,7 @@
 package com.mrbbot.civilisation.render.map;
 
 import com.mrbbot.civilisation.logic.map.Map;
+import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.generic.render.RenderData;
 import javafx.geometry.Point2D;
@@ -34,8 +35,16 @@ public class RenderMap extends RenderData<Map> {
         //System.out.println("You clicked on the tile at " + coord);
 
         if(tile.city != null) {
-          tile.city.grow(1);
-          data.hexagonGrid.forEach((gridTile, _hex, _x, _y) -> gridTile.renderer.updateOverlay());
+          if(e.getButton() == MouseButton.PRIMARY) {
+            tile.city.grow(1);
+            data.hexagonGrid.forEach((gridTile, _hex, _x, _y) -> gridTile.renderer.updateOverlay());
+          } else if(e.getButton() == MouseButton.SECONDARY) {
+            if(tile.improvement == Improvement.NONE) {
+              tile.setImprovement(Improvement.FARM);
+            } else if(tile.improvement == Improvement.FARM) {
+              tile.setImprovement(Improvement.NONE);
+            }
+          }
         }
       });
 

@@ -31,6 +31,7 @@ public class City {
       throw new IllegalArgumentException("City created on tile with another city");
     }
     tiles.add(center);
+    center.improvement = Improvement.CAPITAL;
 
     ArrayList<Tile> adjacentTiles = grid.getNeighbours(centerX, centerY, false);
     adjacentTiles.removeIf(tile -> tile.city != null);

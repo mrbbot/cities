@@ -10,6 +10,7 @@ public class Tile implements Traversable {
   public final int y;
   private final Terrain terrain;
   public City city;
+  public Improvement improvement = Improvement.NONE;
 
   public RenderTile renderer;
 
@@ -31,6 +32,11 @@ public class Tile implements Traversable {
 
   public double getHeight() {
     return (terrain.height * 2) + 1; // 1 <= height <= 3
+  }
+
+  public void setImprovement(Improvement improvement) {
+    this.improvement = improvement;
+    renderer.updateImprovement();
   }
 
   @Override

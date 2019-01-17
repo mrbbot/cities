@@ -28,6 +28,12 @@ public class Render
     getChildren().removeAll(elements);
   }
 
+  public final void reset() {
+    translateTo(0, 0, 0);
+    rotateTo(0, 0, 0);
+    scaleTo(1);
+  }
+
   public final void translateTo(double x, double y, double z) {
     translate.setX(x);
     translate.setY(y);
@@ -42,6 +48,16 @@ public class Render
     rotateX.setAngle(xDegrees);
     rotateY.setAngle(yDegrees);
     rotateZ.setAngle(zDegrees);
+  }
+
+  public final void scaleTo(double v) {
+    scaleTo(v, v, v);
+  }
+
+  public final void scaleTo(double x, double y, double z) {
+    scale.setX(x);
+    scale.setY(y);
+    scale.setZ(z);
   }
 
   public final void translateBy(double x, double y, double z) {

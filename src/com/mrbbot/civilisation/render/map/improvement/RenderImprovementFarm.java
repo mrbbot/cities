@@ -1,0 +1,55 @@
+package com.mrbbot.civilisation.render.map.improvement;
+
+import com.mrbbot.generic.render.Render;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Box;
+
+import java.util.Random;
+
+public class RenderImprovementFarm extends Render {
+  private static final Random RANDOM = new Random();
+
+  private static final double SIZE = 0.6;
+  private static final Color FENCE_COLOUR = Color.BROWN.darker().darker();
+  private static final Color GRASS_COLOUR = Color.GREEN;
+  private static final Color SOIL_COLOUR = Color.BROWN.darker();
+
+  RenderImprovementFarm() {
+    double numStrips = ((RANDOM.nextInt(3) + 1) * 2) + 1;
+
+    double stripSize = SIZE / numStrips;
+    double startTranslate = -(numStrips - 1) / 2.0 * stripSize;
+    System.out.println(startTranslate);
+    System.out.println(stripSize);
+    for (int i = 0; i < numStrips; i++) {
+      Box strip = new Box(stripSize, SIZE, 0.1);
+      strip.setTranslateX(startTranslate + (i * stripSize));
+      strip.setMaterial(new PhongMaterial(i % 2 == 0 ? GRASS_COLOUR : SOIL_COLOUR));
+      add(strip);
+    }
+
+    add(makeWall(0));
+    add(makeWall(90));
+    add(makeWall(180));
+    add(makeWall(270));
+
+    translate.setZ(0.05);
+    rotateZ.setAngle(RANDOM.nextInt(6) * 30);
+  }
+
+  private Render makeWall(double angle) {
+    Render wallHolder = new Render();
+    wallHolder.rotateZ.setAngle(angle);
+
+    Box box = new Box(0.1, SIZE + 0.2, 0.2);
+    box.setTranslateX((SIZE / 2) + 0.05);
+    box.setTranslateZ(0.05);
+
+    box.setMaterial(new PhongMaterial(FENCE_COLOUR));
+
+    wallHolder.add(box);
+
+    return wallHolder;
+  }
+}

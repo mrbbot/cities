@@ -2,6 +2,7 @@ package com.mrbbot.civilisation.render.map;
 
 import com.mrbbot.civilisation.logic.map.tile.Terrain;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
+import com.mrbbot.civilisation.render.map.improvement.RenderImprovement;
 import com.mrbbot.generic.render.Render;
 import com.mrbbot.generic.render.RenderData;
 import javafx.geometry.Point2D;
@@ -37,6 +38,7 @@ public class RenderTile extends RenderData<Tile> {
 
   private Color colour;
   private Render aboveGround;
+  private RenderImprovement improvement;
   private RenderTileOverlay overlay;
   private double height;
 
@@ -58,6 +60,9 @@ public class RenderTile extends RenderData<Tile> {
     aboveGround.translateTo(0, 0, height);
     add(aboveGround);
 
+    improvement = new RenderImprovement(data);
+    aboveGround.add(improvement);
+
     overlay = new RenderTileOverlay(data.canTraverse() ? Color.WHITE : Color.INDIANRED);
     aboveGround.add(overlay);
 
@@ -68,6 +73,10 @@ public class RenderTile extends RenderData<Tile> {
     if(data.city != null) {
       overlay.setCityWalls(data.city, data.getCityWalls(), height);
     }
+  }
+
+  public void updateImprovement() {
+    improvement.setImprovement(data.improvement);
   }
 
   void setOverlayVisible(boolean visible) {
