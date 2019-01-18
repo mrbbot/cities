@@ -3,13 +3,22 @@ package com.mrbbot.civilisation;
 import com.mrbbot.civilisation.logic.map.Map;
 import com.mrbbot.civilisation.render.RenderGame;
 import com.mrbbot.civilisation.render.map.RenderMap;
+import com.mrbbot.civilisation.ui.UIGame;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+
+import java.util.BitSet;
 
 public class Civilisation
   extends Application {
@@ -20,14 +29,18 @@ public class Civilisation
     int width = (int) screenBounds.getWidth();
     int height = (int) screenBounds.getHeight();
 
-    BorderPane borderPane = new BorderPane();
+    StackPane pane = new StackPane();
+    pane.setAlignment(Pos.TOP_LEFT);
 
     Map map = new Map();
     RenderMap renderMap = new RenderMap(map);
     RenderGame renderGame = new RenderGame(renderMap, width, height);
 
-    borderPane.setCenter(renderGame.subScene);
-    Scene scene = new Scene(borderPane, width, height);
+    UIGame ui = new UIGame(renderMap);
+    ui.setPrefSize(width, height);
+
+    pane.getChildren().addAll(renderGame.subScene, ui);
+    Scene scene = new Scene(pane, width, height);
     renderGame.setScene(scene, e -> {
       if(e.getCode() == KeyCode.F11) {
         primaryStage.setFullScreen(!primaryStage.isFullScreen());

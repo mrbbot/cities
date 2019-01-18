@@ -2,6 +2,7 @@ package com.mrbbot.civilisation.render.map;
 
 import com.mrbbot.civilisation.geometry.Hexagon;
 import com.mrbbot.generic.render.Render;
+import javafx.scene.PointLight;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
@@ -34,6 +35,7 @@ class RenderTileOverlayPart extends Render {
     join.setRotate(90);
     join.setTranslateZ(0.05);
     join.setVisible(false);
+
     joinHolder.add(join);
 
     add(wallHolder);

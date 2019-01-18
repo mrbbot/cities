@@ -3,9 +3,13 @@ package com.mrbbot.civilisation.render;
 import com.mrbbot.civilisation.render.map.RenderMap;
 import com.mrbbot.generic.render.RenderRoot;
 import javafx.event.EventHandler;
+import javafx.scene.AmbientLight;
+import javafx.scene.PointLight;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.paint.Color;
+import javafx.scene.transform.Translate;
 
 public class RenderGame extends RenderRoot<RenderMap> {
   private final static double MAX_ZOOM = 5;
@@ -17,8 +21,11 @@ public class RenderGame extends RenderRoot<RenderMap> {
     super(root, width, height);
 
     /*PointLight light = new PointLight(Color.WHITE);
-    light.getTransforms().add(new Translate(0, 0, 5));
+    light.setTranslateZ(4);
     add(light);*/
+
+    //AmbientLight ambientLight = new AmbientLight(Color.WHITE.darker().darker());
+    //add(ambientLight);
 
     //
     // PANNING & ZOOMING

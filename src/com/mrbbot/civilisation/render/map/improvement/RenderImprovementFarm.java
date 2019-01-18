@@ -34,6 +34,11 @@ public class RenderImprovementFarm extends Render {
 
     translate.setZ(0.05);
     rotateZ.setAngle(RANDOM.nextInt(6) * 60);
+
+    RenderImprovementHouse house = new RenderImprovementHouse(null);
+    //house.translate.setZ(2);
+    house.scaleTo(0.5);
+    add(house);
   }
 
   private Render makeWall(double angle) {

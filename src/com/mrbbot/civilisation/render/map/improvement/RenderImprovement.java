@@ -25,10 +25,11 @@ public class RenderImprovement extends RenderData<Improvement> {
       case NONE:
         break;
       case CAPITAL:
-        Box c = new Box(1, 1, 2);
+        /*Box c = new Box(1, 1, 2);
         c.setTranslateZ(1);
         c.setMaterial(new PhongMaterial(tile.city.wallColour));
-        add(c);
+        add(c);*/
+        add(new RenderImprovementHouse(tile.city.wallColour));
         break;
       case FARM:
         add(new RenderImprovementFarm());
