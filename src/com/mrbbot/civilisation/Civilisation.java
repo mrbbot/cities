@@ -36,7 +36,7 @@ public class Civilisation
     RenderMap renderMap = new RenderMap(map);
     RenderGame renderGame = new RenderGame(renderMap, width, height);
 
-    UIGame ui = new UIGame(renderMap);
+    UIGame ui = new UIGame(renderMap, width, height);
     ui.setPrefSize(width, height);
 
     pane.getChildren().addAll(renderGame.subScene, ui);

@@ -10,7 +10,7 @@ import javafx.scene.paint.Color;
 public class UIGame extends AnchorPane {
   private final RenderMap renderMap;
 
-  public UIGame(RenderMap renderMap) {
+  public UIGame(RenderMap renderMap, int width, int height) {
     this.renderMap = renderMap;
 
     setPickOnBounds(false);
@@ -26,7 +26,7 @@ public class UIGame extends AnchorPane {
     });
     getChildren().add(newCityButton);*/
 
-    UITechTree techTree = new UITechTree();
+    UITechTree techTree = new UITechTree(height);
     setAnchors(techTree, 0, 0, 0, 0);
     getChildren().add(techTree);
   }

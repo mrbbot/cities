@@ -6,14 +6,81 @@ import java.util.ArrayList;
 
 public class TechTree {
   public static TechTree ROOT;
+  public static int MAX_X = 0;
 
   static {
-    Tech farming = new TechCustom("Farming", 0, 0, Color.GREEN, "Farm", "Pasture");
+    Tech civilisation = new TechCustom("Civilisation", 0, 0, Color.GOLDENROD, "Settler", "Scout", "Warrior", "Worker");
+    Tech agriculture = new TechCustom("Agriculture", 1, 0, Color.GREEN, "Farm");
+    Tech forestry = new TechCustom("Forestry", 2, 0, Color.DARKGREEN, "Chop Forest");
+    Tech mining = new TechCustom("Mining", 3, 2, Color.GREY, "Mine", "Wall");
+    Tech pottery = new TechCustom("Pottery", 3, -2, Color.FIREBRICK, "Monument");
+    Tech animalHusbandry = new TechCustom("Animal Husbandry", 3, -1, Color.PINK, "Pasture", "Stable", "Caravan");
+    Tech theWheel = new TechCustom("The Wheel", 3, 0, Color.GOLDENROD, "Road");
+    Tech archery = new TechCustom("Archery", 3, 1, Color.RED, "Archer");
+    Tech currency = new TechCustom("Currency", 4, -2, Color.GOLD, "Bank");
+    Tech dramaAndPoetry = new TechCustom("Drama and Poetry", 4, -1, Color.PURPLE, "Amphitheatre");
+    Tech sailing = new TechCustom("Sailing", 4, 1, Color.DODGERBLUE, "Fishing Boat", "Trireme");
+    Tech ironWorking = new TechCustom("Iron Working", 4, 2, Color.GREY, "Swordsman");
+    Tech education = new TechCustom("Education", 5, 0, Color.LIGHTBLUE, "School", "University");
+    Tech industrialisation = new TechCustom("Industrialisation", 6, -1, Color.BLACK, "Factory", "Railway");
+    Tech steel = new TechCustom("Steel", 6, 1, Color.GREY.darker(), "Knight");
+    Tech electricity = new TechCustom("Electricity", 7, -1, Color.YELLOW, "Power Station");
+    Tech plastics = new TechCustom("Plastics", 7, 1, Color.PINK, "Supermarket");
+    Tech rocketry = new TechCustom("Rocketry", 8, 0, Color.DARKBLUE, "Rocket");
+    Tech future = new TechCustom("Future", 9, 0, Color.PURPLE);
+
+    ROOT = new TechTree(
+      civilisation,
+      new TechTree(
+        agriculture,
+        new TechTree(
+          pottery,
+          new TechTree(currency),
+          new TechTree(dramaAndPoetry)
+        ),
+        new TechTree(
+          forestry,
+          new TechTree(
+            animalHusbandry,
+            new TechTree(currency),
+            new TechTree(
+              dramaAndPoetry,
+              new TechTree(
+                education,
+                new TechTree(
+                  industrialisation
+                ),
+                new TechTree(
+                  steel
+                )
+                //TODO: keep going from above two techs
+              )
+            )
+          ),
+          new TechTree(
+            theWheel,
+            new TechTree(education),
+            new TechTree(sailing)
+          ),
+          new TechTree(archery)
+        ),
+        new TechTree(
+          mining,
+          new TechTree(
+            ironWorking,
+            new TechTree(steel)
+          )
+        )
+      )
+    );
+
+    /*Tech farming = new TechCustom("Farming", 0, 0, Color.GREEN, "Farm", "Pasture");
     Tech pottery = new TechCustom("Pottery", 1, -1, Color.FIREBRICK, "Monument");
     Tech writing = new TechCustom("Writing", 2, -1, Color.DODGERBLUE, "Library", "Great Library", "Something else");
     Tech mining = new TechCustom("Mining", 1, 0, Color.GREY, "Mine", "Wall", "House");
     Tech archery = new TechCustom("Archery", 1, 1, Color.RED, "Archer");
     Tech futureTech = new TechCustom("Future", 6, -1, Color.PURPLE);
+    Tech crazyThingTech = new TechCustom("Crazy", 3, 2, Color.GOLDENROD);
 
     ROOT = new TechTree(
       farming,
@@ -29,8 +96,21 @@ public class TechTree {
         new TechTree(writing),
         new TechTree(futureTech)
       ),
-      new TechTree(archery)
-    );
+      new TechTree(
+        archery,
+        new TechTree(crazyThingTech)
+      )
+    );*/
+
+    traverse(ROOT);
+  }
+
+  private static void traverse(TechTree tree) {
+    int x = tree.tech.getX();
+    if (x > MAX_X) MAX_X = x;
+    for (TechTree child : tree.children) {
+      traverse(child);
+    }
   }
 
   public ArrayList<TechTree> parents;
