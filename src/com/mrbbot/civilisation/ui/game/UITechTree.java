@@ -1,8 +1,8 @@
-package com.mrbbot.civilisation.ui;
+package com.mrbbot.civilisation.ui.game;
 
 import com.mrbbot.civilisation.logic.techs.Tech;
 import com.mrbbot.civilisation.logic.techs.TechTree;
-import com.mrbbot.civilisation.logic.techs.Unlockable;
+import com.mrbbot.civilisation.logic.interfaces.Unlockable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;

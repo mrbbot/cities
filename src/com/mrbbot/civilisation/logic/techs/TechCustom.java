@@ -1,5 +1,6 @@
 package com.mrbbot.civilisation.logic.techs;
 
+import com.mrbbot.civilisation.logic.interfaces.Unlockable;
 import javafx.scene.paint.Color;
 
 public class TechCustom extends Tech {

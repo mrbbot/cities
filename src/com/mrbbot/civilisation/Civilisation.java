@@ -1,34 +1,43 @@
 package com.mrbbot.civilisation;
 
-import com.mrbbot.civilisation.logic.map.Map;
-import com.mrbbot.civilisation.render.RenderGame;
-import com.mrbbot.civilisation.render.map.RenderMap;
-import com.mrbbot.civilisation.ui.UIGame;
+import com.mrbbot.civilisation.net.packet.Packet;
+import com.mrbbot.civilisation.net.packet.PacketInit;
+import com.mrbbot.civilisation.net.packet.PacketMap;
+import com.mrbbot.civilisation.ui.connect.ConnectionRequestHandler;
+import com.mrbbot.civilisation.ui.connect.ScreenConnect;
+import com.mrbbot.civilisation.ui.game.ScreenGame;
+import com.mrbbot.generic.net.Client;
 import javafx.application.Application;
-import javafx.geometry.Pos;
+import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-import java.util.BitSet;
+import java.io.IOException;
 
 public class Civilisation
-  extends Application {
+  extends Application implements ConnectionRequestHandler {
+
+  public static Client<Packet> CLIENT;
+
+  private Stage primaryStage;
+  private int width, height;
+  private ScreenGame screenGame;
 
   @Override
   public void start(Stage primaryStage) {
-    Rectangle2D screenBounds = Screen.getPrimary().getBounds();
-    int width = (int) screenBounds.getWidth();
-    int height = (int) screenBounds.getHeight();
+    this.primaryStage = primaryStage;
 
+    Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+    width = (int) screenBounds.getWidth();
+    height = (int) screenBounds.getHeight();
+    width = 640;
+    height = 480;
+
+    ScreenConnect screenConnect = new ScreenConnect(this);
+    primaryStage.setScene(screenConnect.makeScene(primaryStage, width, height));
+
+/*
     StackPane pane = new StackPane();
     pane.setAlignment(Pos.TOP_LEFT);
 
@@ -45,17 +54,43 @@ public class Civilisation
       if(e.getCode() == KeyCode.F11) {
         primaryStage.setFullScreen(!primaryStage.isFullScreen());
       }
-    });
+    });*/
+
     primaryStage.setTitle("Civilisation");
     primaryStage.setResizable(false);
-    primaryStage.setScene(scene);
-    primaryStage.setFullScreen(true);
+    //primaryStage.setScene(scene);
+    //primaryStage.setFullScreen(true);
+    primaryStage.setOnCloseRequest((event) -> {
+      try {
+        if(CLIENT != null) CLIENT.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
     primaryStage.show();
+  }
+
+  @Override
+  public void connect(String host, String id) throws IOException {
+    CLIENT = new Client<>(host, 1234, id, ((connection, data) -> {
+      System.out.println("Received \"" + data.getName() + "\" packet from \"" + connection.getId() + "\"...");
+
+      if (data instanceof PacketMap) {
+        Platform.runLater(() -> {
+          screenGame = new ScreenGame(((PacketMap) data).map);
+          primaryStage.setScene(screenGame.makeScene(primaryStage, width, height));
+        });
+      } else {
+        Platform.runLater(() -> {
+          screenGame.renderGame.handlePacket(data);
+        });
+      }
+    }));
+    CLIENT.broadcast(new PacketInit());
   }
 
   public static void main(String[] args) {
     launch(args);
   }
-
 }
 

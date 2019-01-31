@@ -2,6 +2,7 @@ package com.mrbbot.civilisation.render.map;
 
 import com.mrbbot.civilisation.logic.map.tile.Terrain;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
+import com.mrbbot.civilisation.net.serializable.SerializablePoint2D;
 import com.mrbbot.civilisation.render.map.improvement.RenderImprovement;
 import com.mrbbot.generic.render.Render;
 import com.mrbbot.generic.render.RenderData;
@@ -40,12 +41,13 @@ public class RenderTile extends RenderData<Tile> {
   private Render aboveGround;
   private RenderImprovement improvement;
   private RenderTileOverlay overlay;
+  private RenderUnit unit;
   private double height;
 
   RenderTile(Tile data) {
     super(data);
 
-    Point2D center = data.getHexagon().getCenter();
+    SerializablePoint2D center = data.getHexagon().getCenter();
     translateTo(center.getX(), center.getY(), 0);
 
     colour = colourForTerrain(data.getTerrain());
@@ -63,16 +65,20 @@ public class RenderTile extends RenderData<Tile> {
     improvement = new RenderImprovement(data);
     aboveGround.add(improvement);
 
-    overlay = new RenderTileOverlay(data.canTraverse() ? Color.WHITE : Color.INDIANRED);
-    aboveGround.add(overlay);
+    overlay = new RenderTileOverlay(Color.WHITE);
+    unit = new RenderUnit(data.unit);
+    unit.setVisible(data.unit != null);
+    aboveGround.add(overlay, unit);
 
-    updateOverlay();
+    updateRender();
   }
 
-  public void updateOverlay() {
+  void updateRender() {
+    overlay.setColor(data.canTraverse() ? Color.WHITE : Color.INDIANRED);
     if(data.city != null) {
       overlay.setCityWalls(data.city, data.getCityWalls(), height);
     }
+    unit.setVisible(data.unit != null);
   }
 
   public void updateImprovement() {

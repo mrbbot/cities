@@ -1,4 +1,4 @@
-package com.mrbbot.civilisation.logic.techs;
+package com.mrbbot.civilisation.logic.interfaces;
 
 import javafx.scene.paint.Color;
 

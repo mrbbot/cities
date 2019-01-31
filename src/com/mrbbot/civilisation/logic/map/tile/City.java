@@ -1,17 +1,17 @@
 package com.mrbbot.civilisation.logic.map.tile;
 
 import com.mrbbot.civilisation.geometry.HexagonGrid;
+import com.mrbbot.civilisation.net.serializable.SerializablePoint2D;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class City {
-  private static final Random RANDOM = new Random();
-
+public class City implements Serializable {
   private final HexagonGrid<Tile> grid;
   public final Color wallColour;
   public final Color joinColour;
@@ -43,11 +43,11 @@ public class City {
   }
 
   public void grow(int newTiles) {
-    final Point2D center = getCenter().getHexagon().getCenter();
+    final SerializablePoint2D center = getCenter().getHexagon().getCenter();
 
     PriorityQueue<Tile> potentialTiles = new PriorityQueue<>((a, b) -> {
-      double aDist = center.distance(a.getHexagon().getCenter());
-      double bDist = center.distance(b.getHexagon().getCenter());
+      double aDist = center.point.distance(a.getHexagon().getCenter().point);
+      double bDist = center.point.distance(b.getHexagon().getCenter().point);
       return Double.compare(aDist, bDist);
     });
 

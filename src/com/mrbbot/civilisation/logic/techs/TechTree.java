@@ -48,12 +48,24 @@ public class TechTree {
               new TechTree(
                 education,
                 new TechTree(
-                  industrialisation
+                  industrialisation,
+                  new TechTree(
+                    electricity,
+                    new TechTree(
+                      rocketry,
+                      new TechTree(future)
+                    )
+                  ),
+                  new TechTree(
+                    plastics,
+                    new TechTree(rocketry)
+                  )
                 ),
                 new TechTree(
-                  steel
+                  steel,
+                  new TechTree(electricity),
+                  new TechTree(plastics)
                 )
-                //TODO: keep going from above two techs
               )
             )
           ),
@@ -73,34 +85,6 @@ public class TechTree {
         )
       )
     );
-
-    /*Tech farming = new TechCustom("Farming", 0, 0, Color.GREEN, "Farm", "Pasture");
-    Tech pottery = new TechCustom("Pottery", 1, -1, Color.FIREBRICK, "Monument");
-    Tech writing = new TechCustom("Writing", 2, -1, Color.DODGERBLUE, "Library", "Great Library", "Something else");
-    Tech mining = new TechCustom("Mining", 1, 0, Color.GREY, "Mine", "Wall", "House");
-    Tech archery = new TechCustom("Archery", 1, 1, Color.RED, "Archer");
-    Tech futureTech = new TechCustom("Future", 6, -1, Color.PURPLE);
-    Tech crazyThingTech = new TechCustom("Crazy", 3, 2, Color.GOLDENROD);
-
-    ROOT = new TechTree(
-      farming,
-      new TechTree(
-        pottery,
-        new TechTree(
-          writing,
-          new TechTree(futureTech)
-        )
-      ),
-      new TechTree(
-        mining,
-        new TechTree(writing),
-        new TechTree(futureTech)
-      ),
-      new TechTree(
-        archery,
-        new TechTree(crazyThingTech)
-      )
-    );*/
 
     traverse(ROOT);
   }

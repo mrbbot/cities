@@ -1,5 +1,7 @@
 package com.mrbbot.civilisation.render;
 
+import com.mrbbot.civilisation.net.packet.Packet;
+import com.mrbbot.civilisation.net.packet.PacketUnitMove;
 import com.mrbbot.civilisation.render.map.RenderMap;
 import com.mrbbot.generic.render.RenderRoot;
 import javafx.event.EventHandler;
@@ -86,5 +88,11 @@ public class RenderGame extends RenderRoot<RenderMap> {
       }
       eventHandler.handle(e);
     });
+  }
+
+  public void handlePacket(Packet packet) {
+    if(packet instanceof PacketUnitMove) {
+      root.handleUnitMove((PacketUnitMove) packet);
+    }
   }
 }

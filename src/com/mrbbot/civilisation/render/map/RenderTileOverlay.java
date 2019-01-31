@@ -6,12 +6,14 @@ import javafx.scene.paint.Color;
 
 class RenderTileOverlay extends Render {
   private RenderTileOverlayPart[] parts;
+  private City city;
   private boolean[] cityWalls;
-  private final Color color;
+  private Color color;
 
   RenderTileOverlay(Color color) {
     this.color = color;
     parts = new RenderTileOverlayPart[6];
+    city = null;
     cityWalls = new boolean[]{false, false, false, false, false, false};
     for (int i = 0; i < 6; i++) {
       double angle = 30 + (60 * i);
@@ -29,7 +31,20 @@ class RenderTileOverlay extends Render {
     }
   }
 
+  void setColor(Color color) {
+    this.color = color;
+    Color wallColour = city == null ? color : city.wallColour;
+    Color joinColour = city == null ? color : city.joinColour;
+    for (int i = 0; i < parts.length; i++) {
+      boolean walled = this.cityWalls[i];
+      RenderTileOverlayPart part = parts[i];
+      part.setWallColour(walled ? wallColour : color);
+      part.setJoinColour(walled ? joinColour : color);
+    }
+  }
+
   void setCityWalls(City city, boolean[] walls, double tileHeight) {
+    this.city = city;
     for (int i = 0; i < parts.length; i++) {
       boolean oldWalled = this.cityWalls[i];
       boolean walled = walls[i];
