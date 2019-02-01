@@ -1,10 +1,8 @@
 package com.mrbbot.civilisation.net;
 
+import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.map.Map;
-import com.mrbbot.civilisation.net.packet.Packet;
-import com.mrbbot.civilisation.net.packet.PacketInit;
-import com.mrbbot.civilisation.net.packet.PacketMap;
-import com.mrbbot.civilisation.net.packet.PacketUnitMove;
+import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.generic.net.Server;
 
 import java.io.IOException;
@@ -14,11 +12,23 @@ public class CivilisationServer {
     final Map map = new Map();
 
     new Server<Packet>(1234, ((connection, data) -> {
-      System.out.println("Received \"" + data.getName() + "\" packet from \"" + connection.getId() + "\"...");
+      String id = connection.getId();
+      if (data == null) {
+        connection.broadcastExcluding(new PacketPlayerChange(id, false));
+        return;
+      }
 
-      if(data instanceof PacketInit) {
+      System.out.println("Received \"" + data.getName() + "\" packet from \"" + id + "\"...");
+
+      if (data instanceof PacketInit) {
+        map.players.add(new Player(id));
         connection.broadcastTo(new PacketMap(map));
-      } else if(data instanceof PacketUnitMove) {
+        connection.broadcastExcluding(new PacketPlayerChange(id, true));
+      } else if (
+        (data instanceof PacketUnitMove) ||
+          (data instanceof PacketCityCreate) ||
+          (data instanceof PacketCityGrow)
+        ) {
         connection.broadcastExcluding(data);
       }
     }));

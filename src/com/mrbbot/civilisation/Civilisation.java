@@ -77,13 +77,11 @@ public class Civilisation
 
       if (data instanceof PacketMap) {
         Platform.runLater(() -> {
-          screenGame = new ScreenGame(((PacketMap) data).map);
+          screenGame = new ScreenGame(((PacketMap) data).map, id);
           primaryStage.setScene(screenGame.makeScene(primaryStage, width, height));
         });
       } else {
-        Platform.runLater(() -> {
-          screenGame.renderGame.handlePacket(data);
-        });
+        Platform.runLater(() -> screenGame.renderGame.handlePacket(data));
       }
     }));
     CLIENT.broadcast(new PacketInit());

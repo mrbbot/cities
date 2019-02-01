@@ -12,10 +12,12 @@ import javafx.stage.Stage;
 
 public class ScreenGame extends Screen {
   private final Map map;
+  private final String id;
   public RenderGame renderGame;
 
-  public ScreenGame(Map map) {
+  public ScreenGame(Map map, String id) {
     this.map = map;
+    this.id = id;
   }
 
   @Override
@@ -23,7 +25,7 @@ public class ScreenGame extends Screen {
     StackPane pane = new StackPane();
     pane.setAlignment(Pos.TOP_LEFT);
 
-    RenderMap renderMap = new RenderMap(map);
+    RenderMap renderMap = new RenderMap(map, id);
     renderGame = new RenderGame(renderMap, width, height);
 
     UIGame ui = new UIGame(renderMap, width, height);

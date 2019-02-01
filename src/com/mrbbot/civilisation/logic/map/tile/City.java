@@ -1,6 +1,8 @@
 package com.mrbbot.civilisation.logic.map.tile;
 
 import com.mrbbot.civilisation.geometry.HexagonGrid;
+import com.mrbbot.civilisation.logic.Player;
+import com.mrbbot.civilisation.net.serializable.SerializableIntPoint2D;
 import com.mrbbot.civilisation.net.serializable.SerializablePoint2D;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
@@ -13,16 +15,18 @@ import java.util.stream.Collectors;
 
 public class City implements Serializable {
   private final HexagonGrid<Tile> grid;
+  private Player player;
   public final Color wallColour;
   public final Color joinColour;
 
   public ArrayList<Tile> tiles;
   public double greatestTileHeight;
 
-  public City(HexagonGrid<Tile> grid, int centerX, int centerY, Color wallColour) {
+  public City(HexagonGrid<Tile> grid, int centerX, int centerY, Player player) {
     this.grid = grid;
-    this.wallColour = wallColour;
-    this.joinColour = wallColour.darker();
+    this.player = player;
+    this.wallColour = player.getColour();
+    this.joinColour = this.wallColour.darker();
 
     tiles = new ArrayList<>();
 
@@ -42,7 +46,9 @@ public class City implements Serializable {
     updateGreatestHeight();
   }
 
-  public void grow(int newTiles) {
+  public ArrayList<SerializableIntPoint2D> grow(int newTiles) {
+    final ArrayList<SerializableIntPoint2D> grownTo = new ArrayList<>();
+
     final SerializablePoint2D center = getCenter().getHexagon().getCenter();
 
     PriorityQueue<Tile> potentialTiles = new PriorityQueue<>((a, b) -> {
@@ -60,9 +66,21 @@ public class City implements Serializable {
       Tile tile = potentialTiles.remove();
       tile.city = this;
       tiles.add(tile);
+      grownTo.add(new SerializableIntPoint2D(tile.x, tile.y));
       newTiles--;
     }
 
+    updateGreatestHeight();
+
+    return grownTo;
+  }
+
+  public void growTo(ArrayList<SerializableIntPoint2D> points) {
+    for (SerializableIntPoint2D point : points) {
+      Tile tile = grid.get(point.x, point.y);
+      tile.city = this;
+      tiles.add(tile);
+    }
     updateGreatestHeight();
   }
 

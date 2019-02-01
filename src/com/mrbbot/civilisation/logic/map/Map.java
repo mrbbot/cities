@@ -1,6 +1,7 @@
 package com.mrbbot.civilisation.logic.map;
 
 import com.mrbbot.civilisation.geometry.HexagonGrid;
+import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
@@ -12,6 +13,7 @@ public class Map implements Serializable {
   public HexagonGrid<Tile> hexagonGrid;
   public ArrayList<City> cities;
   public ArrayList<Unit> units;
+  public ArrayList<Player> players;
 
   public Map() {
 //    hexagonGrid = new HexagonGrid<>(40, 34, 1);
@@ -35,5 +37,16 @@ public class Map implements Serializable {
     units.add(new Unit(hexagonGrid.get(10, 8)));
     units.add(new Unit(hexagonGrid.get(4, 4)));
     units.add(new Unit(hexagonGrid.get(12, 9)));
+
+    players = new ArrayList<>();
+  }
+
+  public Player playerById(String id) {
+    for (Player player : players) {
+      if(player.id.equals(id)) {
+        return player;
+      }
+    }
+    return null;
   }
 }

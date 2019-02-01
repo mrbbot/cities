@@ -1,17 +1,13 @@
 package com.mrbbot.civilisation.render;
 
-import com.mrbbot.civilisation.net.packet.Packet;
-import com.mrbbot.civilisation.net.packet.PacketUnitMove;
+import com.mrbbot.civilisation.logic.Player;
+import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.civilisation.render.map.RenderMap;
 import com.mrbbot.generic.render.RenderRoot;
 import javafx.event.EventHandler;
-import javafx.scene.AmbientLight;
-import javafx.scene.PointLight;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.paint.Color;
-import javafx.scene.transform.Translate;
 
 public class RenderGame extends RenderRoot<RenderMap> {
   private final static double MAX_ZOOM = 5;
@@ -92,7 +88,17 @@ public class RenderGame extends RenderRoot<RenderMap> {
 
   public void handlePacket(Packet packet) {
     if(packet instanceof PacketUnitMove) {
-      root.handleUnitMove((PacketUnitMove) packet);
+      root.handleUnitMovePacket((PacketUnitMove) packet);
+    } else if(packet instanceof PacketPlayerChange) {
+      if(((PacketPlayerChange) packet).exists) {
+        root.data.players.add(new Player(((PacketPlayerChange) packet).id));
+      } else {
+        root.data.players.removeIf((player -> player.id.equals(((PacketPlayerChange) packet).id)));
+      }
+    } else if(packet instanceof PacketCityCreate) {
+      root.handleCityCreate((PacketCityCreate) packet);
+    } else if(packet instanceof PacketCityGrow) {
+      root.handleCityGrow((PacketCityGrow) packet);
     }
   }
 }

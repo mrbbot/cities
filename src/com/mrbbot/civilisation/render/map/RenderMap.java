@@ -1,13 +1,17 @@
 package com.mrbbot.civilisation.render.map;
 
 import com.mrbbot.civilisation.Civilisation;
+import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.map.Map;
+import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
+import com.mrbbot.civilisation.net.packet.PacketCityCreate;
+import com.mrbbot.civilisation.net.packet.PacketCityGrow;
 import com.mrbbot.civilisation.net.packet.PacketUnitMove;
+import com.mrbbot.civilisation.net.serializable.SerializableIntPoint2D;
 import com.mrbbot.civilisation.net.serializable.SerializablePoint2D;
 import com.mrbbot.generic.render.RenderData;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.PickResult;
@@ -15,12 +19,25 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
 public class RenderMap extends RenderData<Map> {
-  public RenderMap(Map data) {
+  private Player currentPlayer;
+
+  public RenderMap(Map data, String id) {
     super(data);
+
+    for (Player player : data.players) {
+      if (player.id.equals(id)) {
+        currentPlayer = player;
+        break;
+      }
+    }
+    if (currentPlayer == null) {
+      throw new IllegalStateException("current player not found in player list");
+    }
 
     final PriorityQueue<RenderTile> tilesToAdd = new PriorityQueue<>((a, b) -> {
       if (a.isTranslucent() && !b.isTranslucent()) return 1;
@@ -37,23 +54,28 @@ public class RenderMap extends RenderData<Map> {
       renderTile.setOnMouseClicked((e) -> {
         //System.out.println("You clicked on the tile at " + coord);
 
-        if(tile.city != null) {
-          if(e.getButton() == MouseButton.PRIMARY) {
-            tile.city.grow(1);
+        if (tile.city != null) {
+          if (e.getButton() == MouseButton.PRIMARY) {
+            ArrayList<SerializableIntPoint2D> grownTo = tile.city.grow(1);
+            Civilisation.CLIENT.broadcast(new PacketCityGrow(currentPlayer.id, tile.x, tile.y, grownTo));
             updateTileRenders();
-          } else if(e.getButton() == MouseButton.SECONDARY) {
-            if(tile.improvement == Improvement.NONE) {
+          } else if (e.getButton() == MouseButton.SECONDARY) {
+            if (tile.improvement == Improvement.NONE) {
               tile.setImprovement(Improvement.FARM);
-            } else if(tile.improvement == Improvement.FARM) {
+            } else if (tile.improvement == Improvement.FARM) {
               tile.setImprovement(Improvement.NONE);
             }
           }
+        } else {
+          Civilisation.CLIENT.broadcast(new PacketCityCreate(currentPlayer.id, tile.x, tile.y));
+          data.cities.add(new City(data.hexagonGrid, tile.x, tile.y, currentPlayer));
+          updateTileRenders();
         }
       });
 
       renderTile.setOnMouseDragged((e) -> {
         if (e.getButton() == MouseButton.SECONDARY) {
-          if(start == null && renderTile.data.unit != null) {
+          if (start == null && renderTile.data.unit != null) {
             start = renderTile;
             start.setOverlayVisible(true);
           }
@@ -107,7 +129,7 @@ public class RenderMap extends RenderData<Map> {
   }
 
   private void resetPathfindingEnd() {
-    if(end != null) {
+    if (end != null) {
       end.setOverlayVisible(false);
       data.hexagonGrid.forEach((t, _hex, _x, _y) -> t.renderer.setOverlayVisible(false));
       end = null;
@@ -115,9 +137,9 @@ public class RenderMap extends RenderData<Map> {
   }
 
   public void resetPathfinding() {
-    if(start != null && end != null) {
+    if (start != null && end != null) {
       List<Tile> path = data.hexagonGrid.findPath(start.data.x, start.data.y, end.data.x, end.data.y);
-      if(path.size() > 1) {
+      if (path.size() > 1) {
         Civilisation.CLIENT.broadcast(new PacketUnitMove(start.data.x, start.data.y, end.data.x, end.data.y));
         start.data.unit.tile = end.data;
         end.data.unit = start.data.unit;
@@ -136,7 +158,7 @@ public class RenderMap extends RenderData<Map> {
     }
   }
 
-  public void handleUnitMove(PacketUnitMove packet) {
+  public void handleUnitMovePacket(PacketUnitMove packet) {
     Tile startTile = data.hexagonGrid.get(packet.startX, packet.startY);
     Tile endTile = data.hexagonGrid.get(packet.endX, packet.endY);
 
@@ -146,5 +168,22 @@ public class RenderMap extends RenderData<Map> {
 
     startTile.renderer.updateRender();
     endTile.renderer.updateRender();
+  }
+
+  public void handleCityCreate(PacketCityCreate packet) {
+    Player player = data.playerById(packet.id);
+    data.cities.add(new City(data.hexagonGrid, packet.x, packet.y, player));
+    updateTileRenders();
+  }
+
+  public void handleCityGrow(PacketCityGrow packet) {
+    for (City city : data.cities) {
+      Tile center = city.getCenter();
+      if(center.x == packet.x && center.y == packet.y) {
+        city.growTo(packet.grownTo);
+        break;
+      }
+    }
+    updateTileRenders();
   }
 }
