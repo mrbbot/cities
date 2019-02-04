@@ -2,15 +2,30 @@ package com.mrbbot.civilisation.ui.game;
 
 import com.mrbbot.civilisation.render.map.RenderMap;
 import javafx.scene.Node;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 
 public class UIGame extends AnchorPane {
   private final RenderMap renderMap;
+  private final Color playerColor;
 
   public UIGame(RenderMap renderMap, int width, int height) {
     this.renderMap = renderMap;
-
     setPickOnBounds(false);
+
+    playerColor = this.renderMap.currentPlayer.getColour();
+
+    Border panelBorder = new Border(new BorderStroke(
+      playerColor,
+      BorderStrokeStyle.SOLID,
+      new CornerRadii(0, 0, 10, 0, false),
+      new BorderWidths(10)
+    ));
+
+    UIPanelTech panelTech = new UIPanelTech(panelBorder);
+    AnchorPane.setTopAnchor(panelTech, 0.0);
+    AnchorPane.setLeftAnchor(panelTech, 0.0);
+    getChildren().add(panelTech);
 
     //setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.5), null, null)));
 

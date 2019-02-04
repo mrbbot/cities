@@ -1,6 +1,7 @@
 package com.mrbbot.civilisation.logic.map.tile;
 
 import com.mrbbot.civilisation.geometry.HexagonGrid;
+import com.mrbbot.civilisation.logic.Living;
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.net.serializable.SerializableIntPoint2D;
 import com.mrbbot.civilisation.net.serializable.SerializablePoint2D;
@@ -13,7 +14,7 @@ import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class City implements Serializable {
+public class City extends Living {
   private final HexagonGrid<Tile> grid;
   private Player player;
   public final Color wallColour;
@@ -23,6 +24,7 @@ public class City implements Serializable {
   public double greatestTileHeight;
 
   public City(HexagonGrid<Tile> grid, int centerX, int centerY, Player player) {
+    super(100);
     this.grid = grid;
     this.player = player;
     this.wallColour = player.getColour();

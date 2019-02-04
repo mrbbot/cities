@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 public class RenderMap extends RenderData<Map> {
-  private Player currentPlayer;
+  public Player currentPlayer;
 
   public RenderMap(Map data, String id) {
     super(data);
