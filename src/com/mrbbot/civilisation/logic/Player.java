@@ -12,17 +12,8 @@ public class Player implements Serializable {
     this.id = id;
   }
 
-  private double makeColourPart(Random random) {
-    return (random.nextDouble() * 0.5) + 0.5;
-  }
-
   public Color getColour() {
     Random random = new Random(id.hashCode());
-    return new Color(
-      makeColourPart(random),
-      makeColourPart(random),
-      makeColourPart(random),
-      1.0
-    );
+    return Color.hsb(random.nextInt(360), 1, 1);
   }
 }

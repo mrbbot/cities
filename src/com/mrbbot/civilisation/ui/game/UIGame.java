@@ -1,13 +1,21 @@
 package com.mrbbot.civilisation.ui.game;
 
 import com.mrbbot.civilisation.render.map.RenderMap;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 public class UIGame extends AnchorPane {
+  private static final Insets PANEL_PADDING = new Insets(10);
+
   private final RenderMap renderMap;
   private final Color playerColor;
+
+  private final UIPanelTech panelTech;
+  private final UIPanelChat panelChat;
+  private final UIPanelActions panelActions;
 
   public UIGame(RenderMap renderMap, int width, int height) {
     this.renderMap = renderMap;
@@ -15,17 +23,28 @@ public class UIGame extends AnchorPane {
 
     playerColor = this.renderMap.currentPlayer.getColour();
 
-    Border panelBorder = new Border(new BorderStroke(
-      playerColor,
-      BorderStrokeStyle.SOLID,
-      new CornerRadii(0, 0, 10, 0, false),
-      new BorderWidths(10)
-    ));
-
-    UIPanelTech panelTech = new UIPanelTech(panelBorder);
+    panelTech = new UIPanelTech();
+    panelTech.setBorder(makePanelBorder(Pos.BOTTOM_RIGHT));
+    panelTech.setBackground(makePanelBackground(Pos.BOTTOM_RIGHT));
+    panelTech.setPadding(PANEL_PADDING);
     AnchorPane.setTopAnchor(panelTech, 0.0);
     AnchorPane.setLeftAnchor(panelTech, 0.0);
-    getChildren().add(panelTech);
+
+    panelChat = new UIPanelChat();
+    panelChat.setBorder(makePanelBorder(Pos.BOTTOM_LEFT));
+    panelChat.setBackground(makePanelBackground(Pos.BOTTOM_LEFT));
+    panelChat.setPadding(PANEL_PADDING);
+    AnchorPane.setTopAnchor(panelChat, 0.0);
+    AnchorPane.setRightAnchor(panelChat, 0.0);
+
+    panelActions = new UIPanelActions();
+    panelActions.setBorder(makePanelBorder(Pos.TOP_LEFT));
+    panelActions.setBackground(makePanelBackground(Pos.TOP_LEFT));
+    panelActions.setPadding(PANEL_PADDING);
+    AnchorPane.setBottomAnchor(panelActions, 0.0);
+    AnchorPane.setRightAnchor(panelActions, 0.0);
+
+    getChildren().addAll(panelTech, panelChat, panelActions);
 
     //setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.5), null, null)));
 
@@ -48,5 +67,32 @@ public class UIGame extends AnchorPane {
     AnchorPane.setLeftAnchor(node, (double) left);
     AnchorPane.setBottomAnchor(node, (double) bottom);
     AnchorPane.setRightAnchor(node, (double) right);
+  }
+
+  private CornerRadii makeCornerRadiiForCutout(Pos cutout, int size) {
+    return new CornerRadii(
+      cutout == Pos.TOP_LEFT ? size : 0,
+      cutout == Pos.TOP_RIGHT ? size : 0,
+      cutout == Pos.BOTTOM_RIGHT ? size : 0,
+      cutout == Pos.BOTTOM_LEFT ? size : 0,
+      false
+    );
+  }
+
+  private Border makePanelBorder(Pos cutout) {
+    return new Border(new BorderStroke(
+      playerColor,
+      BorderStrokeStyle.SOLID,
+      makeCornerRadiiForCutout(cutout, 10),
+      new BorderWidths(10)
+    ));
+  }
+
+  private Background makePanelBackground(Pos cutout) {
+    return new Background(new BackgroundFill(
+      Color.WHITE,
+      makeCornerRadiiForCutout(cutout, 20),
+      null
+    ));
   }
 }
