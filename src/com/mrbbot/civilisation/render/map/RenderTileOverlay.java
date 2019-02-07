@@ -9,12 +9,15 @@ class RenderTileOverlay extends Render {
   private City city;
   private boolean[] cityWalls;
   private Color color;
+  private boolean visible;
+  private boolean selected;
 
   RenderTileOverlay(Color color) {
     this.color = color;
     parts = new RenderTileOverlayPart[6];
     city = null;
     cityWalls = new boolean[]{false, false, false, false, false, false};
+    selected = false;
     for (int i = 0; i < 6; i++) {
       double angle = 30 + (60 * i);
 
@@ -24,11 +27,21 @@ class RenderTileOverlay extends Render {
     }
   }
 
-  void setOverlayVisible(boolean visible) {
+  private void updateVisibilities() {
     for (int i = 0; i < parts.length; i++) {
-      parts[i].setWallVisible(visible || cityWalls[i]);
+      parts[i].setWallVisible(visible || selected || cityWalls[i]);
       parts[i].setJoinVisible(cityWalls[i]);
     }
+  }
+
+  void setOverlayVisible(boolean visible) {
+    this.visible = visible;
+    updateVisibilities();
+  }
+
+  void setSelected(boolean selected) {
+    this.selected = selected;
+    updateVisibilities();
   }
 
   void setColor(Color color) {

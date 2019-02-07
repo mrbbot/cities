@@ -24,11 +24,7 @@ public class CivilisationServer {
         map.players.add(new Player(id));
         connection.broadcastTo(new PacketMap(map));
         connection.broadcastExcluding(new PacketPlayerChange(id, true));
-      } else if (
-        (data instanceof PacketUnitMove) ||
-          (data instanceof PacketCityCreate) ||
-          (data instanceof PacketCityGrow)
-        ) {
+      } else if (data instanceof PacketUpdate) {
         connection.broadcastExcluding(data);
       }
     }));

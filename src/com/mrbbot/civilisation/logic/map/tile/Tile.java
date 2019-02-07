@@ -16,6 +16,7 @@ public class Tile implements Traversable, Positionable, Serializable {
   public City city;
   public Improvement improvement = Improvement.NONE;
   public Unit unit;
+  public boolean selected = false;
 
   public RenderTile renderer;
 

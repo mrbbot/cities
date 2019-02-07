@@ -1,8 +1,11 @@
 package com.mrbbot.civilisation;
 
+import com.mrbbot.civilisation.logic.map.Map;
+import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.net.packet.Packet;
 import com.mrbbot.civilisation.net.packet.PacketInit;
 import com.mrbbot.civilisation.net.packet.PacketMap;
+import com.mrbbot.civilisation.net.packet.PacketUnitCreate;
 import com.mrbbot.civilisation.ui.connect.ConnectionRequestHandler;
 import com.mrbbot.civilisation.ui.connect.ScreenConnect;
 import com.mrbbot.civilisation.ui.game.ScreenGame;
@@ -79,6 +82,36 @@ public class Civilisation
         Platform.runLater(() -> {
           screenGame = new ScreenGame(((PacketMap) data).map, id);
           primaryStage.setScene(screenGame.makeScene(primaryStage, width, height));
+
+          // Add starting units
+          Map map = screenGame.renderGame.root.data;
+          int numPlayers = map.players.size();
+          int gridWidth = map.hexagonGrid.getWidth();
+          int gridHeight = map.hexagonGrid.getHeight();
+          int x = gridWidth / 2;
+          int y = gridHeight / 2;
+          /*switch (numPlayers) {
+            case 1:
+              x = 1;
+              y = 1;
+              break;
+            case 2:
+              x = gridWidth - 3;
+              y = gridHeight - 3;
+              break;
+            case 3:
+              x = gridWidth - 3;
+              y = 1;
+              break;
+            case 4:
+              x = 1;
+              y = gridHeight - 3;
+              break;
+          }*/
+
+          PacketUnitCreate settlerCreate = new PacketUnitCreate(id, x, y, UnitType.SETTLER);
+          screenGame.renderGame.handlePacket(settlerCreate);
+          CLIENT.broadcast(settlerCreate);
         });
       } else {
         Platform.runLater(() -> screenGame.renderGame.handlePacket(data));

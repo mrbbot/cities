@@ -1,6 +1,6 @@
 package com.mrbbot.civilisation.net.packet;
 
-public class PacketCityCreate extends Packet {
+public class PacketCityCreate extends PacketUpdate {
   public final String id;
   public final int x, y;
 

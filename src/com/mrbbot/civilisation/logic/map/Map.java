@@ -5,7 +5,6 @@ import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
-import com.mrbbot.civilisation.logic.unit.UnitType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ public class Map implements Serializable {
   public ArrayList<City> cities;
   public ArrayList<Unit> units;
   public ArrayList<Player> players;
+  public Unit selectedUnit = null;
 
   public Map() {
 //    hexagonGrid = new HexagonGrid<>(40, 34, 1);

@@ -6,8 +6,10 @@ import com.mrbbot.civilisation.logic.map.Map;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
+import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.net.packet.PacketCityCreate;
 import com.mrbbot.civilisation.net.packet.PacketCityGrow;
+import com.mrbbot.civilisation.net.packet.PacketUnitCreate;
 import com.mrbbot.civilisation.net.packet.PacketUnitMove;
 import com.mrbbot.civilisation.net.serializable.SerializableIntPoint2D;
 import com.mrbbot.civilisation.net.serializable.SerializablePoint2D;
@@ -54,7 +56,23 @@ public class RenderMap extends RenderData<Map> {
       renderTile.setOnMouseClicked((e) -> {
         //System.out.println("You clicked on the tile at " + coord);
 
-        if (tile.city != null) {
+        if(tile.unit != null && tile.unit.player.equals(currentPlayer)) {
+          if(data.selectedUnit != null) {
+            data.selectedUnit.tile.selected = false;
+            data.selectedUnit.tile.renderer.updateRender();
+          }
+          tile.selected = true;
+          tile.renderer.updateRender();
+          data.selectedUnit = tile.unit;
+        } else {
+          if(data.selectedUnit != null) {
+            data.selectedUnit.tile.selected = false;
+            data.selectedUnit.tile.renderer.updateRender();
+            data.selectedUnit = null;
+          }
+        }
+
+        /*if (tile.city != null) {
           if (e.getButton() == MouseButton.PRIMARY) {
             ArrayList<SerializableIntPoint2D> grownTo = tile.city.grow(1);
             Civilisation.CLIENT.broadcast(new PacketCityGrow(currentPlayer.id, tile.x, tile.y, grownTo));
@@ -70,7 +88,7 @@ public class RenderMap extends RenderData<Map> {
           Civilisation.CLIENT.broadcast(new PacketCityCreate(currentPlayer.id, tile.x, tile.y));
           data.cities.add(new City(data.hexagonGrid, tile.x, tile.y, currentPlayer));
           updateTileRenders();
-        }
+        }*/
       });
 
       renderTile.setOnMouseDragged((e) -> {
@@ -144,6 +162,10 @@ public class RenderMap extends RenderData<Map> {
         start.data.unit.tile = end.data;
         end.data.unit = start.data.unit;
         start.data.unit = null;
+
+        end.data.selected = start.data.selected;
+        start.data.selected = false;
+
         start.updateRender();
         end.updateRender();
       }
@@ -156,6 +178,14 @@ public class RenderMap extends RenderData<Map> {
     if (end != null) {
       resetPathfindingEnd();
     }
+  }
+
+  public void handleUnitCreatePacket(PacketUnitCreate packet) {
+    Tile tile = data.hexagonGrid.get(packet.x, packet.y);
+    Player player = data.playerById(packet.id);
+    Unit unit = new Unit(player, tile, packet.unitType);
+    data.units.add(unit);
+    tile.renderer.updateRender();
   }
 
   public void handleUnitMovePacket(PacketUnitMove packet) {

@@ -2,7 +2,7 @@ package com.mrbbot.civilisation.net.packet;
 
 import com.mrbbot.civilisation.logic.unit.UnitType;
 
-public class PacketUnitCreate {
+public class PacketUnitCreate extends PacketUpdate {
   public final String id;
   public final int x, y;
   public final UnitType unitType;
@@ -12,5 +12,10 @@ public class PacketUnitCreate {
     this.x = x;
     this.y = y;
     this.unitType = unitType;
+  }
+
+  @Override
+  public String getName() {
+    return "unit-create";
   }
 }

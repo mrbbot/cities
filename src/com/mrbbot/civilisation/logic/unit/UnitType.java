@@ -58,13 +58,13 @@ public enum UnitType {
     UnitAbility.ABILITY_BLAST_OFF
   );
 
-  String name;
-  Color color;
-  int movementPoints;
-  int attackStrength;
-  int baseHealth;
-  int cost;
-  int abilities;
+  public String name;
+  public Color color;
+  public int movementPoints;
+  public int attackStrength;
+  public int baseHealth;
+  public int cost;
+  public int abilities;
 
   UnitType(
     String name,

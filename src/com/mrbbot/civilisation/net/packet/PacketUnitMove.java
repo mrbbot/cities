@@ -1,6 +1,6 @@
 package com.mrbbot.civilisation.net.packet;
 
-public class PacketUnitMove extends Packet {
+public class PacketUnitMove extends PacketUpdate {
   public final int startX, startY, endX, endY;
 
   public PacketUnitMove(int startX, int startY, int endX, int endY) {

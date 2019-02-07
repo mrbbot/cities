@@ -99,6 +99,8 @@ public class RenderGame extends RenderRoot<RenderMap> {
       root.handleCityCreate((PacketCityCreate) packet);
     } else if(packet instanceof PacketCityGrow) {
       root.handleCityGrow((PacketCityGrow) packet);
+    } else if(packet instanceof PacketUnitCreate) {
+      root.handleUnitCreatePacket((PacketUnitCreate) packet);
     }
   }
 }

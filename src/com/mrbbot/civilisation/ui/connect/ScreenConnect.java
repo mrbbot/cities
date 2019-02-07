@@ -42,7 +42,7 @@ public class ScreenConnect extends Screen implements EventHandler<KeyEvent> {
     hostField = new TextField("127.0.0.1");
 
     Label idLabel = new Label("ID:");
-    idField = new TextField("User");
+    idField = new TextField("MrBBot");
 
     hostField.setOnKeyTyped(this);
     idField.setOnKeyTyped(this);

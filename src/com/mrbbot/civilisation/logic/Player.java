@@ -16,4 +16,12 @@ public class Player implements Serializable {
     Random random = new Random(id.hashCode());
     return Color.hsb(random.nextInt(360), 1, 1);
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if(obj instanceof Player) {
+      return id.equals(((Player) obj).id);
+    }
+    return false;
+  }
 }
