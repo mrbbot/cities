@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class City extends Living {
   private final HexagonGrid<Tile> grid;
-  private Player player;
+  public Player player;
   public final Color wallColour;
   public final Color joinColour;
 

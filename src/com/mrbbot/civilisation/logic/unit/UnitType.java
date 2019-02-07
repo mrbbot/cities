@@ -21,7 +21,7 @@ public enum UnitType {
     40,
     UnitAbility.ABILITY_MOVEMENT + UnitAbility.ABILITY_ATTACK
   ),
-  WARROR(
+  WARRIOR(
     "Warrior",
     Color.RED,
     2,

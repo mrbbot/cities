@@ -33,6 +33,8 @@ public class Map implements Serializable {
 //    cities.add(new City(hexagonGrid, 17, 9, Color.DODGERBLUE));
 //    cities.add(new City(hexagonGrid, 10, 0, Color.PURPLE));
 
+    cities.add(new City(hexagonGrid, 5, 5, new Player("hi")));
+
     units = new ArrayList<>();
 
     /*units.add(new Unit(hexagonGrid.get(10, 8), UnitType.ARCHER));
@@ -49,5 +51,43 @@ public class Map implements Serializable {
       }
     }
     return null;
+  }
+
+  public java.util.Map<String, Object> toMap() {
+    java.util.Map<String, Object> root = new java.util.HashMap<>();
+
+    ArrayList<ArrayList<Double>> terrain = new ArrayList<>();
+    int gridWidth = hexagonGrid.getWidth() + 1;
+    int gridHeight = hexagonGrid.getHeight();
+    for (int y = 0; y < gridHeight; y++) {
+      ArrayList<Double> row = new ArrayList<>();
+      for (int x = 0; x < gridWidth - ((y + 1) % 2); x++) {
+        hexagonGrid.get(x, y);
+        row.add(hexagonGrid.get(x, y).getTerrain().height);
+      }
+      terrain.add(row);
+    }
+    root.put("terrain", terrain);
+
+    ArrayList<java.util.Map<String, Object>> cities = new ArrayList<>();
+    for (City city : this.cities) {
+      java.util.Map<String, Object> cityObject = new java.util.HashMap<>();
+
+      ArrayList<java.util.Map<String, Integer>> cityTiles = new ArrayList<>();
+      for (Tile cityTile : city.tiles) {
+        java.util.Map<String, Integer> point = new java.util.HashMap<>();
+        point.put("x", cityTile.x);
+        point.put("y", cityTile.y);
+        cityTiles.add(point);
+      }
+      cityObject.put("tiles", cityTiles);
+
+      cityObject.put("health", city.health);
+      cityObject.put("owner", city.player.id);
+      cities.add(cityObject);
+    }
+    root.put("cities", cities);
+
+    return root;
   }
 }

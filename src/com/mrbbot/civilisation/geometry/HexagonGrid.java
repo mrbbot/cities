@@ -116,7 +116,7 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
     return list;
   }
 
-  public List<E> findPath(int x1, int y1, int x2, int y2) {
+  public List<E> findPath(int x1, int y1, int x2, int y2, int maxLength) {
     Map<E, Integer> costs = new HashMap<>();
     PriorityQueue<E> frontier = new PriorityQueue<>(Comparator.comparingInt(costs::get));
 
@@ -151,6 +151,12 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
     while (current != null) {
       path.add(current);
       current = cameFrom.get(current);
+    }
+
+    Collections.reverse(path);
+    maxLength++;
+    if(maxLength > 0 && path.size() >= maxLength) {
+      path = path.subList(0, maxLength);
     }
 
     return path;

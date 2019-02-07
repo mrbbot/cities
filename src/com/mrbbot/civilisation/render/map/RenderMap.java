@@ -104,11 +104,16 @@ public class RenderMap extends RenderData<Map> {
               resetPathfindingEnd();
             }
             if (pickedTile != null) {
-              end = pickedTile;
-              end.setOverlayVisible(true);
+              RenderTile potentialEnd = pickedTile;
 
-              List<Tile> path = data.hexagonGrid.findPath(start.data.x, start.data.y, end.data.x, end.data.y);
+              List<Tile> path = data.hexagonGrid.findPath(start.data.x, start.data.y, potentialEnd.data.x, potentialEnd.data.y, start.data.unit.unitType.movementPoints);
               path.forEach((p) -> p.renderer.setOverlayVisible(true));
+
+              if(path.size() > 1) {
+                potentialEnd = path.get(path.size() - 1).renderer;
+              }
+              end = potentialEnd;
+              end.setOverlayVisible(true);
             }
           }
         }
@@ -156,7 +161,7 @@ public class RenderMap extends RenderData<Map> {
 
   public void resetPathfinding() {
     if (start != null && end != null) {
-      List<Tile> path = data.hexagonGrid.findPath(start.data.x, start.data.y, end.data.x, end.data.y);
+      List<Tile> path = data.hexagonGrid.findPath(start.data.x, start.data.y, end.data.x, end.data.y, start.data.unit.unitType.movementPoints);
       if (path.size() > 1) {
         Civilisation.CLIENT.broadcast(new PacketUnitMove(start.data.x, start.data.y, end.data.x, end.data.y));
         start.data.unit.tile = end.data;

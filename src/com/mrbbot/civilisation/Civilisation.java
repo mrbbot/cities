@@ -34,34 +34,14 @@ public class Civilisation
     Rectangle2D screenBounds = Screen.getPrimary().getBounds();
     width = (int) screenBounds.getWidth();
     height = (int) screenBounds.getHeight();
-    width = 1280;
-    height = 720;
+    width = 1000;
+    height = 600;
 
     ScreenConnect screenConnect = new ScreenConnect(this);
     primaryStage.setScene(screenConnect.makeScene(primaryStage, width, height));
 
-/*
-    StackPane pane = new StackPane();
-    pane.setAlignment(Pos.TOP_LEFT);
-
-    Map map = new Map();
-    RenderMap renderMap = new RenderMap(map);
-    RenderGame renderGame = new RenderGame(renderMap, width, height);
-
-    UIGame ui = new UIGame(renderMap, width, height);
-    ui.setPrefSize(width, height);
-
-    pane.getChildren().addAll(renderGame.subScene, ui);
-    Scene scene = new Scene(pane, width, height);
-    renderGame.setScene(scene, e -> {
-      if(e.getCode() == KeyCode.F11) {
-        primaryStage.setFullScreen(!primaryStage.isFullScreen());
-      }
-    });*/
-
     primaryStage.setTitle("Civilisation");
     primaryStage.setResizable(false);
-    //primaryStage.setScene(scene);
     //primaryStage.setFullScreen(true);
     primaryStage.setOnCloseRequest((event) -> {
       try {
@@ -90,7 +70,7 @@ public class Civilisation
           int gridHeight = map.hexagonGrid.getHeight();
           int x = gridWidth / 2;
           int y = gridHeight / 2;
-          /*switch (numPlayers) {
+          switch (numPlayers) {
             case 1:
               x = 1;
               y = 1;
@@ -107,11 +87,14 @@ public class Civilisation
               x = 1;
               y = gridHeight - 3;
               break;
-          }*/
+          }
 
           PacketUnitCreate settlerCreate = new PacketUnitCreate(id, x, y, UnitType.SETTLER);
+          PacketUnitCreate warriorCreate = new PacketUnitCreate(id, x + 1, y, UnitType.WARRIOR);
           screenGame.renderGame.handlePacket(settlerCreate);
+          screenGame.renderGame.handlePacket(warriorCreate);
           CLIENT.broadcast(settlerCreate);
+          CLIENT.broadcast(warriorCreate);
         });
       } else {
         Platform.runLater(() -> screenGame.renderGame.handlePacket(data));
