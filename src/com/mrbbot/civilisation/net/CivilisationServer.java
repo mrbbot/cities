@@ -12,9 +12,9 @@ public class CivilisationServer {
   public static void main(String[] args) throws IOException {
     final Map map = new Map();
 
-    Yaml yaml = new Yaml();
+    /*Yaml yaml = new Yaml();
     String output = yaml.dump(map.toMap());
-    System.out.println(output);
+    System.out.println(output);*/
 
     new Server<Packet>(1234, ((connection, data) -> {
       String id = connection.getId();

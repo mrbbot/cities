@@ -33,7 +33,7 @@ public class Map implements Serializable {
 //    cities.add(new City(hexagonGrid, 17, 9, Color.DODGERBLUE));
 //    cities.add(new City(hexagonGrid, 10, 0, Color.PURPLE));
 
-    cities.add(new City(hexagonGrid, 5, 5, new Player("hi")));
+    //cities.add(new City(hexagonGrid, 5, 5, new Player("hi")));
 
     units = new ArrayList<>();
 

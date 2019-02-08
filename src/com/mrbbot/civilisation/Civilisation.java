@@ -2,10 +2,7 @@ package com.mrbbot.civilisation;
 
 import com.mrbbot.civilisation.logic.map.Map;
 import com.mrbbot.civilisation.logic.unit.UnitType;
-import com.mrbbot.civilisation.net.packet.Packet;
-import com.mrbbot.civilisation.net.packet.PacketInit;
-import com.mrbbot.civilisation.net.packet.PacketMap;
-import com.mrbbot.civilisation.net.packet.PacketUnitCreate;
+import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.civilisation.ui.connect.ConnectionRequestHandler;
 import com.mrbbot.civilisation.ui.connect.ScreenConnect;
 import com.mrbbot.civilisation.ui.game.ScreenGame;
@@ -34,15 +31,15 @@ public class Civilisation
     Rectangle2D screenBounds = Screen.getPrimary().getBounds();
     width = (int) screenBounds.getWidth();
     height = (int) screenBounds.getHeight();
-    width = 1000;
-    height = 600;
+    //width = 1000;
+    //height = 600;
 
     ScreenConnect screenConnect = new ScreenConnect(this);
     primaryStage.setScene(screenConnect.makeScene(primaryStage, width, height));
 
     primaryStage.setTitle("Civilisation");
     primaryStage.setResizable(false);
-    //primaryStage.setFullScreen(true);
+    primaryStage.setFullScreen(true);
     primaryStage.setOnCloseRequest((event) -> {
       try {
         if(CLIENT != null) CLIENT.close();
@@ -96,6 +93,8 @@ public class Civilisation
           CLIENT.broadcast(settlerCreate);
           CLIENT.broadcast(warriorCreate);
         });
+      } else if(data instanceof PacketChat) {
+        screenGame.handlePacketChat((PacketChat) data);
       } else {
         Platform.runLater(() -> screenGame.renderGame.handlePacket(data));
       }

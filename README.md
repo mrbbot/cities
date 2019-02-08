@@ -22,4 +22,4 @@ Computer Science Coursework
 
 ### Nice to have
 - [ ] Multiplayer staging room
-- [ ] In game chat
+- [x] In game chat

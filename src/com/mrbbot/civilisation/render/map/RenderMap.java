@@ -7,10 +7,7 @@ import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
-import com.mrbbot.civilisation.net.packet.PacketCityCreate;
-import com.mrbbot.civilisation.net.packet.PacketCityGrow;
-import com.mrbbot.civilisation.net.packet.PacketUnitCreate;
-import com.mrbbot.civilisation.net.packet.PacketUnitMove;
+import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.civilisation.net.serializable.SerializableIntPoint2D;
 import com.mrbbot.civilisation.net.serializable.SerializablePoint2D;
 import com.mrbbot.generic.render.RenderData;
@@ -24,12 +21,15 @@ import javafx.scene.shape.Box;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.function.Consumer;
 
 public class RenderMap extends RenderData<Map> {
+  private final Consumer<Unit> selectedUnitListener;
   public Player currentPlayer;
 
-  public RenderMap(Map data, String id) {
+  public RenderMap(Map data, String id, Consumer<Unit> selectedUnitListener) {
     super(data);
+    this.selectedUnitListener = selectedUnitListener;
 
     for (Player player : data.players) {
       if (player.id.equals(id)) {
@@ -56,7 +56,8 @@ public class RenderMap extends RenderData<Map> {
       renderTile.setOnMouseClicked((e) -> {
         //System.out.println("You clicked on the tile at " + coord);
 
-        if(tile.unit != null && tile.unit.player.equals(currentPlayer)) {
+        setSelectedUnit(tile.unit);
+        /*if(tile.unit != null && tile.unit.player.equals(currentPlayer)) {
           if(data.selectedUnit != null) {
             data.selectedUnit.tile.selected = false;
             data.selectedUnit.tile.renderer.updateRender();
@@ -64,13 +65,15 @@ public class RenderMap extends RenderData<Map> {
           tile.selected = true;
           tile.renderer.updateRender();
           data.selectedUnit = tile.unit;
+          selectedUnitListener.accept(data.selectedUnit);
         } else {
           if(data.selectedUnit != null) {
             data.selectedUnit.tile.selected = false;
             data.selectedUnit.tile.renderer.updateRender();
             data.selectedUnit = null;
+            selectedUnitListener.accept(null);
           }
-        }
+        }*/
 
         /*if (tile.city != null) {
           if (e.getButton() == MouseButton.PRIMARY) {
@@ -132,7 +135,36 @@ public class RenderMap extends RenderData<Map> {
     while ((t = tilesToAdd.poll()) != null) add(t);
   }
 
-  private void updateTileRenders() {
+  public void setSelectedUnit(Unit unit) {
+    if(unit != null && unit.player.equals(currentPlayer)) {
+      if(data.selectedUnit != null) {
+        data.selectedUnit.tile.selected = false;
+        data.selectedUnit.tile.renderer.updateRender();
+      }
+      unit.tile.selected = true;
+      unit.tile.renderer.updateRender();
+      data.selectedUnit = unit.tile.unit;
+      selectedUnitListener.accept(data.selectedUnit);
+    } else {
+      if(data.selectedUnit != null) {
+        data.selectedUnit.tile.selected = false;
+        data.selectedUnit.tile.renderer.updateRender();
+        data.selectedUnit = null;
+        selectedUnitListener.accept(null);
+      }
+    }
+  }
+
+  public void deleteUnit(Unit unit) {
+    if(unit != null) {
+      unit.tile.unit = null;
+      unit.tile.renderer.updateRender();
+      data.units.remove(unit);
+      Civilisation.CLIENT.broadcast(new PacketUnitDelete(unit.tile.x, unit.tile.y));
+    }
+  }
+
+  public void updateTileRenders() {
     data.hexagonGrid.forEach((gridTile, _hex, _x, _y) -> gridTile.renderer.updateRender());
   }
 
@@ -203,6 +235,16 @@ public class RenderMap extends RenderData<Map> {
 
     startTile.renderer.updateRender();
     endTile.renderer.updateRender();
+  }
+
+  public void handleUnitDeletePacket(PacketUnitDelete packet) {
+    Tile tile = data.hexagonGrid.get(packet.x, packet.y);
+    Unit unit = tile.unit;
+    if(unit != null) {
+      tile.unit = null;
+      data.units.remove(unit);
+      tile.renderer.updateRender();
+    }
   }
 
   public void handleCityCreate(PacketCityCreate packet) {
