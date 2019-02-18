@@ -1,14 +1,11 @@
 package com.mrbbot.civilisation.logic.map.tile;
 
 import com.mrbbot.civilisation.geometry.Hexagon;
-import com.mrbbot.civilisation.logic.interfaces.Positionable;
 import com.mrbbot.civilisation.logic.interfaces.Traversable;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.render.map.RenderTile;
 
-import java.io.Serializable;
-
-public class Tile implements Traversable, Positionable, Serializable {
+public class Tile implements Traversable {
   private final Hexagon hexagon;
   public final int x;
   public final int y;
@@ -24,8 +21,14 @@ public class Tile implements Traversable, Positionable, Serializable {
     this.hexagon = hexagon;
     this.x = x;
     this.y = y;
-
     this.terrain = new Terrain(hexagon.getCenter());
+  }
+
+  public Tile(Hexagon hexagon, int x, int y, double height) {
+    this.hexagon = hexagon;
+    this.x = x;
+    this.y = y;
+    this.terrain = new Terrain(height);
   }
 
   public Hexagon getHexagon() {

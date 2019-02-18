@@ -1,10 +1,10 @@
 package com.mrbbot.civilisation.ui.game;
 
-import com.mrbbot.civilisation.logic.map.Map;
+import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.net.packet.PacketChat;
-import com.mrbbot.civilisation.render.RenderGame;
-import com.mrbbot.civilisation.render.map.RenderMap;
+import com.mrbbot.civilisation.render.RenderCivilisation;
+import com.mrbbot.civilisation.render.map.RenderGame;
 import com.mrbbot.civilisation.ui.Screen;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -12,16 +12,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.util.function.Consumer;
-
 public class ScreenGame extends Screen {
-  private final Map map;
+  private final Game game;
   private final String id;
-  public RenderGame renderGame;
+  public RenderCivilisation renderCivilisation;
   private UIGame ui;
 
-  public ScreenGame(Map map, String id) {
-    this.map = map;
+  public ScreenGame(Game game, String id) {
+    this.game = game;
     this.id = id;
   }
 
@@ -30,15 +28,15 @@ public class ScreenGame extends Screen {
     StackPane pane = new StackPane();
     pane.setAlignment(Pos.TOP_LEFT);
 
-    RenderMap renderMap = new RenderMap(map, id, this::onSelectedUnitChanged);
-    renderGame = new RenderGame(renderMap, width, height);
+    RenderGame renderGame = new RenderGame(game, id, this::onSelectedUnitChanged);
+    this.renderCivilisation = new RenderCivilisation(renderGame, width, height);
 
-    ui = new UIGame(renderMap, width, height);
+    ui = new UIGame(renderGame, width, height);
     ui.setPrefSize(width, height);
 
-    pane.getChildren().addAll(renderGame.subScene, ui);
+    pane.getChildren().addAll(this.renderCivilisation.subScene, ui);
     Scene scene = new Scene(pane, width, height);
-    renderGame.setScene(scene, e -> {
+    this.renderCivilisation.setScene(scene, e -> {
       if(e.getCode() == KeyCode.F11) {
         stage.setFullScreen(!stage.isFullScreen());
       }

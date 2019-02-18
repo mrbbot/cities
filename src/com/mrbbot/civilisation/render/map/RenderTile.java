@@ -2,7 +2,6 @@ package com.mrbbot.civilisation.render.map;
 
 import com.mrbbot.civilisation.logic.map.tile.Terrain;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
-import com.mrbbot.civilisation.net.serializable.SerializablePoint2D;
 import com.mrbbot.civilisation.render.map.improvement.RenderImprovement;
 import com.mrbbot.generic.render.Render;
 import com.mrbbot.generic.render.RenderData;
@@ -47,7 +46,7 @@ public class RenderTile extends RenderData<Tile> {
   RenderTile(Tile data) {
     super(data);
 
-    SerializablePoint2D center = data.getHexagon().getCenter();
+    Point2D center = data.getHexagon().getCenter();
     translateTo(center.getX(), center.getY(), 0);
 
     colour = colourForTerrain(data.getTerrain());
@@ -81,6 +80,7 @@ public class RenderTile extends RenderData<Tile> {
     overlay.setSelected(data.selected);
     unit.updateRender(data.unit);
     unit.setVisible(data.unit != null);
+    updateImprovement();
   }
 
   public void updateImprovement() {

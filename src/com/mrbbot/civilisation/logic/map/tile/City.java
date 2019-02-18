@@ -3,15 +3,10 @@ package com.mrbbot.civilisation.logic.map.tile;
 import com.mrbbot.civilisation.geometry.HexagonGrid;
 import com.mrbbot.civilisation.logic.Living;
 import com.mrbbot.civilisation.logic.Player;
-import com.mrbbot.civilisation.net.serializable.SerializableIntPoint2D;
-import com.mrbbot.civilisation.net.serializable.SerializablePoint2D;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.PriorityQueue;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class City extends Living {
@@ -33,29 +28,54 @@ public class City extends Living {
     tiles = new ArrayList<>();
 
     Tile center = grid.get(centerX, centerY);
-    if(center.city != null) {
+    if (center.city != null) {
       throw new IllegalArgumentException("City created on tile with another city");
     }
     tiles.add(center);
     center.improvement = Improvement.CAPITAL;
+//    if(center.renderer != null) center.renderer.updateImprovement();
 
     ArrayList<Tile> adjacentTiles = grid.getNeighbours(centerX, centerY, false);
     adjacentTiles.removeIf(tile -> tile.city != null);
     tiles.addAll(adjacentTiles);
 
     tiles.forEach(tile -> tile.city = this);
-
     updateGreatestHeight();
   }
 
-  public ArrayList<SerializableIntPoint2D> grow(int newTiles) {
-    final ArrayList<SerializableIntPoint2D> grownTo = new ArrayList<>();
+  public City(HexagonGrid<Tile> grid, Map<String, Object> map) {
+    super((int) map.get("baseHealth"));
+    this.health = (int) map.get("health");
+    this.grid = grid;
+    this.player = new Player((String) map.get("owner"));
+    this.wallColour = player.getColour();
+    this.joinColour = this.wallColour.darker();
 
-    final SerializablePoint2D center = getCenter().getHexagon().getCenter();
+    //noinspection unchecked
+    tiles = (ArrayList<Tile>) ((List<Map<String, Object>>) map.get("tiles")).stream()
+      .map(m -> {
+        int x = (int) m.get("x");
+        int y = (int) m.get("y");
+        Tile center = grid.get(x, y);
+        if(m.containsKey("improvement")) {
+          center.improvement = Improvement.valueOf((String) m.get("improvement"));
+        }
+        return center;
+      })
+      .collect(Collectors.toList());
+
+    tiles.forEach(tile -> tile.city = this);
+    updateGreatestHeight();
+  }
+
+  public ArrayList<Point2D> grow(int newTiles) {
+    final ArrayList<Point2D> grownTo = new ArrayList<>();
+
+    final Point2D center = getCenter().getHexagon().getCenter();
 
     PriorityQueue<Tile> potentialTiles = new PriorityQueue<>((a, b) -> {
-      double aDist = center.point.distance(a.getHexagon().getCenter().point);
-      double bDist = center.point.distance(b.getHexagon().getCenter().point);
+      double aDist = center.distance(a.getHexagon().getCenter());
+      double bDist = center.distance(b.getHexagon().getCenter());
       return Double.compare(aDist, bDist);
     });
 
@@ -64,11 +84,11 @@ public class City extends Living {
       .filter(adjTile -> adjTile.city == null)
       .collect(Collectors.toList())));
 
-    while(newTiles > 0 && potentialTiles.size() >= newTiles) {
+    while (newTiles > 0 && potentialTiles.size() >= newTiles) {
       Tile tile = potentialTiles.remove();
       tile.city = this;
       tiles.add(tile);
-      grownTo.add(new SerializableIntPoint2D(tile.x, tile.y));
+      grownTo.add(new Point2D(tile.x, tile.y));
       newTiles--;
     }
 
@@ -77,9 +97,9 @@ public class City extends Living {
     return grownTo;
   }
 
-  public void growTo(ArrayList<SerializableIntPoint2D> points) {
-    for (SerializableIntPoint2D point : points) {
-      Tile tile = grid.get(point.x, point.y);
+  public void growTo(ArrayList<Point2D> points) {
+    for (Point2D point : points) {
+      Tile tile = grid.get((int) point.getX(), (int) point.getY());
       tile.city = this;
       tiles.add(tile);
     }
@@ -87,9 +107,9 @@ public class City extends Living {
   }
 
   boolean[] getWalls(Tile tile) {
-    if(!tiles.contains(tile)) return new boolean[]{false, false, false, false, false, false};
+    if (!tiles.contains(tile)) return new boolean[]{false, false, false, false, false, false};
     int x = tile.x, y = tile.y;
-    return new boolean[] {
+    return new boolean[]{
       !tiles.contains(grid.getTopLeft(x, y, false)),
       !tiles.contains(grid.getLeft(x, y, false)),
       !tiles.contains(grid.getBottomLeft(x, y, false)),
@@ -103,12 +123,43 @@ public class City extends Living {
     double greatestHeight = 0.0;
     for (Tile tile : tiles) {
       double tileHeight = tile.getHeight();
-      if(tileHeight > greatestHeight) greatestHeight = tileHeight;
+      if (tileHeight > greatestHeight) greatestHeight = tileHeight;
     }
     greatestTileHeight = greatestHeight;
   }
 
   public Tile getCenter() {
     return tiles.get(0);
+  }
+
+  @Override
+  public int getX() {
+    return getCenter().x;
+  }
+
+  @Override
+  public int getY() {
+    return getCenter().y;
+  }
+
+  @Override
+  public Map<String, Object> toMap() {
+    Map<String, Object> map = super.toMap();
+
+    ArrayList<Map<String, Object>> tileMaps = new ArrayList<>();
+    for (Tile tile : tiles) {
+      Map<String, Object> tileMap = new HashMap<>();
+      tileMap.put("x", tile.x);
+      tileMap.put("y", tile.y);
+      if(tile.improvement != Improvement.NONE) {
+        tileMap.put("improvement", tile.improvement.toString());
+      }
+      tileMaps.add(tileMap);
+    }
+    map.put("tiles", tileMaps);
+
+    map.put("owner", player.id);
+
+    return map;
   }
 }

@@ -23,7 +23,7 @@ public enum Level {
   static Level of(double height) {
     Level[] levels = values();
     for (Level level : levels) {
-      if (height >= level.minHeight) {
+      if (height > level.minHeight) {
         return level;
       }
     }

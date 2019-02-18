@@ -1,7 +1,6 @@
 package com.mrbbot.civilisation.geometry;
 
 import com.mrbbot.civilisation.logic.interfaces.Traversable;
-import com.mrbbot.civilisation.net.serializable.SerializablePoint2D;
 import javafx.geometry.Point2D;
 
 import java.io.Serializable;
@@ -45,7 +44,7 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   }
 
   private void calculateHexagonGrid() {
-    forEach((e, hex, x, y) -> hexagonGrid[y][x] = new Hexagon(new SerializablePoint2D(sx + (cw * x) - ((y % 2) * hcw), sy - (ch * y)), radius));
+    forEach((e, hex, x, y) -> hexagonGrid[y][x] = new Hexagon(new Point2D(sx + (cw * x) - ((y % 2) * hcw), sy - (ch * y)), radius));
   }
 
   private boolean cellExists(int x, int y) {

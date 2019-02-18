@@ -2,20 +2,20 @@ package com.mrbbot.civilisation.render;
 
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.net.packet.*;
-import com.mrbbot.civilisation.render.map.RenderMap;
+import com.mrbbot.civilisation.render.map.RenderGame;
 import com.mrbbot.generic.render.RenderRoot;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 
-public class RenderGame extends RenderRoot<RenderMap> {
+public class RenderCivilisation extends RenderRoot<RenderGame> {
   private final static double MAX_ZOOM = 5;
   private final static double MIN_ZOOM = 80;
 
   private double oldMouseX = -1, oldMouseY = -1;
 
-  public RenderGame(RenderMap root, int width, int height) {
+  public RenderCivilisation(RenderGame root, int width, int height) {
     super(root, width, height);
 
     /*PointLight light = new PointLight(Color.WHITE);
@@ -86,14 +86,22 @@ public class RenderGame extends RenderRoot<RenderMap> {
     });
   }
 
-  public void handlePacket(Packet packet) {
+  /*public void handlePacket(Packet packet) {
+    root.handlePacket(packet);
+
     if(packet instanceof PacketUnitMove) {
       root.handleUnitMovePacket((PacketUnitMove) packet);
     } else if(packet instanceof PacketPlayerChange) {
-      if(((PacketPlayerChange) packet).exists) {
-        root.data.players.add(new Player(((PacketPlayerChange) packet).id));
-      } else {
-        root.data.players.removeIf((player -> player.id.equals(((PacketPlayerChange) packet).id)));
+      boolean playerAlreadyAdded = false;
+      String newId = ((PacketPlayerChange) packet).id;
+      for (Player player : root.data.players) {
+        if (player.id.equals(newId)) {
+          playerAlreadyAdded = true;
+          break;
+        }
+      }
+      if(!playerAlreadyAdded) {
+        root.data.players.add(new Player(newId));
       }
     } else if(packet instanceof PacketCityCreate) {
       root.handleCityCreate((PacketCityCreate) packet);
@@ -104,5 +112,5 @@ public class RenderGame extends RenderRoot<RenderMap> {
     } else if(packet instanceof PacketUnitDelete) {
       root.handleUnitDeletePacket((PacketUnitDelete) packet);
     }
-  }
+  }*/
 }

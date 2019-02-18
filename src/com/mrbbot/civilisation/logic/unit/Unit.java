@@ -1,11 +1,13 @@
 package com.mrbbot.civilisation.logic.unit;
 
+import com.mrbbot.civilisation.geometry.HexagonGrid;
 import com.mrbbot.civilisation.logic.Living;
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.interfaces.Positionable;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class Unit extends Living implements Positionable {
   public Player player;
@@ -17,6 +19,18 @@ public class Unit extends Living implements Positionable {
     this.player = player;
     this.tile = tile;
     this.unitType = unitType;
+    if(tile.unit != null) {
+      throw new IllegalArgumentException("Unit created on tile with another unit");
+    }
+    tile.unit = this;
+  }
+
+  public Unit(HexagonGrid<Tile> grid, Map<String, Object> map) {
+    super((Integer) map.get("baseHealth"));
+    this.health = (int) map.get("health");
+    this.player = new Player((String) map.get("owner"));
+    this.tile = grid.get((int) map.get("x"), (int) map.get("y"));
+    this.unitType = UnitType.valueOf((String) map.get("type"));
     if(tile.unit != null) {
       throw new IllegalArgumentException("Unit created on tile with another unit");
     }
@@ -35,5 +49,17 @@ public class Unit extends Living implements Positionable {
 
   public boolean hasAbility(int ability) {
     return (unitType.abilities & ability) > 0;
+  }
+
+  @Override
+  public Map<String, Object> toMap() {
+    Map<String, Object> map = super.toMap();
+
+    map.put("owner", player.id);
+    map.put("x", tile.x);
+    map.put("y", tile.y);
+    map.put("type", unitType.toString());
+
+    return map;
   }
 }

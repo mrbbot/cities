@@ -1,21 +1,18 @@
 package com.mrbbot.civilisation.geometry;
 
-import com.mrbbot.civilisation.net.serializable.SerializablePoint2D;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.transform.Rotate;
 
-import java.io.Serializable;
-
-public class Hexagon implements Serializable {
+public class Hexagon {
     public static final double SQRT_3 = Math.sqrt(3);
 
-    private SerializablePoint2D c;
+    private Point2D c;
     private double r;
-    private SerializablePoint2D[] vertices;
+    private Point2D[] vertices;
 
-    public Hexagon(SerializablePoint2D center, double radius) {
+    Hexagon(Point2D center, double radius) {
         this.c = center;
         this.r = radius /*- 0.1*/; // - 0.1 puts a gap in between hexes
         calculateVertices();
@@ -27,17 +24,17 @@ public class Hexagon implements Serializable {
         double hr = r / 2;          // half radius
         double hw = SQRT_3 * hr;    // half width
 
-        this.vertices = new SerializablePoint2D[]{
-                new SerializablePoint2D(cx, cy - r),
-                new SerializablePoint2D(cx - hw, cy - hr),
-                new SerializablePoint2D(cx - hw, cy + hr),
-                new SerializablePoint2D(cx, cy + r),
-                new SerializablePoint2D(cx + hw, cy + hr),
-                new SerializablePoint2D(cx + hw, cy - hr),
+        this.vertices = new Point2D[]{
+                new Point2D(cx, cy - r),
+                new Point2D(cx - hw, cy - hr),
+                new Point2D(cx - hw, cy + hr),
+                new Point2D(cx, cy + r),
+                new Point2D(cx + hw, cy + hr),
+                new Point2D(cx + hw, cy - hr),
         };
     }
 
-    public SerializablePoint2D[] getVertices() {
+    public Point2D[] getVertices() {
         return vertices;
     }
 
@@ -48,11 +45,11 @@ public class Hexagon implements Serializable {
         return cylinder;
     }
 
-    public SerializablePoint2D getCenter() {
+    public Point2D getCenter() {
         return c;
     }
 
-    public void setCenter(SerializablePoint2D center) {
+    public void setCenter(Point2D center) {
         this.c = center;
         calculateVertices();
     }

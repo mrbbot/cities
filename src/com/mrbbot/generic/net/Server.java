@@ -59,7 +59,6 @@ public class Server<T> extends BaseBroadcaster<T> implements Runnable {
             if (data == null) {
               connections.remove(connection.getId());
             }
-            //noinspection unchecked
             handler.accept(connection, data);
           },
           this

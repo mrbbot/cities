@@ -5,7 +5,7 @@ import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.net.packet.PacketChat;
 import com.mrbbot.civilisation.net.packet.PacketCityCreate;
-import com.mrbbot.civilisation.render.map.RenderMap;
+import com.mrbbot.civilisation.render.map.RenderGame;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -16,7 +16,7 @@ import javafx.scene.paint.Color;
 public class UIGame extends AnchorPane {
   private static final Insets PANEL_PADDING = new Insets(10);
 
-  private final RenderMap renderMap;
+  private final RenderGame renderGame;
   private final Color playerColor;
 
   private final UIPanelTech panelTech;
@@ -25,11 +25,11 @@ public class UIGame extends AnchorPane {
   private final UITechTree techTree;
   private final Button closeTechTreeButton;
 
-  public UIGame(RenderMap renderMap, int width, int height) {
-    this.renderMap = renderMap;
+  public UIGame(RenderGame renderGame, int width, int height) {
+    this.renderGame = renderGame;
     setPickOnBounds(false);
 
-    playerColor = this.renderMap.currentPlayer.getColour();
+    playerColor = this.renderGame.currentPlayer.getColour();
 
     panelTech = new UIPanelTech();
     panelTech.setBorder(makePanelBorder(Pos.BOTTOM_RIGHT));
@@ -39,7 +39,7 @@ public class UIGame extends AnchorPane {
     AnchorPane.setTopAnchor(panelTech, 0.0);
     AnchorPane.setLeftAnchor(panelTech, 0.0);
 
-    panelChat = new UIPanelChat(renderMap.currentPlayer.id);
+    panelChat = new UIPanelChat(renderGame.currentPlayer.id);
     panelChat.setBorder(makePanelBorder(Pos.BOTTOM_LEFT));
     panelChat.setBackground(makePanelBackground(Pos.BOTTOM_LEFT));
     panelChat.setPadding(PANEL_PADDING);
@@ -62,8 +62,8 @@ public class UIGame extends AnchorPane {
     AnchorPane.setBottomAnchor(newCityButton, 20.0);
     AnchorPane.setLeftAnchor(newCityButton, 20.0);
     newCityButton.setOnAction(e -> {
-      renderMap.data.cities.add(new City(renderMap.data.hexagonGrid, 8, 8, Color.GREEN));
-      renderMap.data.hexagonGrid.forEach((gridTile, _hex, _x, _y) -> gridTile.renderer.updateRender());
+      renderGame.data.cities.add(new City(renderGame.data.hexagonGrid, 8, 8, Color.GREEN));
+      renderGame.data.hexagonGrid.forEach((gridTile, _hex, _x, _y) -> gridTile.renderer.updateRender());
     });
     getChildren().add(newCityButton);*/
 
@@ -121,11 +121,11 @@ public class UIGame extends AnchorPane {
       System.out.println((unit.unitType.name + " performed an action (details: \"" + actionDetails + "\")"));
       switch (unit.unitType) {
         case SETTLER:
-          Civilisation.CLIENT.broadcast(new PacketCityCreate(renderMap.currentPlayer.id, unit.tile.x, unit.tile.y));
-          renderMap.data.cities.add(new City(renderMap.data.hexagonGrid, unit.tile.x, unit.tile.y, renderMap.currentPlayer));
-          renderMap.updateTileRenders();
-          renderMap.setSelectedUnit(null);
-          renderMap.deleteUnit(unit);
+          Civilisation.CLIENT.broadcast(new PacketCityCreate(renderGame.currentPlayer.id, unit.tile.x, unit.tile.y));
+          renderGame.data.cities.add(new City(renderGame.data.hexagonGrid, unit.tile.x, unit.tile.y, renderGame.currentPlayer));
+          renderGame.updateTileRenders();
+          renderGame.setSelectedUnit(null);
+          renderGame.deleteUnit(unit);
           break;
         case SCOUT:
           break;
