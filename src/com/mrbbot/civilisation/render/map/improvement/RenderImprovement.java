@@ -2,11 +2,13 @@ package com.mrbbot.civilisation.render.map.improvement;
 
 import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
+import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.RenderData;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 
+@ClientOnly
 public class RenderImprovement extends RenderData<Improvement> {
   private final Tile tile;
 

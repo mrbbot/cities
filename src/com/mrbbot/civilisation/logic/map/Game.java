@@ -8,6 +8,8 @@ import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.net.packet.*;
+import com.mrbbot.generic.net.ClientOnly;
+import com.mrbbot.generic.net.ServerOnly;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +23,12 @@ public class Game implements Mappable {
   public ArrayList<City> cities;
   public ArrayList<Unit> units;
   public ArrayList<Player> players;
+  @ServerOnly
+  public Map<String, Boolean> readyPlayers = new HashMap<>();
+  @ClientOnly
   public Unit selectedUnit = null;
+  @ClientOnly
+  public boolean waitingForPlayers = false;
 
   public Game(String name) {
     this.name = name;
@@ -41,8 +48,8 @@ public class Game implements Mappable {
 //    cities.add(new City(hexagonGrid, 17, 9, Color.DODGERBLUE));
 //    cities.add(new City(hexagonGrid, 10, 0, Color.PURPLE));
 
-    cities.add(new City(hexagonGrid, 5, 5, new Player("hi")));
-    cities.add(new City(hexagonGrid, 7, 5, new Player("hi")));
+//    cities.add(new City(hexagonGrid, 5, 5, new Player("hi")));
+//    cities.add(new City(hexagonGrid, 7, 5, new Player("hi")));
 
     units = new ArrayList<>();
 
@@ -51,7 +58,7 @@ public class Game implements Mappable {
     units.add(new Unit(hexagonGrid.get(12, 9)));*/
 
     players = new ArrayList<>();
-    players.add(new Player("hi"));
+    //players.add(new Player("hi"));
   }
 
   public Game(Map<String, Object> map) {
@@ -149,6 +156,8 @@ public class Game implements Mappable {
     Tile startTile = hexagonGrid.get(packet.startX, packet.startY);
     Tile endTile = hexagonGrid.get(packet.endX, packet.endY);
 
+    startTile.unit.remainingMovementPoints -= packet.usedMovementPoints;
+    assert startTile.unit.remainingMovementPoints >= 0;
     startTile.unit.tile = endTile;
     endTile.unit = startTile.unit;
     startTile.unit = null;
@@ -185,6 +194,16 @@ public class Game implements Mappable {
     return new Tile[]{};
   }
 
+  private void handlePacketReady(PacketReady packet) {
+    if(!packet.ready) {
+      for (Unit unit : units) {
+        unit.remainingMovementPoints = unit.unitType.movementPoints;
+      }
+      waitingForPlayers = false;
+    }
+    readyPlayers.clear();
+  }
+
   public Tile[] handlePacket(Packet packet) {
     if (packet instanceof PacketPlayerChange) {
       String newId = ((PacketPlayerChange) packet).id;
@@ -201,10 +220,13 @@ public class Game implements Mappable {
       return handleUnitMovePacket((PacketUnitMove) packet);
     } else if (packet instanceof PacketUnitDelete) {
       return handleUnitDeletePacket((PacketUnitDelete) packet);
+    } else if(packet instanceof PacketReady) {
+      handlePacketReady((PacketReady) packet);
     }
     return null;
   }
 
+  @ServerOnly
   public PacketUnitCreate[] createStartingUnits(String playerId) {
     int numPlayers = players.size();
     int gridWidth = hexagonGrid.getWidth();
@@ -236,6 +258,16 @@ public class Game implements Mappable {
     };
     for (PacketUnitCreate packetUnitCreate : packetUnitCreates) handlePacket(packetUnitCreate);
     return packetUnitCreates;
+  }
+
+  @ServerOnly
+  public boolean allPlayersReady() {
+    for (Player player : players) {
+      if(!readyPlayers.getOrDefault(player.id, false)) {
+        return false;
+      }
+    }
+    return true;
   }
 
 

@@ -3,15 +3,18 @@ package com.mrbbot.civilisation.ui.game;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.net.packet.PacketChat;
+import com.mrbbot.civilisation.net.packet.PacketReady;
 import com.mrbbot.civilisation.render.RenderCivilisation;
 import com.mrbbot.civilisation.render.map.RenderGame;
 import com.mrbbot.civilisation.ui.Screen;
+import com.mrbbot.generic.net.ClientOnly;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+@ClientOnly
 public class ScreenGame extends Screen {
   private final Game game;
   private final String id;
@@ -50,5 +53,9 @@ public class ScreenGame extends Screen {
 
   public void handlePacketChat(PacketChat packet) {
     ui.handlePacketChat(packet);
+  }
+
+  public void handlePacketReady(PacketReady data) {
+    ui.handlePacketReady(data);
   }
 }

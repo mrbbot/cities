@@ -1,6 +1,7 @@
 package com.mrbbot.civilisation.ui.connect;
 
 import com.mrbbot.civilisation.ui.Screen;
+import com.mrbbot.generic.net.ClientOnly;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -17,6 +18,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+@ClientOnly
 public class ScreenConnect extends Screen implements EventHandler<KeyEvent> {
   private final ConnectionRequestHandler connectionRequestHandler;
   private VBox vBox;

@@ -31,15 +31,15 @@ public class Civilisation
     Rectangle2D screenBounds = Screen.getPrimary().getBounds();
     width = (int) screenBounds.getWidth();
     height = (int) screenBounds.getHeight();
-    //width = 1000;
-    //height = 600;
+    width = 1000;
+    height = 600;
 
     ScreenConnect screenConnect = new ScreenConnect(this);
     primaryStage.setScene(screenConnect.makeScene(primaryStage, width, height));
 
     primaryStage.setTitle("Civilisation");
     primaryStage.setResizable(false);
-    primaryStage.setFullScreen(true);
+    //primaryStage.setFullScreen(true);
     primaryStage.setOnCloseRequest((event) -> {
       try {
         if (CLIENT != null) CLIENT.close();
@@ -63,6 +63,9 @@ public class Civilisation
         } else if (data instanceof PacketChat) {
           screenGame.handlePacketChat((PacketChat) data);
         } else {
+          if(data instanceof PacketReady) {
+            screenGame.handlePacketReady((PacketReady) data);
+          }
           screenGame.renderCivilisation.root.handlePacket(data);
         }
       });

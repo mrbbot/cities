@@ -3,8 +3,7 @@
 Computer Science Coursework
 
 ## TODO List
-
-- [ ] Save/load games, send game state to clients on join
+- [x] Save/load games, send game state to clients on join
 
 ### Units
 - [x] Different types of unit
@@ -21,5 +20,4 @@ Computer Science Coursework
 - [ ] Unlocking
 
 ### Nice to have
-- [ ] Multiplayer staging room
 - [x] In game chat

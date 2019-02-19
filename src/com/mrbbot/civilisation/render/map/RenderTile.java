@@ -3,6 +3,7 @@ package com.mrbbot.civilisation.render.map;
 import com.mrbbot.civilisation.logic.map.tile.Terrain;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.render.map.improvement.RenderImprovement;
+import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.Render;
 import com.mrbbot.generic.render.RenderData;
 import javafx.geometry.Point2D;
@@ -11,6 +12,7 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.transform.Translate;
 
+@ClientOnly
 public class RenderTile extends RenderData<Tile> {
   private static Color colourForTerrain(Terrain terrain) {
     Color min = Color.BLACK;

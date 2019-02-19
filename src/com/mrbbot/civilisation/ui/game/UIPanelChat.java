@@ -2,6 +2,7 @@ package com.mrbbot.civilisation.ui.game;
 
 import com.mrbbot.civilisation.Civilisation;
 import com.mrbbot.civilisation.net.packet.PacketChat;
+import com.mrbbot.generic.net.ClientOnly;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -11,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
+@ClientOnly
 class UIPanelChat extends BorderPane {
   private TextArea log;
   private TextField messageField;

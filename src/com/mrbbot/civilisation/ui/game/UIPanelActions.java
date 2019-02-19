@@ -1,7 +1,10 @@
 package com.mrbbot.civilisation.ui.game;
 
+import com.mrbbot.civilisation.Civilisation;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitAbility;
+import com.mrbbot.civilisation.net.packet.PacketReady;
+import com.mrbbot.generic.net.ClientOnly;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,6 +18,7 @@ import javafx.scene.text.Font;
 
 import java.util.function.BiConsumer;
 
+@ClientOnly
 public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
   private static final int ITEM_WIDTH = 200;
   private Unit selectedUnit;
@@ -81,12 +85,19 @@ public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
     }
   }
 
+  void setNextTurnWaiting(boolean waiting) {
+    nextTurnButton.setDisable(waiting);
+    nextTurnButton.setText(waiting ? "Waiting..." : "Next Turn");
+  }
+
   @Override
   public void handle(ActionEvent event) {
     if(unitActionListener != null) {
       if(event.getSource() == actionButton) {
         unitActionListener.accept(selectedUnit, actionsComboBox.getValue());
       } else if(event.getSource() == nextTurnButton) {
+        setNextTurnWaiting(true);
+        Civilisation.CLIENT.broadcast(new PacketReady(true));
         unitActionListener.accept(null, null);
       }
     }

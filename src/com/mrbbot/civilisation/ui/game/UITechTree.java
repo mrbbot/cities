@@ -3,6 +3,7 @@ package com.mrbbot.civilisation.ui.game;
 import com.mrbbot.civilisation.logic.techs.Tech;
 import com.mrbbot.civilisation.logic.techs.TechTree;
 import com.mrbbot.civilisation.logic.interfaces.Unlockable;
+import com.mrbbot.generic.net.ClientOnly;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -22,6 +23,7 @@ import java.util.Set;
 
 import static com.mrbbot.civilisation.ui.UIHelpers.colouredBackground;
 
+@ClientOnly
 public class UITechTree extends ScrollPane {
   private static final Font TECH_TITLE_FONT = Font.font(Font.getDefault().getFamily(), FontWeight.EXTRA_BOLD, 20);
   private static final CornerRadii TECH_CORNERS = new CornerRadii(5);

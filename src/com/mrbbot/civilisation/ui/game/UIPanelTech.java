@@ -1,5 +1,6 @@
 package com.mrbbot.civilisation.ui.game;
 
+import com.mrbbot.generic.net.ClientOnly;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -9,6 +10,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
+@ClientOnly
 public class UIPanelTech extends BorderPane {
   private Label currentlyResearching;
   private ProgressIndicator progress;

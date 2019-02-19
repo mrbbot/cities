@@ -1,5 +1,6 @@
 package com.mrbbot.civilisation.render.map.improvement;
 
+import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.Render;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -7,6 +8,7 @@ import javafx.scene.shape.Box;
 
 import java.util.Random;
 
+@ClientOnly
 public class RenderImprovementFarm extends Render {
   private static final Random RANDOM = new Random();
 

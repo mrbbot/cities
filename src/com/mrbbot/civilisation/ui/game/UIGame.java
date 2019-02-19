@@ -5,7 +5,9 @@ import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.net.packet.PacketChat;
 import com.mrbbot.civilisation.net.packet.PacketCityCreate;
+import com.mrbbot.civilisation.net.packet.PacketReady;
 import com.mrbbot.civilisation.render.map.RenderGame;
+import com.mrbbot.generic.net.ClientOnly;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -13,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
+@ClientOnly
 public class UIGame extends AnchorPane {
   private static final Insets PANEL_PADDING = new Insets(10);
 
@@ -117,6 +120,9 @@ public class UIGame extends AnchorPane {
   private void onUnitAction(Unit unit, String actionDetails) {
     if(unit == null) {
       System.out.println("Next turn...");
+
+      renderGame.data.waitingForPlayers = true;
+      renderGame.setSelectedUnit(null);
     } else {
       System.out.println((unit.unitType.name + " performed an action (details: \"" + actionDetails + "\")"));
       switch (unit.unitType) {
@@ -153,5 +159,9 @@ public class UIGame extends AnchorPane {
 
   public void handlePacketChat(PacketChat packet) {
     panelChat.addMessage(packet.message);
+  }
+
+  public void handlePacketReady(PacketReady data) {
+    panelActions.setNextTurnWaiting(data.ready);
   }
 }

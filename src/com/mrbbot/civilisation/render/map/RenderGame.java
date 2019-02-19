@@ -6,6 +6,7 @@ import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.net.packet.*;
+import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.RenderData;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.function.Consumer;
 
+@ClientOnly
 public class RenderGame extends RenderData<Game> {
   private final Consumer<Unit> selectedUnitListener;
   public Player currentPlayer;
@@ -50,6 +52,7 @@ public class RenderGame extends RenderData<Game> {
       Point2D center = hex.getCenter();
       String coord = "(" + center.getX() + ", " + center.getY() + ")";
       renderTile.setOnMouseClicked((e) -> {
+        if(data.waitingForPlayers) return;
         //System.out.println("You clicked on the tile at " + coord);
 
         setSelectedUnit(tile.unit);
@@ -91,8 +94,10 @@ public class RenderGame extends RenderData<Game> {
       });
 
       renderTile.setOnMouseDragged((e) -> {
+        if(data.waitingForPlayers) return;
+
         if (e.getButton() == MouseButton.SECONDARY) {
-          if (pathStartTile == null && renderTile.data.unit != null) {
+          if (pathStartTile == null && renderTile.data.unit != null && renderTile.data.unit.player.equals(currentPlayer)) {
             pathStartTile = renderTile;
             pathStartTile.setOverlayVisible(true);
           }
@@ -110,7 +115,7 @@ public class RenderGame extends RenderData<Game> {
                 pathStartTile.data.y,
                 potentialEnd.data.x,
                 potentialEnd.data.y,
-                pathStartTile.data.unit.unitType.movementPoints
+                pathStartTile.data.unit.remainingMovementPoints
               );
               path.forEach((p) -> p.renderer.setOverlayVisible(true));
 
@@ -118,7 +123,7 @@ public class RenderGame extends RenderData<Game> {
                 potentialEnd = path.get(path.size() - 1).renderer;
               }
               pathEndTile = potentialEnd;
-              pathEndTile.setOverlayVisible(true);
+              pathEndTile.setOverlayVisible(path.size() > 1);
             }
           }
         }
@@ -204,14 +209,19 @@ public class RenderGame extends RenderData<Game> {
         pathStartTile.data.y,
         pathEndTile.data.x,
         pathEndTile.data.y,
-        pathStartTile.data.unit.unitType.movementPoints
+        pathStartTile.data.unit.remainingMovementPoints
       );
       if (path.size() > 1) {
+        int usedMovementPoints = path.size() - 1;
+        pathStartTile.data.unit.remainingMovementPoints -= usedMovementPoints;
+        assert pathStartTile.data.unit.remainingMovementPoints >= 0;
+
         Civilisation.CLIENT.broadcast(new PacketUnitMove(
           pathStartTile.data.x,
           pathStartTile.data.y,
           pathEndTile.data.x,
-          pathEndTile.data.y
+          pathEndTile.data.y,
+          usedMovementPoints
         ));
         pathStartTile.data.unit.tile = pathEndTile.data;
         pathEndTile.data.unit = pathStartTile.data.unit;

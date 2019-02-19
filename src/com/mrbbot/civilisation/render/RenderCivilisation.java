@@ -3,12 +3,14 @@ package com.mrbbot.civilisation.render;
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.civilisation.render.map.RenderGame;
+import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.RenderRoot;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 
+@ClientOnly
 public class RenderCivilisation extends RenderRoot<RenderGame> {
   private final static double MAX_ZOOM = 5;
   private final static double MIN_ZOOM = 80;

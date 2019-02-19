@@ -1,6 +1,7 @@
 package com.mrbbot.civilisation.render.map;
 
 import com.mrbbot.civilisation.geometry.Hexagon;
+import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.Render;
 import javafx.scene.PointLight;
 import javafx.scene.paint.Color;
@@ -9,6 +10,7 @@ import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.transform.Rotate;
 
+@ClientOnly
 class RenderTileOverlayPart extends Render {
   private Box wall;
   private Cylinder join;

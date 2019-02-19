@@ -1,9 +1,11 @@
 package com.mrbbot.civilisation.render.map;
 
 import com.mrbbot.civilisation.logic.map.tile.City;
+import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.Render;
 import javafx.scene.paint.Color;
 
+@ClientOnly
 class RenderTileOverlay extends Render {
   private RenderTileOverlayPart[] parts;
   private City city;

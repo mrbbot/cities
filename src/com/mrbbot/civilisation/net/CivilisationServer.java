@@ -15,6 +15,7 @@ import java.util.Map;
 
 public class CivilisationServer implements Handler<Packet> {
   private static Yaml YAML;
+
   static {
     DumperOptions dumperOptions = new DumperOptions();
     dumperOptions.setSplitLines(false);
@@ -34,8 +35,11 @@ public class CivilisationServer implements Handler<Packet> {
 
   @Override
   public void accept(Connection<Packet> connection, Packet data) {
-    if(data == null) return;
     String id = connection.getId();
+    if (data == null) {
+      game.readyPlayers.put(id, false);
+      return;
+    }
     System.out.println("Received \"" + data.getClass().getTypeName() + "\" packet from \"" + id + "\"...");
     if (data instanceof PacketInit) {
       boolean shouldCreateStartingPackets = !game.containsPlayerWithId(id);
@@ -45,12 +49,19 @@ public class CivilisationServer implements Handler<Packet> {
       connection.broadcastTo(new PacketGame(game.toMap()));
       connection.broadcastExcluding(packetPlayerChange);
 
-      if(shouldCreateStartingPackets) {
+      if (shouldCreateStartingPackets) {
         for (PacketUnitCreate packetUnitCreate : game.createStartingUnits(id)) {
           connection.broadcast(packetUnitCreate);
         }
       }
 
+    } else if (data instanceof PacketReady) {
+      game.readyPlayers.put(id, ((PacketReady) data).ready);
+      if(game.allPlayersReady()) {
+        PacketReady packetReady = new PacketReady(false);
+        game.handlePacket(packetReady);
+        connection.broadcast(packetReady);
+      }
     } else if (data instanceof PacketUpdate) {
       game.handlePacket(data);
       connection.broadcastExcluding(data);
