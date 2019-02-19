@@ -1,6 +1,7 @@
 package com.mrbbot.civilisation.net;
 
 import com.mrbbot.civilisation.logic.map.Game;
+import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.generic.net.Connection;
 import com.mrbbot.generic.net.Handler;
@@ -57,15 +58,25 @@ public class CivilisationServer implements Handler<Packet> {
 
     } else if (data instanceof PacketReady) {
       game.readyPlayers.put(id, ((PacketReady) data).ready);
-      if(game.allPlayersReady()) {
+      if (game.allPlayersReady()) {
         PacketReady packetReady = new PacketReady(false);
         game.handlePacket(packetReady);
         connection.broadcast(packetReady);
       }
     } else if (data instanceof PacketUpdate) {
-      game.handlePacket(data);
+      Tile[] tilesToUpdate = game.handlePacket(data);
+      if (tilesToUpdate != null && tilesToUpdate.length != 0) {
+        for (Tile tile : tilesToUpdate) {
+          if (tile.unit != null && tile.unit.health <= 0) {
+            game.units.remove(tile.unit);
+            tile.unit = null;
+          }
+        }
+      }
       connection.broadcastExcluding(data);
     }
+
+    save("game.yml");
   }
 
   private void save(String fileName) {

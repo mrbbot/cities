@@ -74,7 +74,7 @@ public class RenderTile extends RenderData<Tile> {
     updateRender();
   }
 
-  void updateRender() {
+  public void updateRender() {
     overlay.setColor(data.selected ? Color.LIGHTBLUE : (data.canTraverse() ? Color.WHITE : Color.INDIANRED));
     if(data.city != null) {
       overlay.setCityWalls(data.city, data.getCityWalls(), height);

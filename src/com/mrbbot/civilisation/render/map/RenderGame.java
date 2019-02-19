@@ -5,6 +5,7 @@ import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
+import com.mrbbot.civilisation.logic.unit.UnitAbility;
 import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.RenderData;
@@ -52,10 +53,31 @@ public class RenderGame extends RenderData<Game> {
       Point2D center = hex.getCenter();
       String coord = "(" + center.getX() + ", " + center.getY() + ")";
       renderTile.setOnMouseClicked((e) -> {
-        if(data.waitingForPlayers) return;
+        if (data.waitingForPlayers) return;
         //System.out.println("You clicked on the tile at " + coord);
 
-        setSelectedUnit(tile.unit);
+        if (e.getButton() == MouseButton.PRIMARY) {
+          setSelectedUnit(tile.unit);
+        } else if (e.getButton() == MouseButton.SECONDARY) {
+          Unit target = tile.unit;
+          Unit attacker = data.selectedUnit;
+
+          // Check if both units exist
+          if (target == null || attacker == null) return;
+
+          // Check if target belongs to current player
+          if(target.player.equals(currentPlayer)) return;
+
+          // Check if the unit can even attack
+          if(!attacker.hasAbility(UnitAbility.ABILITY_ATTACK) && !attacker.hasAbility(UnitAbility.ABILITY_RANGED_ATTACK)) return;
+
+          // Check if attacked already this turn
+          if(attacker.hasAttackedThisTurn) return;
+
+          PacketUnitDamage packetUnitDamage = new PacketUnitDamage(attacker.tile.x, attacker.tile.y, target.tile.x, target.tile.y);
+          handlePacket(packetUnitDamage);
+          Civilisation.CLIENT.broadcast(packetUnitDamage);
+        }
         /*if(tile.unit != null && tile.unit.player.equals(currentPlayer)) {
           if(data.selectedUnit != null) {
             data.selectedUnit.tile.selected = false;
@@ -94,7 +116,7 @@ public class RenderGame extends RenderData<Game> {
       });
 
       renderTile.setOnMouseDragged((e) -> {
-        if(data.waitingForPlayers) return;
+        if (data.waitingForPlayers) return;
 
         if (e.getButton() == MouseButton.SECONDARY) {
           if (pathStartTile == null && renderTile.data.unit != null && renderTile.data.unit.player.equals(currentPlayer)) {
@@ -115,7 +137,7 @@ public class RenderGame extends RenderData<Game> {
                 pathStartTile.data.y,
                 potentialEnd.data.x,
                 potentialEnd.data.y,
-                pathStartTile.data.unit.remainingMovementPoints
+                pathStartTile.data.unit.remainingMovementPointsThisTurn
               );
               path.forEach((p) -> p.renderer.setOverlayVisible(true));
 
@@ -166,12 +188,15 @@ public class RenderGame extends RenderData<Game> {
     }
   }
 
-  public void deleteUnit(Unit unit) {
+  public void deleteUnit(Unit unit, boolean broadcast) {
     if (unit != null) {
+      if (data.selectedUnit == unit) setSelectedUnit(null);
       unit.tile.unit = null;
       unit.tile.renderer.updateRender();
       data.units.remove(unit);
-      Civilisation.CLIENT.broadcast(new PacketUnitDelete(unit.tile.x, unit.tile.y));
+      if (broadcast) {
+        Civilisation.CLIENT.broadcast(new PacketUnitDelete(unit.tile.x, unit.tile.y));
+      }
     }
   }
 
@@ -209,12 +234,12 @@ public class RenderGame extends RenderData<Game> {
         pathStartTile.data.y,
         pathEndTile.data.x,
         pathEndTile.data.y,
-        pathStartTile.data.unit.remainingMovementPoints
+        pathStartTile.data.unit.remainingMovementPointsThisTurn
       );
       if (path.size() > 1) {
         int usedMovementPoints = path.size() - 1;
-        pathStartTile.data.unit.remainingMovementPoints -= usedMovementPoints;
-        assert pathStartTile.data.unit.remainingMovementPoints >= 0;
+        pathStartTile.data.unit.remainingMovementPointsThisTurn -= usedMovementPoints;
+        assert pathStartTile.data.unit.remainingMovementPointsThisTurn >= 0;
 
         Civilisation.CLIENT.broadcast(new PacketUnitMove(
           pathStartTile.data.x,
@@ -250,7 +275,11 @@ public class RenderGame extends RenderData<Game> {
       if (tilesToUpdate.length == 0) {
         updateTileRenders();
       } else for (Tile tile : tilesToUpdate) {
-        tile.renderer.updateRender();
+        if(tile.unit != null && tile.unit.health <= 0) {
+          deleteUnit(tile.unit, false);
+        } else {
+          tile.renderer.updateRender();
+        }
       }
     }
   }

@@ -1,15 +1,18 @@
 package com.mrbbot.civilisation.logic.map;
 
+import com.mrbbot.civilisation.geometry.Hexagon;
 import com.mrbbot.civilisation.geometry.HexagonGrid;
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.interfaces.Mappable;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
+import com.mrbbot.civilisation.logic.unit.UnitAbility;
 import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.net.ServerOnly;
+import javafx.geometry.Point2D;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +36,8 @@ public class Game implements Mappable {
   public Game(String name) {
     this.name = name;
 //    hexagonGrid = new HexagonGrid<>(40, 34, 1);
-    hexagonGrid = new HexagonGrid<>(20, 17, 1);
+//    hexagonGrid = new HexagonGrid<>(20, 17, 1);
+    hexagonGrid = new HexagonGrid<>(5, 5);
 //    hexagonGrid = new HexagonGrid<>(100, 40, 1);
 //    hexagonGrid = new HexagonGrid<>(1, 1, 1);
     hexagonGrid.forEach((_tile, hex, x, y) -> hexagonGrid.set(x, y, new Tile(hex, x, y)));
@@ -156,8 +160,8 @@ public class Game implements Mappable {
     Tile startTile = hexagonGrid.get(packet.startX, packet.startY);
     Tile endTile = hexagonGrid.get(packet.endX, packet.endY);
 
-    startTile.unit.remainingMovementPoints -= packet.usedMovementPoints;
-    assert startTile.unit.remainingMovementPoints >= 0;
+    startTile.unit.remainingMovementPointsThisTurn -= packet.usedMovementPoints;
+    assert startTile.unit.remainingMovementPointsThisTurn >= 0;
     startTile.unit.tile = endTile;
     endTile.unit = startTile.unit;
     startTile.unit = null;
@@ -177,6 +181,32 @@ public class Game implements Mappable {
     return new Tile[]{tile};
   }
 
+  private Tile[] handleUnitDamagePacket(PacketUnitDamage packet) {
+    Tile attackerTile = hexagonGrid.get(packet.attackerX, packet.attackerY);
+    Tile targetTile = hexagonGrid.get(packet.targetX, packet.targetY);
+
+    Unit attacker = attackerTile.unit;
+    Unit target = targetTile.unit;
+
+    if (attacker == null || target == null) return null;
+
+    Point2D targetPos = target.tile.getHexagon().getCenter();
+    Point2D attackerPos = attacker.tile.getHexagon().getCenter();
+    double distanceBetween = targetPos.distance(attackerPos);
+    int tilesBetween = (int) Math.round(distanceBetween / Hexagon.SQRT_3);
+    if (attacker.hasAbility(UnitAbility.ABILITY_ATTACK) && tilesBetween <= 1) {
+      target.health -= attacker.unitType.attackStrength;
+      attacker.health -= target.unitType.baseHealth / 5;
+      attacker.hasAttackedThisTurn = true;
+    }
+    if (attacker.hasAbility(UnitAbility.ABILITY_RANGED_ATTACK) && tilesBetween <= 2) {
+      target.health -= attacker.unitType.attackStrength;
+      attacker.hasAttackedThisTurn = true;
+    }
+
+    return new Tile[]{attackerTile, targetTile};
+  }
+
   private Tile[] handleCityCreate(PacketCityCreate packet) {
     Player player = new Player(packet.id);
     cities.add(new City(hexagonGrid, packet.x, packet.y, player));
@@ -194,14 +224,22 @@ public class Game implements Mappable {
     return new Tile[]{};
   }
 
-  private void handlePacketReady(PacketReady packet) {
-    if(!packet.ready) {
+  private Tile[] handlePacketReady(PacketReady packet) {
+    ArrayList<Tile> tilesWithHealedUnits = new ArrayList<>();
+    if (!packet.ready) {
       for (Unit unit : units) {
-        unit.remainingMovementPoints = unit.unitType.movementPoints;
+        unit.remainingMovementPointsThisTurn = unit.unitType.movementPoints;
+        unit.hasAttackedThisTurn = false;
+        if (unit.health < unit.baseHealth) {
+          unit.health += 5;
+          if (unit.health > unit.baseHealth) unit.health = unit.baseHealth;
+          tilesWithHealedUnits.add(unit.tile);
+        }
       }
       waitingForPlayers = false;
     }
     readyPlayers.clear();
+    return tilesWithHealedUnits.toArray(new Tile[]{});
   }
 
   public Tile[] handlePacket(Packet packet) {
@@ -220,8 +258,10 @@ public class Game implements Mappable {
       return handleUnitMovePacket((PacketUnitMove) packet);
     } else if (packet instanceof PacketUnitDelete) {
       return handleUnitDeletePacket((PacketUnitDelete) packet);
-    } else if(packet instanceof PacketReady) {
-      handlePacketReady((PacketReady) packet);
+    } else if (packet instanceof PacketUnitDamage) {
+      return handleUnitDamagePacket((PacketUnitDamage) packet);
+    } else if (packet instanceof PacketReady) {
+      return handlePacketReady((PacketReady) packet);
     }
     return null;
   }
@@ -263,7 +303,7 @@ public class Game implements Mappable {
   @ServerOnly
   public boolean allPlayersReady() {
     for (Player player : players) {
-      if(!readyPlayers.getOrDefault(player.id, false)) {
+      if (!readyPlayers.getOrDefault(player.id, false)) {
         return false;
       }
     }

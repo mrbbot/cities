@@ -10,26 +10,29 @@ import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 
-import java.util.Random;
-
 @ClientOnly
 class RenderUnit extends RenderData<Unit> {
   private Cylinder[] torsos, belts;
+  private Render[] people;
+  private RenderHealthBar healthBar;
 
   RenderUnit(Unit data) {
     super(data);
 
     torsos = new Cylinder[7];
     belts = new Cylinder[7];
+    people = new Render[7];
 
-    add(buildPerson(0));
+    add(people[0] = buildPerson(0));
     for (int i = 0; i < 6; i++) {
       Render rotor = new Render();
-      rotor.add(buildPerson(i + 1));
+      rotor.add(people[i + 1] = buildPerson(i + 1));
       rotor.translate.setX(0.5);
       rotor.rotateZ.setAngle(60 * i);
       add(rotor);
     }
+
+    add(healthBar = new RenderHealthBar(data));
   }
 
   private Render buildPerson(int i) {
@@ -98,10 +101,15 @@ class RenderUnit extends RenderData<Unit> {
     if(unit != null) {
       PhongMaterial torsoMaterial = new PhongMaterial(unit.unitType.color);
       PhongMaterial beltMaterial = new PhongMaterial(unit.player.getColour());
-      for (int i = 0; i < torsos.length; i++) {
+
+      double healthPercent = (double)unit.health / (double)unit.baseHealth;
+      double onePersonProportion = 1.0 / (double)people.length;
+      for (int i = 0; i < people.length; i++) {
         torsos[i].setMaterial(torsoMaterial);
         belts[i].setMaterial(beltMaterial);
+        people[i].setVisible(healthPercent >= i * onePersonProportion);
       }
     }
+    healthBar.updateRender(unit);
   }
 }

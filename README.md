@@ -3,12 +3,11 @@
 Computer Science Coursework
 
 ## TODO List
-- [x] Save/load games, send game state to clients on join
 
 ### Units
 - [x] Different types of unit
-- [ ] Unit health/attacking
-- [ ] Game UI, next turn, unit max moves
+- [x] Unit health/attacking
+- [x] Game UI, next turn, unit max moves
 
 ### Cities
 - [ ] Health points (ILiving?)
@@ -19,5 +18,7 @@ Computer Science Coursework
 ### Technology
 - [ ] Unlocking
 
-### Nice to have
+### Misc
 - [x] In game chat
+- [x] Send game state to clients on join
+- [ ] Create server from start screen with loading games

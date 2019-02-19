@@ -120,7 +120,6 @@ public class UIGame extends AnchorPane {
   private void onUnitAction(Unit unit, String actionDetails) {
     if(unit == null) {
       System.out.println("Next turn...");
-
       renderGame.data.waitingForPlayers = true;
       renderGame.setSelectedUnit(null);
     } else {
@@ -131,7 +130,7 @@ public class UIGame extends AnchorPane {
           renderGame.data.cities.add(new City(renderGame.data.hexagonGrid, unit.tile.x, unit.tile.y, renderGame.currentPlayer));
           renderGame.updateTileRenders();
           renderGame.setSelectedUnit(null);
-          renderGame.deleteUnit(unit);
+          renderGame.deleteUnit(unit, true);
           break;
         case SCOUT:
           break;
