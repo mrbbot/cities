@@ -1,0 +1,23 @@
+.scroll-pane > .viewport  {
+  -fx-background-color: transparent;
+}
+
+.production-list-title {
+  -fx-pref-width: 275px;
+  -fx-background-color: #CCCCCC;
+  -fx-padding: 10px;
+}
+
+.production-list-item {
+  -fx-pref-width: 275px;
+  -fx-background-color: #FFFFFF;
+  -fx-padding: 10px;
+}
+
+.production-list-item:hover {
+  -fx-background-color: #EEEEEE;
+}
+
+.production-list-item:pressed {
+  -fx-background-color: #DDDDDD;
+}

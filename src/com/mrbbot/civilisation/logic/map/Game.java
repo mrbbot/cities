@@ -3,6 +3,7 @@ package com.mrbbot.civilisation.logic.map;
 import com.mrbbot.civilisation.geometry.Hexagon;
 import com.mrbbot.civilisation.geometry.HexagonGrid;
 import com.mrbbot.civilisation.logic.Player;
+import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.interfaces.Mappable;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
@@ -35,34 +36,17 @@ public class Game implements Mappable {
 
   public Game(String name) {
     this.name = name;
-//    hexagonGrid = new HexagonGrid<>(40, 34, 1);
-//    hexagonGrid = new HexagonGrid<>(20, 17, 1);
-    hexagonGrid = new HexagonGrid<>(5, 5);
-//    hexagonGrid = new HexagonGrid<>(100, 40, 1);
-//    hexagonGrid = new HexagonGrid<>(1, 1, 1);
+
+    //hexagonGrid = new HexagonGrid<>(40, 34, 1);
+    //hexagonGrid = new HexagonGrid<>(20, 17, 1);
+    hexagonGrid = new HexagonGrid<>(5, 5, 1);
+    //hexagonGrid = new HexagonGrid<>(100, 40, 1);
+    //hexagonGrid = new HexagonGrid<>(1, 1, 1);
+
     hexagonGrid.forEach((_tile, hex, x, y) -> hexagonGrid.set(x, y, new Tile(hex, x, y)));
-
     cities = new ArrayList<>();
-
-//    City middleCity = new City(hexagonGrid, 10, 10, Color.RED);
-//    middleCity.grow(2);
-//    cities.add(middleCity);
-
-//    cities.add(new City(hexagonGrid, 5, 5, Color.GOLDENROD));
-//    cities.add(new City(hexagonGrid, 17, 9, Color.DODGERBLUE));
-//    cities.add(new City(hexagonGrid, 10, 0, Color.PURPLE));
-
-//    cities.add(new City(hexagonGrid, 5, 5, new Player("hi")));
-//    cities.add(new City(hexagonGrid, 7, 5, new Player("hi")));
-
     units = new ArrayList<>();
-
-    /*units.add(new Unit(hexagonGrid.get(10, 8), UnitType.ARCHER));
-    units.add(new Unit(hexagonGrid.get(4, 4)));
-    units.add(new Unit(hexagonGrid.get(12, 9)));*/
-
     players = new ArrayList<>();
-    //players.add(new Player("hi"));
   }
 
   public Game(Map<String, Object> map) {
@@ -310,5 +294,7 @@ public class Game implements Mappable {
     return true;
   }
 
-
+  public PlayerStats getStatsForPlayerId(String id) {
+    return new PlayerStats(34, 505, 60);
+  }
 }

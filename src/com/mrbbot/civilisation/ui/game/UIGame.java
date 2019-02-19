@@ -7,6 +7,7 @@ import com.mrbbot.civilisation.net.packet.PacketChat;
 import com.mrbbot.civilisation.net.packet.PacketCityCreate;
 import com.mrbbot.civilisation.net.packet.PacketReady;
 import com.mrbbot.civilisation.render.map.RenderGame;
+import com.mrbbot.civilisation.ui.UIHelpers;
 import com.mrbbot.generic.net.ClientOnly;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -25,7 +26,9 @@ public class UIGame extends AnchorPane {
   private final UIPanelTech panelTech;
   private final UIPanelChat panelChat;
   private final UIPanelActions panelActions;
+  private final UIPanelStats panelStats;
   private final UITechTree techTree;
+  private final UIPanelProductionList panelProductionList;
   private final Button closeTechTreeButton;
 
   public UIGame(RenderGame renderGame, int width, int height) {
@@ -57,7 +60,26 @@ public class UIGame extends AnchorPane {
     AnchorPane.setBottomAnchor(panelActions, 0.0);
     AnchorPane.setRightAnchor(panelActions, 0.0);
 
-    getChildren().addAll(panelTech, panelChat, panelActions);
+    panelStats = new UIPanelStats();
+    panelStats.setBorder(makePanelBorder(Pos.TOP_RIGHT));
+    panelStats.setBackground(makePanelBackground(Pos.TOP_RIGHT));
+    panelStats.setPadding(PANEL_PADDING);
+    AnchorPane.setBottomAnchor(panelStats, 0.0);
+    AnchorPane.setLeftAnchor(panelStats, 0.0);
+
+    panelProductionList = new UIPanelProductionList();
+    panelProductionList.setBorder(new Border(new BorderStroke(
+      playerColor,
+      BorderStrokeStyle.SOLID,
+      CornerRadii.EMPTY,
+      new BorderWidths(0, 0, 0, 10)
+    )));
+    panelProductionList.setBackground(makePanelBackground(Pos.CENTER));
+    AnchorPane.setTopAnchor(panelProductionList, 0.0);
+    AnchorPane.setRightAnchor(panelProductionList, 0.0);
+    AnchorPane.setBottomAnchor(panelProductionList, 0.0);
+
+    getChildren().addAll(panelTech, panelChat, panelActions, panelStats, panelProductionList);
 
     //setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.5), null, null)));
 

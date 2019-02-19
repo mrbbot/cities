@@ -39,6 +39,7 @@ public class ScreenGame extends Screen {
 
     pane.getChildren().addAll(this.renderCivilisation.subScene, ui);
     Scene scene = new Scene(pane, width, height);
+    scene.getStylesheets().add("/com/mrbbot/civilisation/ui/game/styles.css");
     this.renderCivilisation.setScene(scene, e -> {
       if(e.getCode() == KeyCode.F11) {
         stage.setFullScreen(!stage.isFullScreen());

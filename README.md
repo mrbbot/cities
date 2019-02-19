@@ -10,10 +10,10 @@ Computer Science Coursework
 - [x] Game UI, next turn, unit max moves
 
 ### Cities
-- [ ] Health points (ILiving?)
-- [ ] Attacking cities
+- [x] Health points (ILiving?)
 - [ ] Buildings in cities (UI requirement)
 - [ ] Finish improvements
+- [ ] Attacking cities
 
 ### Technology
 - [ ] Unlocking
