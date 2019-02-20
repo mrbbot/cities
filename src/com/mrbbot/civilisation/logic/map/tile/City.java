@@ -265,7 +265,7 @@ public class City extends Living {
 
     productionTotal += productionPerTurn;
     if(currentlyBuilding != null && currentlyBuilding.canBuildWithProduction(productionTotal)) {
-      currentlyBuilding.build(game);
+      currentlyBuilding.build(this, game);
       productionTotal -= currentlyBuilding.getProductionCost();
       currentlyBuilding = null;
     }

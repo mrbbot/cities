@@ -11,7 +11,8 @@ Computer Science Coursework
 
 ### Cities
 - [x] Health points (ILiving?)
-- [ ] Buildings in cities (UI requirement)
+- [x] Buildings in cities (UI requirement)
+- [ ] Building in cities with gold instead of production
 - [ ] Finish improvements
 - [ ] Attacking cities
 

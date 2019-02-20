@@ -12,12 +12,17 @@
   -fx-pref-width: 275px;
   -fx-background-color: #FFFFFF;
   -fx-padding: 10px;
+  -fx-opacity: 0.5;
 }
 
-.production-list-item:hover {
+.production-list-item.can-build, .production-list-item.building {
+  -fx-opacity: 1;
+}
+
+.production-list-item.can-build:hover {
   -fx-background-color: #EEEEEE;
 }
 
-.production-list-item:pressed {
+.production-list-item.can-build:pressed {
   -fx-background-color: #DDDDDD;
 }

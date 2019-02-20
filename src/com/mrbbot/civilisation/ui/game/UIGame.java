@@ -1,7 +1,9 @@
 package com.mrbbot.civilisation.ui.game;
 
 import com.mrbbot.civilisation.Civilisation;
+import com.mrbbot.civilisation.logic.CityBuildable;
 import com.mrbbot.civilisation.logic.PlayerStats;
+import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitType;
@@ -16,6 +18,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+
+import java.util.ArrayList;
 
 @ClientOnly
 public class UIGame extends AnchorPane {
@@ -129,8 +133,8 @@ public class UIGame extends AnchorPane {
     panelActions.setSelectedUnit(unit);
   }
 
-  void onSelectedCityChanged(City city) {
-    if (city != null) panelCityDetails.setSelectedCity(city);
+  void onSelectedCityChanged(Game game, City city, ArrayList<City> playersCities) {
+    if (city != null) panelCityDetails.setSelectedCity(game, city, playersCities);
     panelCityDetails.setVisible(city != null);
   }
 

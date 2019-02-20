@@ -240,6 +240,14 @@ public class Game implements Mappable, TurnHandler {
     return null;
   }
 
+  private Tile[] handleCityBuildRequest(PacketCityBuildRequest packet) {
+    Tile t = hexagonGrid.get(packet.x, packet.y);
+    if(t.city != null) {
+      t.city.currentlyBuilding = packet.getBuildable();
+    }
+    return null;
+  }
+
   @Override
   public Tile[] handleTurn(Game game) {
     ArrayList<Tile> updatedTiles = new ArrayList<>();
@@ -300,6 +308,8 @@ public class Game implements Mappable, TurnHandler {
       return handleUnitDamagePacket((PacketUnitDamage) packet);
     } else if(packet instanceof PacketCityRename) {
       return handleCityRename((PacketCityRename) packet);
+    } else if(packet instanceof PacketCityBuildRequest) {
+      return handleCityBuildRequest((PacketCityBuildRequest) packet);
     } else if (packet instanceof PacketReady) {
       return handleTurn(this);
     }
@@ -365,5 +375,11 @@ public class Game implements Mappable, TurnHandler {
   public void increasePlayerScienceBy(String playerId, int science) {
     increasePlayerResourceBy(playerScienceCounts, playerId, science);
     //TODO: check tech unlock
+  }
+
+  public ArrayList<City> getPlayersCitiesById(String id) {
+    return (ArrayList<City>) cities.stream()
+      .filter(city -> city.player.id.equals(id))
+      .collect(Collectors.toList());
   }
 }

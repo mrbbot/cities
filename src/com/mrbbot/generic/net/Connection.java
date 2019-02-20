@@ -49,7 +49,7 @@ public class Connection<T> implements Runnable, Broadcaster<T> {
           inputHandler.accept(this, (T) object);
         }
       } catch (IOException e) {
-        System.out.println("Connection closed: " + e.getMessage());
+        System.out.println(String.format("[%s] Connection with \"%s\" closed: %s", new Date().toString(), id, e.getMessage()));
         inputHandler.accept(this, null);
         open = false;
       } catch (ClassNotFoundException e) {

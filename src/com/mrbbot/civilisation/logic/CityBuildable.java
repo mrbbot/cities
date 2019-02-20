@@ -8,6 +8,7 @@ import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.ui.game.BadgeType;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public abstract class CityBuildable implements Unlockable {
   public static CityBuildable fromName(String name) {
@@ -47,6 +48,14 @@ public abstract class CityBuildable implements Unlockable {
     return name.hashCode();
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if(obj instanceof CityBuildable) {
+      return Objects.equals(name, ((CityBuildable) obj).name);
+    }
+    return false;
+  }
+
   public final String getName() {
     return name;
   }
@@ -72,8 +81,9 @@ public abstract class CityBuildable implements Unlockable {
     details.add(new Detail(BadgeType.PRODUCTION, productionCost));
     return details;
   }
-  public abstract void build(Game game);
-  public boolean canBuildGivenOtherCities(ArrayList<City> cities) {
-    return true;
+  public abstract void build(City city, Game game);
+  public String canBuildGivenCities(City city, ArrayList<City> cities) {
+    //TODO: check tech unlocks
+    return "";
   }
 }

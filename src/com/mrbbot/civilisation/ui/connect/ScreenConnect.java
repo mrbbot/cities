@@ -27,7 +27,6 @@ public class ScreenConnect extends Screen implements EventHandler<KeyEvent> {
   private ProgressIndicator progressIndicator;
   private Label errorLabel;
 
-
   public ScreenConnect(ConnectionRequestHandler connectionRequestHandler) {
     this.connectionRequestHandler = connectionRequestHandler;
   }
@@ -57,6 +56,7 @@ public class ScreenConnect extends Screen implements EventHandler<KeyEvent> {
     vBox.getChildren().addAll(hostLabel, hostField, idLabel, idField, connectButton);
 
     progressIndicator = new ProgressIndicator();
+    progressIndicator.setMaxSize(100, 100);
     progressIndicator.setVisible(false);
 
     root.getChildren().addAll(vBox, progressIndicator);

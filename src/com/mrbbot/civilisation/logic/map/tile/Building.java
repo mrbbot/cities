@@ -77,9 +77,15 @@ public abstract class Building extends CityBuildable {
     }
 
     @Override
-    public boolean canBuildGivenOtherCities(ArrayList<City> cities) {
-      //TODO: check if every city has a school
-      return false;
+    public String canBuildGivenCities(City city, ArrayList<City> cities) {
+      String superReason = super.canBuildGivenCities(city, cities);
+      if(superReason.length() > 0) return superReason;
+      for (City otherCity : cities) {
+        if(!otherCity.buildings.contains(SCHOOL)) {
+          return "You must have a school in all of your cities!";
+        }
+      }
+      return "";
     }
   };
   public static Building FACTORY = new Building(
@@ -189,7 +195,12 @@ public abstract class Building extends CityBuildable {
   }
 
   @Override
-  public void build(Game game) {
+  public String canBuildGivenCities(City city, ArrayList<City> cities) {
+    return city.buildings.contains(this) ? "You can only have one of these buildings per city" : "";
+  }
 
+  @Override
+  public void build(City city, Game game) {
+    city.buildings.add(this);
   }
 }

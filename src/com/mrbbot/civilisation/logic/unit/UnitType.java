@@ -2,6 +2,7 @@ package com.mrbbot.civilisation.logic.unit;
 
 import com.mrbbot.civilisation.logic.CityBuildable;
 import com.mrbbot.civilisation.logic.map.Game;
+import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.ui.game.BadgeType;
 import javafx.scene.paint.Color;
 
@@ -152,7 +153,7 @@ public class UnitType extends CityBuildable {
   }
 
   @Override
-  public void build(Game game) {
+  public void build(City city, Game game) {
     //TODO: build unit
   }
 }

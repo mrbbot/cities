@@ -95,6 +95,7 @@ public class CivilisationServer implements Handler<Packet> {
     }
   }
 
+  //TODO: move this into the client
   public static void main(String[] args) throws IOException {
     new CivilisationServer();
   }

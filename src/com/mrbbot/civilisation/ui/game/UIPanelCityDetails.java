@@ -2,17 +2,24 @@ package com.mrbbot.civilisation.ui.game;
 
 import com.mrbbot.civilisation.Civilisation;
 import com.mrbbot.civilisation.logic.CityBuildable;
+import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.Building;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.unit.UnitType;
+import com.mrbbot.civilisation.net.packet.PacketCityBuildRequest;
 import com.mrbbot.civilisation.net.packet.PacketCityRename;
+import com.mrbbot.civilisation.ui.UIHelpers;
+import com.mrbbot.generic.net.ClientOnly;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
+@ClientOnly
 public class UIPanelCityDetails extends ScrollPane {
   private TextField cityNameField;
   private Button renameButton;
@@ -21,6 +28,7 @@ public class UIPanelCityDetails extends ScrollPane {
   private Label cityGoldLabel;
   private Label cityFoodLabel;
   private HashMap<CityBuildable, Pane> buildablePanes;
+  private HashMap<CityBuildable, Tooltip> buildableTooltips;
   private HashMap<CityBuildable, ProgressIndicator> buildableProgresses;
 
   UIPanelCityDetails() {
@@ -28,6 +36,7 @@ public class UIPanelCityDetails extends ScrollPane {
     setPrefWidth(300);
 
     buildablePanes = new HashMap<>();
+    buildableTooltips = new HashMap<>();
     buildableProgresses = new HashMap<>();
 
     VBox list = new VBox();
@@ -73,6 +82,9 @@ public class UIPanelCityDetails extends ScrollPane {
     BorderPane listItem = new BorderPane();
     listItem.getStyleClass().add("production-list-item");
     listItem.setMaxHeight(0);
+    Tooltip tooltip = new Tooltip("Click to build this in the city");
+    buildableTooltips.put(buildable, tooltip);
+    Tooltip.install(listItem, tooltip);
 
     VBox list = new VBox();
 
@@ -93,6 +105,7 @@ public class UIPanelCityDetails extends ScrollPane {
 
     listItem.setCenter(list);
     ProgressIndicator progressIndicator = new ProgressIndicator(0.0);
+    progressIndicator.setVisible(false);
     buildableProgresses.put(buildable, progressIndicator);
     listItem.setRight(progressIndicator);
 
@@ -101,7 +114,7 @@ public class UIPanelCityDetails extends ScrollPane {
     return listItem;
   }
 
-  void setSelectedCity(City city) {
+  void setSelectedCity(Game game, City city, ArrayList<City> playersCities) {
     cityProductionLabel.setText(String.valueOf(city.getProductionPerTurn()));
     cityScienceLabel.setText(String.valueOf(city.getSciencePerTurn()));
     cityGoldLabel.setText(String.valueOf(city.getGoldPerTurn()));
@@ -118,7 +131,51 @@ public class UIPanelCityDetails extends ScrollPane {
       Civilisation.CLIENT.broadcast(new PacketCityRename(city.getX(), city.getY(), newName));
     });
 
+    for (Map.Entry<CityBuildable, Pane> buildableEntry : buildablePanes.entrySet()) {
+      CityBuildable buildable = buildableEntry.getKey();
+      Pane buildablePane = buildableEntry.getValue();
+      Tooltip buildableTooltip = buildableTooltips.get(buildable);
+      ProgressIndicator progressIndicator = buildableProgresses.get(buildable);
 
-    //TODO: update prod list
+      boolean currentlyBuildingThis = buildable.equals(city.currentlyBuilding);
+      String cantBuildReason = buildable.canBuildGivenCities(city, playersCities);
+
+      String tooltipText = "Click to build this in the city";
+      boolean canBuild = true;
+      if(currentlyBuildingThis) {
+        tooltipText = "You are currently building this";
+        canBuild = false;
+      } else if(city.currentlyBuilding != null) {
+        tooltipText = "You are currently building something else";
+        canBuild = false;
+      } else if(cantBuildReason != null && cantBuildReason.length() > 0) {
+        tooltipText = cantBuildReason;
+        canBuild = false;
+      }
+
+      buildableTooltip.setText(tooltipText);
+
+      UIHelpers.toggleClass(buildablePane, "can-build", canBuild);
+      UIHelpers.toggleClass(buildablePane, "building", currentlyBuildingThis);
+
+      if(currentlyBuildingThis) {
+        progressIndicator.setProgress(
+          Math.min((double)city.productionTotal / (double)buildable.getProductionCost(), 1.0)
+        );
+      }
+      progressIndicator.setVisible(currentlyBuildingThis);
+
+      if(canBuild) {
+        buildablePane.setOnMouseClicked(e -> {
+          PacketCityBuildRequest packetCityBuildRequest = new PacketCityBuildRequest(city.getX(), city.getY(), buildable);
+          game.handlePacket(packetCityBuildRequest);
+          setSelectedCity(game, city, playersCities);
+          Civilisation.CLIENT.broadcast(packetCityBuildRequest);
+          System.out.println("Clicked on " + buildable.getName());
+        });
+      } else {
+        buildablePane.setOnMouseClicked(null);
+      }
+    }
   }
 }
