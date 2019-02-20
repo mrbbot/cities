@@ -4,6 +4,7 @@ import com.mrbbot.civilisation.geometry.HexagonGrid;
 import com.mrbbot.civilisation.logic.Living;
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.interfaces.Positionable;
+import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 
 import java.util.Map;
@@ -66,5 +67,17 @@ public class Unit extends Living implements Positionable {
     map.put("hasAttacked", hasAttackedThisTurn);
 
     return map;
+  }
+
+  @Override
+  public Tile[] handleTurn(Game game) {
+    remainingMovementPointsThisTurn = unitType.getMovementPoints();
+    hasAttackedThisTurn = false;
+    if (health < baseHealth) {
+      health += 5;
+      if (health > baseHealth) health = baseHealth;
+      return new Tile[]{tile};
+    }
+    return null;
   }
 }

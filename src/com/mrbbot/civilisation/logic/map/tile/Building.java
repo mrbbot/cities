@@ -6,8 +6,6 @@ import com.mrbbot.civilisation.ui.game.BadgeType;
 
 import java.util.ArrayList;
 
-import static com.mrbbot.civilisation.logic.unit.UnitAbility.ABILITY_MOVEMENT;
-
 public abstract class Building extends CityBuildable {
   public static int BASE_UNLOCK_ID = 0x30;
 
@@ -79,7 +77,7 @@ public abstract class Building extends CityBuildable {
     }
 
     @Override
-    public boolean canBuild(ArrayList<City> cities) {
+    public boolean canBuildGivenOtherCities(ArrayList<City> cities) {
       //TODO: check if every city has a school
       return false;
     }

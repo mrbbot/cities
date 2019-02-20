@@ -1,8 +1,10 @@
 package com.mrbbot.civilisation.logic.map.tile;
 
 import com.mrbbot.civilisation.geometry.HexagonGrid;
+import com.mrbbot.civilisation.logic.CityBuildable;
 import com.mrbbot.civilisation.logic.Living;
 import com.mrbbot.civilisation.logic.Player;
+import com.mrbbot.civilisation.logic.map.Game;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
@@ -18,12 +20,21 @@ public class City extends Living {
   public ArrayList<Tile> tiles;
   public double greatestTileHeight;
 
+  public ArrayList<Building> buildings;
+  public CityBuildable currentlyBuilding;
+  public int productionTotal;
+  public int citizens;
+  public int excessFoodCounter;
+
+  public String name;
+
   public City(HexagonGrid<Tile> grid, int centerX, int centerY, Player player) {
     super(100);
     this.grid = grid;
     this.player = player;
     this.wallColour = player.getColour();
     this.joinColour = this.wallColour.darker();
+    this.name = "City";
 
     tiles = new ArrayList<>();
 
@@ -41,6 +52,12 @@ public class City extends Living {
 
     tiles.forEach(tile -> tile.city = this);
     updateGreatestHeight();
+
+    buildings = new ArrayList<>();
+
+    productionTotal = 0;
+    citizens = 1;
+    excessFoodCounter = 0;
   }
 
   public City(HexagonGrid<Tile> grid, Map<String, Object> map) {
@@ -63,8 +80,22 @@ public class City extends Living {
         return center;
       })
       .collect(Collectors.toList());
-
     tiles.forEach(tile -> tile.city = this);
+
+    //noinspection unchecked
+    buildings = (ArrayList<Building>) ((List<String>) map.get("buildings")).stream()
+      .map(Building::fromName)
+      .collect(Collectors.toList());
+
+    if(map.containsKey("currentlyBuilding")) {
+      currentlyBuilding = CityBuildable.fromName((String) map.get("currentlyBuilding"));
+    }
+
+    productionTotal = (int) map.get("productionTotal");
+    citizens = (int) map.get("citizens");
+    excessFoodCounter = (int) map.get("excessFood");
+    name = (String) map.get("name");
+
     updateGreatestHeight();
   }
 
@@ -160,6 +191,101 @@ public class City extends Living {
 
     map.put("owner", player.id);
 
+    map.put("buildings", buildings.stream()
+      .map(CityBuildable::getName)
+      .collect(Collectors.toList()));
+
+    if(currentlyBuilding != null) {
+      map.put("currentlyBuilding", currentlyBuilding.getName());
+    }
+
+    map.put("productionTotal", productionTotal);
+    map.put("citizens", citizens);
+    map.put("excessFood", excessFoodCounter);
+    map.put("name", name);
+
     return map;
+  }
+
+  public int getProductionPerTurn() {
+    int productionPerTurn = 10 + (5 * citizens);
+    double multiplier = 1;
+    for (Building building : buildings) {
+      multiplier *= building.productionPerTurnMultiplier;
+    }
+    for (Tile tile : tiles) {
+      if(tile.improvement != null) {
+        productionPerTurn += tile.improvement.productionPerTurn;
+      }
+    }
+    productionPerTurn *= multiplier;
+    return productionPerTurn;
+  }
+
+  public int getSciencePerTurn() {
+    int sciencePerTurn = 5 * citizens;
+    double multiplier = 1;
+    for (Building building : buildings) {
+      sciencePerTurn += building.sciencePerTurnIncrease;
+      multiplier *= building.sciencePerTurnMultiplier;
+    }
+    sciencePerTurn *= multiplier;
+    return sciencePerTurn;
+  }
+
+  public int getGoldPerTurn() {
+    int goldPerTurn = 5 * citizens;
+    double multiplier = 1;
+    for (Building building : buildings) {
+      goldPerTurn += building.goldPerTurnIncrease;
+      multiplier *= building.goldPerTurnMultiplier;
+    }
+    goldPerTurn *= multiplier;
+    return goldPerTurn;
+  }
+
+  public int getFoodPerTurn() {
+    int foodPerTurn = 5 - citizens;
+    for (Tile tile : tiles) {
+      if(tile.improvement != null) {
+        foodPerTurn += tile.improvement.foodPerTurn;
+      }
+    }
+    return foodPerTurn;
+  }
+
+  @Override
+  public Tile[] handleTurn(Game game) {
+    ArrayList<Tile> updatedTiles = new ArrayList<>();
+
+    int productionPerTurn = getProductionPerTurn();
+    int sciencePerTurn = getSciencePerTurn();
+    int goldPerTurn = getGoldPerTurn();
+    int foodPerTurn = getFoodPerTurn();
+
+    productionTotal += productionPerTurn;
+    if(currentlyBuilding != null && currentlyBuilding.canBuildWithProduction(productionTotal)) {
+      currentlyBuilding.build(game);
+      productionTotal -= currentlyBuilding.getProductionCost();
+      currentlyBuilding = null;
+    }
+
+    excessFoodCounter += foodPerTurn;
+    double starvationValue = 10 + Math.pow(1.25, citizens - 1);
+    double growthValue = 10 + Math.pow(1.25, citizens);
+    if(citizens > 1 && excessFoodCounter < starvationValue) {
+      citizens--;
+    } else if(excessFoodCounter > growthValue) {
+      citizens++;
+      for (Point2D grownPoint : grow(1)) {
+        updatedTiles.add(grid.get((int)grownPoint.getX(), (int)grownPoint.getY()));
+      }
+    }
+
+    //TODO: increase player stats, +gold, +science
+    game.increasePlayerScienceBy(player.id, sciencePerTurn);
+    game.increasePlayerGoldBy(player.id, goldPerTurn);
+
+    return updatedTiles.toArray(new Tile[]{});
   }
 }

@@ -71,4 +71,8 @@ public class Tile implements Traversable {
   public boolean canTraverse() {
     return terrain.level != Level.OCEAN && terrain.level != Level.MOUNTAIN && unit == null;
   }
+
+  public boolean samePositionAs(Tile t) {
+    return x == t.x && x == t.y;
+  }
 }

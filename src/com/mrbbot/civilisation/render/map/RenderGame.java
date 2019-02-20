@@ -2,7 +2,9 @@ package com.mrbbot.civilisation.render.map;
 
 import com.mrbbot.civilisation.Civilisation;
 import com.mrbbot.civilisation.logic.Player;
+import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.map.Game;
+import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitAbility;
@@ -24,11 +26,18 @@ import java.util.function.Consumer;
 @ClientOnly
 public class RenderGame extends RenderData<Game> {
   private final Consumer<Unit> selectedUnitListener;
+  private final Consumer<City> selectedCityListener;
   public Player currentPlayer;
 
-  public RenderGame(Game data, String id, Consumer<Unit> selectedUnitListener) {
+  public RenderGame(
+    Game data,
+    String id,
+    Consumer<Unit> selectedUnitListener,
+    Consumer<City> selectedCityListener
+  ) {
     super(data);
     this.selectedUnitListener = selectedUnitListener;
+    this.selectedCityListener = selectedCityListener;
 
     for (Player player : data.players) {
       if (player.id.equals(id)) {
@@ -57,6 +66,12 @@ public class RenderGame extends RenderData<Game> {
         //System.out.println("You clicked on the tile at " + coord);
 
         if (e.getButton() == MouseButton.PRIMARY) {
+          if(tile.city != null && tile.city.getCenter().samePositionAs(tile)) {
+            setSelectedCity(tile.city);
+            setSelectedUnit(null);
+            return;
+          }
+          setSelectedCity(null);
           setSelectedUnit(tile.unit);
         } else if (e.getButton() == MouseButton.SECONDARY) {
           Unit target = tile.unit;
@@ -186,6 +201,10 @@ public class RenderGame extends RenderData<Game> {
         selectedUnitListener.accept(null);
       }
     }
+  }
+
+  public void setSelectedCity(City city) {
+    selectedCityListener.accept(city);
   }
 
   public void deleteUnit(Unit unit, boolean broadcast) {

@@ -2,11 +2,12 @@ package com.mrbbot.civilisation.logic;
 
 import com.mrbbot.civilisation.logic.interfaces.Mappable;
 import com.mrbbot.civilisation.logic.interfaces.Positionable;
+import com.mrbbot.civilisation.logic.interfaces.TurnHandler;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class Living implements Positionable, Mappable {
+public abstract class Living implements Positionable, Mappable, TurnHandler {
   public int baseHealth;
   public int health;
 

@@ -31,11 +31,17 @@ public class ScreenGame extends Screen {
     StackPane pane = new StackPane();
     pane.setAlignment(Pos.TOP_LEFT);
 
-    RenderGame renderGame = new RenderGame(game, id, this::onSelectedUnitChanged);
+    RenderGame renderGame = new RenderGame(
+      game,
+      id,
+      (unit) -> ui.onSelectedUnitChanged(unit),
+      (city) -> ui.onSelectedCityChanged(city)
+    );
     this.renderCivilisation = new RenderCivilisation(renderGame, width, height);
 
     ui = new UIGame(renderGame, width, height);
     ui.setPrefSize(width, height);
+    game.setCurrentPlayer(id, (stats) -> ui.onPlayerStatsChanged(stats));
 
     pane.getChildren().addAll(this.renderCivilisation.subScene, ui);
     Scene scene = new Scene(pane, width, height);
@@ -46,10 +52,6 @@ public class ScreenGame extends Screen {
       }
     });
     return scene;
-  }
-
-  private void onSelectedUnitChanged(Unit unit) {
-    ui.onSelectedUnitChanged(unit);
   }
 
   public void handlePacketChat(PacketChat packet) {

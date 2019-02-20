@@ -42,6 +42,11 @@ public abstract class CityBuildable implements Unlockable {
     this.unlockId = unlockId;
   }
 
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
+
   public final String getName() {
     return name;
   }
@@ -54,7 +59,11 @@ public abstract class CityBuildable implements Unlockable {
     return description;
   }
 
-  public final boolean canBuildWith(int productionTotal) {
+  public final int getProductionCost() {
+    return productionCost;
+  }
+
+  public final boolean canBuildWithProduction(int productionTotal) {
     return productionTotal >= productionCost;
   }
 
@@ -64,7 +73,7 @@ public abstract class CityBuildable implements Unlockable {
     return details;
   }
   public abstract void build(Game game);
-  public boolean canBuild(ArrayList<City> cities) {
+  public boolean canBuildGivenOtherCities(ArrayList<City> cities) {
     return true;
   }
 }

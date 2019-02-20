@@ -13,8 +13,7 @@ public class Player implements Serializable {
   }
 
   public Color getColour() {
-    Random random = new Random(id.hashCode());
-    return Color.hsb(random.nextInt(360), 1, 1);
+    return Color.hsb(id.hashCode() % 360, 1, 1);
   }
 
   @Override

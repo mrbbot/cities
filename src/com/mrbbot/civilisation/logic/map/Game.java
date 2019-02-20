@@ -5,6 +5,7 @@ import com.mrbbot.civilisation.geometry.HexagonGrid;
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.interfaces.Mappable;
+import com.mrbbot.civilisation.logic.interfaces.TurnHandler;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
@@ -15,24 +16,28 @@ import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.net.ServerOnly;
 import javafx.geometry.Point2D;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class Game implements Mappable {
+public class Game implements Mappable, TurnHandler {
   private String name;
   public HexagonGrid<Tile> hexagonGrid;
   public ArrayList<City> cities;
   public ArrayList<Unit> units;
   public ArrayList<Player> players;
+  private Map<String, Integer> playerScienceCounts;
+  private Map<String, Integer> playerGoldCounts;
   @ServerOnly
   public Map<String, Boolean> readyPlayers = new HashMap<>();
   @ClientOnly
   public Unit selectedUnit = null;
   @ClientOnly
   public boolean waitingForPlayers = false;
+  @ClientOnly
+  private String currentPlayerId;
+  @ClientOnly
+  private Consumer<PlayerStats> playerStatsListener;
 
   public Game(String name) {
     this.name = name;
@@ -47,6 +52,9 @@ public class Game implements Mappable {
     cities = new ArrayList<>();
     units = new ArrayList<>();
     players = new ArrayList<>();
+
+    playerScienceCounts = new HashMap<>();
+    playerGoldCounts = new HashMap<>();
   }
 
   public Game(Map<String, Object> map) {
@@ -85,6 +93,17 @@ public class Game implements Mappable {
     this.units = (ArrayList<Unit>) ((List<Map<String, Object>>) map.get("units")).stream()
       .map(m -> new Unit(hexagonGrid, m))
       .collect(Collectors.toList());
+
+    //noinspection unchecked
+    this.playerScienceCounts = (Map<String, Integer>) map.get("science");
+    //noinspection unchecked
+    this.playerGoldCounts = (Map<String, Integer>) map.get("gold");
+  }
+
+  public void setCurrentPlayer(String currentPlayerId, Consumer<PlayerStats> playerStatsListener) {
+    this.currentPlayerId = currentPlayerId;
+    this.playerStatsListener = playerStatsListener;
+    sendPlayerStats();
   }
 
   public Map<String, Object> toMap() {
@@ -119,6 +138,9 @@ public class Game implements Mappable {
       .map(Unit::toMap)
       .collect(Collectors.toList());
     map.put("units", unitList);
+
+    map.put("science", playerScienceCounts);
+    map.put("gold", playerGoldCounts);
 
     return map;
   }
@@ -194,6 +216,7 @@ public class Game implements Mappable {
   private Tile[] handleCityCreate(PacketCityCreate packet) {
     Player player = new Player(packet.id);
     cities.add(new City(hexagonGrid, packet.x, packet.y, player));
+    sendPlayerStats();
     return new Tile[]{};
   }
 
@@ -205,25 +228,56 @@ public class Game implements Mappable {
         break;
       }
     }
+    sendPlayerStats();
     return new Tile[]{};
   }
 
-  private Tile[] handlePacketReady(PacketReady packet) {
-    ArrayList<Tile> tilesWithHealedUnits = new ArrayList<>();
-    if (!packet.ready) {
-      for (Unit unit : units) {
-        unit.remainingMovementPointsThisTurn = unit.unitType.getMovementPoints();
-        unit.hasAttackedThisTurn = false;
-        if (unit.health < unit.baseHealth) {
-          unit.health += 5;
-          if (unit.health > unit.baseHealth) unit.health = unit.baseHealth;
-          tilesWithHealedUnits.add(unit.tile);
+  private Tile[] handleCityRename(PacketCityRename packet) {
+    Tile t = hexagonGrid.get(packet.x, packet.y);
+    if(t.city != null) {
+      t.city.name = packet.newName;
+    }
+    return null;
+  }
+
+  @Override
+  public Tile[] handleTurn(Game game) {
+    ArrayList<Tile> updatedTiles = new ArrayList<>();
+
+    for (Unit unit : units) {
+      Tile[] unitUpdatedTiles = unit.handleTurn(this);
+      if(unitUpdatedTiles != null) Collections.addAll(updatedTiles, unitUpdatedTiles);
+    }
+
+    for (City city : cities) {
+      city.handleTurn(this);
+    }
+
+    waitingForPlayers = false;
+    readyPlayers.clear();
+
+    sendPlayerStats();
+
+    return updatedTiles.toArray(new Tile[]{});
+  }
+
+  @ClientOnly
+  private void sendPlayerStats() {
+    if(currentPlayerId != null && playerStatsListener != null) {
+      int totalSciencePerTurn = 0;
+      int totalGoldPerTurn = 0;
+      for (City city : cities) {
+        if(city.player.id.equals(currentPlayerId)) {
+          totalSciencePerTurn += city.getSciencePerTurn();
+          totalGoldPerTurn += city.getGoldPerTurn();
         }
       }
-      waitingForPlayers = false;
+      playerStatsListener.accept(new PlayerStats(
+        totalSciencePerTurn,
+        playerGoldCounts.getOrDefault(currentPlayerId, 0),
+        totalGoldPerTurn
+      ));
     }
-    readyPlayers.clear();
-    return tilesWithHealedUnits.toArray(new Tile[]{});
   }
 
   public Tile[] handlePacket(Packet packet) {
@@ -244,8 +298,10 @@ public class Game implements Mappable {
       return handleUnitDeletePacket((PacketUnitDelete) packet);
     } else if (packet instanceof PacketUnitDamage) {
       return handleUnitDamagePacket((PacketUnitDamage) packet);
+    } else if(packet instanceof PacketCityRename) {
+      return handleCityRename((PacketCityRename) packet);
     } else if (packet instanceof PacketReady) {
-      return handlePacketReady((PacketReady) packet);
+      return handleTurn(this);
     }
     return null;
   }
@@ -294,7 +350,20 @@ public class Game implements Mappable {
     return true;
   }
 
-  public PlayerStats getStatsForPlayerId(String id) {
-    return new PlayerStats(34, 505, 60);
+  private void increasePlayerResourceBy(Map<String, Integer> counts, String playerId, int amount) {
+    if(counts.containsKey(playerId)) {
+      counts.put(playerId, counts.get(playerId) + amount);
+    } else {
+      counts.put(playerId, amount);
+    }
+  }
+
+  public void increasePlayerGoldBy(String playerId, int gold) {
+    increasePlayerResourceBy(playerGoldCounts, playerId, gold);
+  }
+
+  public void increasePlayerScienceBy(String playerId, int science) {
+    increasePlayerResourceBy(playerScienceCounts, playerId, science);
+    //TODO: check tech unlock
   }
 }
