@@ -1,104 +1,158 @@
 package com.mrbbot.civilisation.logic.unit;
 
+import com.mrbbot.civilisation.logic.CityBuildable;
+import com.mrbbot.civilisation.logic.map.Game;
+import com.mrbbot.civilisation.ui.game.BadgeType;
 import javafx.scene.paint.Color;
 
-public enum UnitType {
-  SETTLER(
-    0x00,
+import java.util.ArrayList;
+
+import static com.mrbbot.civilisation.logic.unit.UnitAbility.*;
+
+public class UnitType extends CityBuildable {
+  public static int BASE_UNLOCK_ID = 0x20;
+
+  public static UnitType SETTLER = new UnitType(
     "Settler",
-    "Description",
+    "Creates cities",
+    60,
+    0x00,
     Color.GOLD,
     1,
     0,
     5,
-    60,
-    UnitAbility.ABILITY_MOVEMENT + UnitAbility.ABILITY_SETTLE
-  ),
-  SCOUT(
-    0x00,
+    ABILITY_MOVEMENT + ABILITY_SETTLE
+  );
+  public static UnitType SCOUT = new UnitType(
     "Scout",
-    "Description",
+    "Moves around",
+    40,
+    0x00,
     Color.GREEN,
     4,
     5,
     25,
-    40,
-    UnitAbility.ABILITY_MOVEMENT + UnitAbility.ABILITY_ATTACK
-  ),
-  WARRIOR(
-    0x00,
+    ABILITY_MOVEMENT + ABILITY_ATTACK
+  );
+  public static UnitType WARRIOR = new UnitType(
     "Warrior",
-    "Description",
+    "Can attack adjacent units",
+    50,
+    0x00,
     Color.RED,
     2,
     10,
     50,
-    50,
-    UnitAbility.ABILITY_MOVEMENT + UnitAbility.ABILITY_ATTACK
-  ),
-  ARCHER(
-    0x20,
+    ABILITY_MOVEMENT + ABILITY_ATTACK
+  );
+  public static UnitType ARCHER = new UnitType(
     "Archer",
-    "Description",
+    "Can attack units up to 2 tiles away",
+    60,
+    BASE_UNLOCK_ID,
     Color.INDIANRED,
     2,
     5,
     30,
-    60,
-    UnitAbility.ABILITY_MOVEMENT + UnitAbility.ABILITY_RANGED_ATTACK
-  ),
-  WORKER(
-    0x00,
+    ABILITY_MOVEMENT + ABILITY_RANGED_ATTACK
+  );
+  public static UnitType WORKER = new UnitType(
     "Worker",
-    "Description",
+    "Can improve a tile",
+    40,
+    0x00,
     Color.DODGERBLUE,
     3,
     0,
     15,
-    40,
-    UnitAbility.ABILITY_MOVEMENT + UnitAbility.ABILITY_IMPROVE
-  ),
-  ROCKET(
-    0x21,
+    ABILITY_MOVEMENT + ABILITY_IMPROVE
+  );
+  public static UnitType ROCKET = new UnitType(
     "Rocket",
-    "Description",
+    "Wins the game",
+    200,
+    BASE_UNLOCK_ID + 1,
     Color.GREY,
     0,
     0,
     100,
-    200,
-    UnitAbility.ABILITY_BLAST_OFF
+    ABILITY_BLAST_OFF
   );
 
-  public int unlockId;
-  public String name;
-  public String description;
-  public Color color;
-  public int movementPoints;
-  public int attackStrength;
-  public int baseHealth;
-  public int productionCost;
-  public int abilities;
+  public static UnitType[] VALUES = new UnitType[]{
+    SETTLER,
+    SCOUT,
+    WARRIOR,
+    ARCHER,
+    WORKER,
+    ROCKET
+  };
 
-  UnitType(
-    int unlockId,
+  public static UnitType fromName(String name) {
+    for (UnitType value : VALUES) {
+      if(value.name.equals(name)) return value;
+    }
+    return null;
+  }
+
+  private final Color color;
+  private final int movementPoints;
+  private final int attackStrength;
+  private final int baseHealth;
+  private final int abilities;
+
+  private UnitType(
     String name,
     String description,
+    int productionCost,
+    int unlockId,
     Color color,
     int movementPoints,
     int attackStrength,
     int baseHealth,
-    int productionCost,
     int abilities
   ) {
-    this.unlockId = unlockId;
-    this.name = name;
-    this.description = description;
+    super(name, description, productionCost, unlockId);
     this.color = color;
     this.movementPoints = movementPoints;
     this.attackStrength = attackStrength;
     this.baseHealth = baseHealth;
-    this.productionCost = productionCost;
     this.abilities = abilities;
+  }
+
+  public Color getColor() {
+    return color;
+  }
+
+  public int getMovementPoints() {
+    return movementPoints;
+  }
+
+  public int getAttackStrength() {
+    return attackStrength;
+  }
+
+  public int getBaseHealth() {
+    return baseHealth;
+  }
+
+  public boolean hasAbility(int ability) {
+    return (abilities & ability) > 0;
+  }
+
+  @Override
+  public ArrayList<Detail> getDetails() {
+    ArrayList<Detail> details = super.getDetails();
+
+    details.add(new Detail(BadgeType.HEALTH, baseHealth));
+    if(movementPoints != 0) details.add(new Detail(BadgeType.MOVEMENT, movementPoints));
+    if(attackStrength != 0) details.add(new Detail(BadgeType.ATTACK, attackStrength));
+
+    return details;
+  }
+
+  @Override
+  public void build(Game game) {
+    //TODO: build unit
   }
 }

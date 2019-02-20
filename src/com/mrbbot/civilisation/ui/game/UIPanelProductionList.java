@@ -1,15 +1,17 @@
 package com.mrbbot.civilisation.ui.game;
 
+import com.mrbbot.civilisation.logic.CityBuildable;
 import com.mrbbot.civilisation.logic.map.tile.Building;
 import com.mrbbot.civilisation.logic.unit.UnitType;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-
-import java.util.ArrayList;
 
 public class UIPanelProductionList extends ScrollPane {
   UIPanelProductionList() {
@@ -24,23 +26,9 @@ public class UIPanelProductionList extends ScrollPane {
     buildingsTitle.getStyleClass().add("production-list-title");
 
     list.getChildren().add(unitsTitle);
-    for (UnitType unit : UnitType.values()) {
-      ArrayList<Detail> details = new ArrayList<>();
-
-      details.add(new Detail(new Badge(unit.color, unit.name.charAt(0)), ""));
-      details.add(new Detail(Badge.makeProductionBadge(), String.valueOf(unit.productionCost)));
-
-      list.getChildren().add(buildListItem(unit.name, unit.description, details));
-    }
-
+    for (UnitType unit : UnitType.VALUES) list.getChildren().add(buildListItem(unit));
     list.getChildren().add(buildingsTitle);
-    for (Building building : Building.values()) {
-      ArrayList<Detail> details = new ArrayList<>();
-
-      details.add(new Detail(Badge.makeProductionBadge(), String.valueOf(building.productionCost)));
-
-      list.getChildren().add(buildListItem(building.name, building.description, details));
-    }
+    for (Building building : Building.VALUES) list.getChildren().add(buildListItem(building));
 
     setHbarPolicy(ScrollBarPolicy.NEVER);
     setVbarPolicy(ScrollBarPolicy.ALWAYS);
@@ -48,35 +36,31 @@ public class UIPanelProductionList extends ScrollPane {
     setContent(list);
   }
 
-  private class Detail {
-    private final Badge badge;
-    private final String text;
-
-    private Detail(Badge badge, String text) {
-      this.badge = badge;
-      this.text = text;
-    }
-  }
-
-  private VBox buildListItem(String title, String description, ArrayList<Detail> details) {
-    VBox listItem = new VBox();
+  private Pane buildListItem(CityBuildable buildable) {
+    BorderPane listItem = new BorderPane();
     listItem.getStyleClass().add("production-list-item");
     listItem.setMaxHeight(0);
 
-    Label titleLabel = new Label(title);
+    VBox list = new VBox();
+
+    Label titleLabel = new Label(buildable.getName());
     titleLabel.setFont(new Font(16));
-    Label descriptionLabel = new Label(description);
+    Label descriptionLabel = new Label(buildable.getDescription());
 
     HBox detailsBox = new HBox(7);
     detailsBox.setPadding(new Insets(4, 0, 0, 0));
-    for (Detail detail : details) {
-      detailsBox.getChildren().add(detail.badge);
+    for (CityBuildable.Detail detail : buildable.getDetails()) {
+      detailsBox.getChildren().add(new Badge(detail.badge));
       if (!detail.text.isEmpty()) {
         detailsBox.getChildren().add(new Label(detail.text));
       }
     }
 
-    listItem.getChildren().addAll(titleLabel, descriptionLabel, detailsBox);
+    list.getChildren().addAll(titleLabel, descriptionLabel, detailsBox);
+
+    listItem.setCenter(list);
+    listItem.setRight(new ProgressIndicator(0.5));
+
     return listItem;
   }
 }

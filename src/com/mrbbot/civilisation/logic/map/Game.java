@@ -134,7 +134,7 @@ public class Game implements Mappable {
     Tile tile = hexagonGrid.get(packet.x, packet.y);
 
     Player player = new Player(packet.id);
-    Unit unit = new Unit(player, tile, packet.unitType);
+    Unit unit = new Unit(player, tile, packet.getUnitType());
     units.add(unit);
 
     return new Tile[]{tile};
@@ -178,13 +178,13 @@ public class Game implements Mappable {
     Point2D attackerPos = attacker.tile.getHexagon().getCenter();
     double distanceBetween = targetPos.distance(attackerPos);
     int tilesBetween = (int) Math.round(distanceBetween / Hexagon.SQRT_3);
-    if (attacker.hasAbility(UnitAbility.ABILITY_ATTACK) && tilesBetween <= 1) {
-      target.health -= attacker.unitType.attackStrength;
-      attacker.health -= target.unitType.baseHealth / 5;
+    if (attacker.unitType.hasAbility(UnitAbility.ABILITY_ATTACK) && tilesBetween <= 1) {
+      target.health -= attacker.unitType.getAttackStrength();
+      attacker.health -= target.unitType.getBaseHealth() / 5;
       attacker.hasAttackedThisTurn = true;
     }
-    if (attacker.hasAbility(UnitAbility.ABILITY_RANGED_ATTACK) && tilesBetween <= 2) {
-      target.health -= attacker.unitType.attackStrength;
+    if (attacker.unitType.hasAbility(UnitAbility.ABILITY_RANGED_ATTACK) && tilesBetween <= 2) {
+      target.health -= attacker.unitType.getAttackStrength();
       attacker.hasAttackedThisTurn = true;
     }
 
@@ -212,7 +212,7 @@ public class Game implements Mappable {
     ArrayList<Tile> tilesWithHealedUnits = new ArrayList<>();
     if (!packet.ready) {
       for (Unit unit : units) {
-        unit.remainingMovementPointsThisTurn = unit.unitType.movementPoints;
+        unit.remainingMovementPointsThisTurn = unit.unitType.getMovementPoints();
         unit.hasAttackedThisTurn = false;
         if (unit.health < unit.baseHealth) {
           unit.health += 5;

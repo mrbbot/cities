@@ -1,142 +1,197 @@
 package com.mrbbot.civilisation.logic.map.tile;
 
-public enum Building {
-  WALL(
-    0x30,
+import com.mrbbot.civilisation.logic.CityBuildable;
+import com.mrbbot.civilisation.logic.map.Game;
+import com.mrbbot.civilisation.ui.game.BadgeType;
+
+import java.util.ArrayList;
+
+import static com.mrbbot.civilisation.logic.unit.UnitAbility.ABILITY_MOVEMENT;
+
+public abstract class Building extends CityBuildable {
+  public static int BASE_UNLOCK_ID = 0x30;
+
+  public static Building WALL = new Building(
     "Walls",
-    "Description",
+    "Protect a city",
     100,
-    0,
-    1,
-    1,
-    0,
-    1,
-    100,
-    1
-  ),
-  MONUMENT(
-    0x31,
-    "Monument",
-    "Description",
-    100,
-    5,
-    1,
-    0.75,
-    0,
-    1,
-    0,
-    1
-  ),
-  BANK(
-    0x32,
-    "Bank",
-    "Description",
-    150,
-    0,
-    2,
-    1,
-    0,
-    1,
-    0,
-    1
-  ),
-  AMPHITHEATRE(
-    0x33,
-    "Amphitheatre",
-    "Description",
-    150,
-    10,
-    1,
-    1,
-    0,
-    1,
-    0,
-    1
-  ),
-  SCHOOL(
-    0x34,
-    "School",
-    "Description",
-    100,
-    0,
-    1,
-    1,
-    10,
-    1,
-    0,
-    1
-  ),
-  UNIVERSITY(
-    0x35,
-    "University",
-    "Description",
-    200,
-    0,
-    1,
-    1,
-    0,
-    2,
-    0,
-    1
-  ),
-  FACTORY(
-    0x36,
-    "Factory",
-    "Description",
-    200,
-    0,
-    1,
-    1,
-    0,
-    1,
-    0,
-    2
-  );
-
-  public int unlockId;
-  public String name;
-  public String description;
-  public int productionCost;
-
-  public int goldPerTurn;
-  public double goldPerTurnMultiplier;
-  public double expansionCostMultiplier;
-
-  public int sciencePerTurn;
-  public double sciencePerTurnMultiplier;
-
-  public int baseHealthIncrease;
-
-  public double productionPerTurnMultiplier;
-
-  Building(
-    int unlockId,
-    String name,
-    String description,
-    int productionCost,
-    int goldPerTurn,
-    double goldPerTurnMultiplier,
-    double expansionCostMultiplier,
-    int sciencePerTurn,
-    double sciencePerTurnMultiplier,
-    int baseHealthIncrease,
-    double productionPerTurnMultiplier
+    BASE_UNLOCK_ID
   ) {
-    this.unlockId = unlockId;
-    this.name = name;
-    this.description = description;
-    this.productionCost = productionCost;
-    this.goldPerTurn = goldPerTurn;
-    this.goldPerTurnMultiplier = goldPerTurnMultiplier;
-    this.expansionCostMultiplier = expansionCostMultiplier;
-    this.sciencePerTurn = sciencePerTurn;
-    this.sciencePerTurnMultiplier = sciencePerTurnMultiplier;
-    this.baseHealthIncrease = baseHealthIncrease;
-    this.productionPerTurnMultiplier = productionPerTurnMultiplier;
+    @Override
+    protected void setDetails() {
+      baseHealthIncrease = 100;
+    }
+  };
+  public static Building MONUMENT = new Building(
+    "Monument",
+    "Reduces cost of expansion",
+    100,
+    BASE_UNLOCK_ID + 1
+  ) {
+    @Override
+    protected void setDetails() {
+      goldPerTurnIncrease = 5;
+      expansionCostMultiplier = 0.75;
+    }
+  };
+  public static Building BANK = new Building(
+    "Bank",
+    "Doubles a city's gold per turn",
+    150,
+    BASE_UNLOCK_ID + 2
+  ) {
+    @Override
+    protected void setDetails() {
+      goldPerTurnMultiplier = 2;
+    }
+  };
+  public static Building AMPHITHEATRE = new Building(
+    "Amphitheatre",
+    "Gives citizens a place to spend money",
+    150,
+    BASE_UNLOCK_ID + 3
+  ) {
+    @Override
+    protected void setDetails() {
+      goldPerTurnIncrease = 10;
+    }
+  };
+  public static Building SCHOOL = new Building(
+    "School",
+    "Educates citizens",
+    100,
+    BASE_UNLOCK_ID + 4
+  ) {
+    @Override
+    protected void setDetails() {
+      sciencePerTurnIncrease = 10;
+    }
+  };
+  public static Building UNIVERSITY = new Building(
+    "University",
+    "Must have a school in every city.",
+    200,
+    BASE_UNLOCK_ID + 5
+  ) {
+    @Override
+    protected void setDetails() {
+      sciencePerTurnMultiplier = 2;
+    }
 
-    assert goldPerTurnMultiplier != 0;
-    assert expansionCostMultiplier != 0;
-    assert sciencePerTurnMultiplier != 0;
-    assert productionPerTurnMultiplier != 0;
+    @Override
+    public boolean canBuild(ArrayList<City> cities) {
+      //TODO: check if every city has a school
+      return false;
+    }
+  };
+  public static Building FACTORY = new Building(
+    "Factory",
+    "Increases cities production",
+    200,
+    BASE_UNLOCK_ID + 6
+  ) {
+    @Override
+    protected void setDetails() {
+      productionPerTurnMultiplier = 2;
+    }
+  };
+
+  public static Building[] VALUES = new Building[]{
+    WALL,
+    MONUMENT,
+    BANK,
+    AMPHITHEATRE,
+    SCHOOL,
+    UNIVERSITY,
+    FACTORY
+  };
+
+  public static Building fromName(String name) {
+    for (Building value : VALUES) {
+      if(value.name.equals(name)) return value;
+    }
+    return null;
+  }
+
+  protected int goldPerTurnIncrease = 0;
+  protected int sciencePerTurnIncrease = 0;
+  protected int baseHealthIncrease = 0;
+
+  protected double goldPerTurnMultiplier = 1;
+  protected double expansionCostMultiplier = 1;
+  protected double sciencePerTurnMultiplier = 1;
+  protected double productionPerTurnMultiplier = 1;
+
+  private Building(String name, String description, int productionCost, int unlockId) {
+    super(name, description, productionCost, unlockId);
+    setDetails();
+  }
+
+  protected abstract void setDetails();
+
+  public int getGoldPerTurnIncrease() {
+    return goldPerTurnIncrease;
+  }
+
+  public int getSciencePerTurnIncrease() {
+    return sciencePerTurnIncrease;
+  }
+
+  public int getBaseHealthIncrease() {
+    return baseHealthIncrease;
+  }
+
+  public double getGoldPerTurnMultiplier() {
+    return goldPerTurnMultiplier;
+  }
+
+  public double getExpansionCostMultiplier() {
+    return expansionCostMultiplier;
+  }
+
+  public double getSciencePerTurnMultiplier() {
+    return sciencePerTurnMultiplier;
+  }
+
+  public double getProductionPerTurnMultiplier() {
+    return productionPerTurnMultiplier;
+  }
+
+  private String getDetailTextForIncreaseWithMultiplier(int increase, double multiplier) {
+    StringBuilder text = new StringBuilder();
+    if(increase > 0) text.append(increase);
+    if(multiplier != 1) {
+      boolean increased = text.length() > 0;
+      if(increased) text.append(" (");
+      text.append("x").append((int)multiplier);
+      if(increased) text.append(")");
+    }
+    return text.toString();
+  }
+
+  @Override
+  public ArrayList<Detail> getDetails() {
+    ArrayList<Detail> details = super.getDetails();
+
+    String goldText = getDetailTextForIncreaseWithMultiplier(goldPerTurnIncrease, goldPerTurnMultiplier);
+    if(goldText.length() > 0) details.add(new Detail(BadgeType.GOLD, goldText));
+
+    String scienceText = getDetailTextForIncreaseWithMultiplier(sciencePerTurnIncrease, sciencePerTurnMultiplier);
+    if(scienceText.length() > 0) details.add(new Detail(BadgeType.SCIENCE, scienceText));
+
+    if(productionPerTurnMultiplier != 1) {
+      details.add(new Detail(BadgeType.PRODUCTION, String.format("x%d", (int)productionPerTurnMultiplier)));
+    }
+
+    if(baseHealthIncrease != 0) {
+      details.add(new Detail(BadgeType.HEALTH, baseHealthIncrease));
+    }
+
+    return details;
+  }
+
+  @Override
+  public void build(Game game) {
+
   }
 }

@@ -17,11 +17,11 @@ public class Unit extends Living implements Positionable {
   public boolean hasAttackedThisTurn;
 
   public Unit(Player player, Tile tile, UnitType unitType) {
-    super(unitType.baseHealth);
+    super(unitType.getBaseHealth());
     this.player = player;
     this.tile = tile;
     this.unitType = unitType;
-    this.remainingMovementPointsThisTurn = unitType.movementPoints;
+    this.remainingMovementPointsThisTurn = unitType.getMovementPoints();
     this.hasAttackedThisTurn = false;
     if(tile.unit != null) {
       throw new IllegalArgumentException("Unit created on tile with another unit");
@@ -34,7 +34,8 @@ public class Unit extends Living implements Positionable {
     this.health = (int) map.get("health");
     this.player = new Player((String) map.get("owner"));
     this.tile = grid.get((int) map.get("x"), (int) map.get("y"));
-    this.unitType = UnitType.valueOf((String) map.get("type"));
+    this.unitType = UnitType.fromName((String) map.get("type"));
+    assert this.unitType != null;
     this.remainingMovementPointsThisTurn = (int) map.get("remainingMovementPoints");
     this.hasAttackedThisTurn = (boolean) map.get("hasAttacked");
     if(tile.unit != null) {
@@ -53,10 +54,6 @@ public class Unit extends Living implements Positionable {
     return tile.y;
   }
 
-  public boolean hasAbility(int ability) {
-    return (unitType.abilities & ability) > 0;
-  }
-
   @Override
   public Map<String, Object> toMap() {
     Map<String, Object> map = super.toMap();
@@ -64,7 +61,7 @@ public class Unit extends Living implements Positionable {
     map.put("owner", player.id);
     map.put("x", tile.x);
     map.put("y", tile.y);
-    map.put("type", unitType.toString());
+    map.put("type", unitType.getName());
     map.put("remainingMovementPoints", remainingMovementPointsThisTurn);
     map.put("hasAttacked", hasAttackedThisTurn);
 

@@ -99,7 +99,7 @@ class RenderUnit extends RenderData<Unit> {
 
   void updateRender(Unit unit) {
     if(unit != null) {
-      PhongMaterial torsoMaterial = new PhongMaterial(unit.unitType.color);
+      PhongMaterial torsoMaterial = new PhongMaterial(unit.unitType.getColor());
       PhongMaterial beltMaterial = new PhongMaterial(unit.player.getColour());
 
       double healthPercent = (double)unit.health / (double)unit.baseHealth;

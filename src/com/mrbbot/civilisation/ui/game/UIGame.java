@@ -3,6 +3,7 @@ package com.mrbbot.civilisation.ui.game;
 import com.mrbbot.civilisation.Civilisation;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.unit.Unit;
+import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.net.packet.PacketChat;
 import com.mrbbot.civilisation.net.packet.PacketCityCreate;
 import com.mrbbot.civilisation.net.packet.PacketReady;
@@ -145,25 +146,13 @@ public class UIGame extends AnchorPane {
       renderGame.data.waitingForPlayers = true;
       renderGame.setSelectedUnit(null);
     } else {
-      System.out.println((unit.unitType.name + " performed an action (details: \"" + actionDetails + "\")"));
-      switch (unit.unitType) {
-        case SETTLER:
-          Civilisation.CLIENT.broadcast(new PacketCityCreate(renderGame.currentPlayer.id, unit.tile.x, unit.tile.y));
-          renderGame.data.cities.add(new City(renderGame.data.hexagonGrid, unit.tile.x, unit.tile.y, renderGame.currentPlayer));
-          renderGame.updateTileRenders();
-          renderGame.setSelectedUnit(null);
-          renderGame.deleteUnit(unit, true);
-          break;
-        case SCOUT:
-          break;
-        case WARRIOR:
-          break;
-        case ARCHER:
-          break;
-        case WORKER:
-          break;
-        case ROCKET:
-          break;
+      System.out.println((unit.unitType.getName() + " performed an action (details: \"" + actionDetails + "\")"));
+      if(unit.unitType.equals(UnitType.SETTLER)) {
+        Civilisation.CLIENT.broadcast(new PacketCityCreate(renderGame.currentPlayer.id, unit.tile.x, unit.tile.y));
+        renderGame.data.cities.add(new City(renderGame.data.hexagonGrid, unit.tile.x, unit.tile.y, renderGame.currentPlayer));
+        renderGame.updateTileRenders();
+        renderGame.setSelectedUnit(null);
+        renderGame.deleteUnit(unit, true);
       }
     }
   }

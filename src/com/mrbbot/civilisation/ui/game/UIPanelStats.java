@@ -14,9 +14,9 @@ public class UIPanelStats extends HBox {
     goldLabel = new Label("");
 
     getChildren().addAll(
-      Badge.makeScienceBadge(),
+      new Badge(BadgeType.SCIENCE),
       scienceLabel,
-      Badge.makeGoldBadge(),
+      new Badge(BadgeType.GOLD),
       goldLabel
     );
   }

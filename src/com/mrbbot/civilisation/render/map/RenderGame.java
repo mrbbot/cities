@@ -69,7 +69,7 @@ public class RenderGame extends RenderData<Game> {
           if(target.player.equals(currentPlayer)) return;
 
           // Check if the unit can even attack
-          if(!attacker.hasAbility(UnitAbility.ABILITY_ATTACK) && !attacker.hasAbility(UnitAbility.ABILITY_RANGED_ATTACK)) return;
+          if(!attacker.unitType.hasAbility(UnitAbility.ABILITY_ATTACK) && !attacker.unitType.hasAbility(UnitAbility.ABILITY_RANGED_ATTACK)) return;
 
           // Check if attacked already this turn
           if(attacker.hasAttackedThisTurn) return;

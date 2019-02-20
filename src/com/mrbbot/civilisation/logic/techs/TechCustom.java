@@ -18,13 +18,28 @@ public class TechCustom extends Tech {
     this.unlocks = new Unlockable[unlocks.length];
     for (int i = 0; i < unlocks.length; i++) {
       final String unlock = unlocks[i];
-      this.unlocks[i] = () -> unlock;
+      this.unlocks[i] = new Unlockable() {
+        @Override
+        public String getName() {
+          return unlock;
+        }
+
+        @Override
+        public int getUnlockId() {
+          return 0x00;
+        }
+      };
     }
   }
 
   @Override
   public String getName() {
     return title;
+  }
+
+  @Override
+  public int getUnlockId() {
+    return 0x00;
   }
 
   @Override

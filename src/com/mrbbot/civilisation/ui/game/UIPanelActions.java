@@ -76,9 +76,9 @@ public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
     if (unit == null) {
       selectedUnitLabel.setText("None");
     } else {
-      selectedUnitLabel.setText(unit.unitType.name);
+      selectedUnitLabel.setText(unit.unitType.getName());
 
-      if (unit.hasAbility(UnitAbility.ABILITY_SETTLE)) {
+      if (unit.unitType.hasAbility(UnitAbility.ABILITY_SETTLE)) {
         actionButton.setText("Settle");
         actionButton.setDisable(false);
       }
