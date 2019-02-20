@@ -32,9 +32,4 @@ public class PacketCityGrow extends PacketUpdate {
     }
     return grownTo;
   }
-
-  @Override
-  public String getName() {
-    return "city-grow";
-  }
 }

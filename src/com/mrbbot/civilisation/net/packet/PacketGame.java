@@ -8,9 +8,4 @@ public class PacketGame extends Packet {
   public PacketGame(Map<String, Object> map) {
     this.map = map;
   }
-
-  @Override
-  public String getName() {
-    return "game";
-  }
 }

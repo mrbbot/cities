@@ -7,9 +7,4 @@ public class PacketUnitDelete extends PacketUpdate {
     this.x = x;
     this.y = y;
   }
-
-  @Override
-  public String getName() {
-    return "unit-delete";
-  }
 }

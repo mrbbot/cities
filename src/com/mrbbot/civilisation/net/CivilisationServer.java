@@ -41,7 +41,6 @@ public class CivilisationServer implements Handler<Packet> {
       game.readyPlayers.put(id, false);
       return;
     }
-    System.out.println("Received \"" + data.getClass().getTypeName() + "\" packet from \"" + id + "\"...");
     if (data instanceof PacketInit) {
       boolean shouldCreateStartingPackets = !game.containsPlayerWithId(id);
 

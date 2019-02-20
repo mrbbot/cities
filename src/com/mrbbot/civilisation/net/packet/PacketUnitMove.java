@@ -10,9 +10,4 @@ public class PacketUnitMove extends PacketUpdate {
     this.endY = endY;
     this.usedMovementPoints = usedMovementPoints;
   }
-
-  @Override
-  public String getName() {
-    return "unit-move";
-  }
 }

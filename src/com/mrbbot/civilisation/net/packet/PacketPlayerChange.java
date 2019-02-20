@@ -6,9 +6,4 @@ public class PacketPlayerChange extends Packet {
   public PacketPlayerChange(String id) {
     this.id = id;
   }
-
-  @Override
-  public String getName() {
-    return "player-change";
-  }
 }

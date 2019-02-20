@@ -52,24 +52,20 @@ public class Civilisation
 
   @Override
   public void connect(String host, String id) throws IOException {
-    CLIENT = new Client<>(host, 1234, id, ((connection, data) -> {
-      System.out.println("Received \"" + data.getName() + "\" packet from \"" + connection.getId() + "\"...");
-
-      Platform.runLater(() -> {
-        if (data instanceof PacketGame) {
-          Game game = new Game(((PacketGame) data).map);
-          screenGame = new ScreenGame(game, id);
-          primaryStage.setScene(screenGame.makeScene(primaryStage, width, height));
-        } else if (data instanceof PacketChat) {
-          screenGame.handlePacketChat((PacketChat) data);
-        } else {
-          if(data instanceof PacketReady) {
-            screenGame.handlePacketReady((PacketReady) data);
-          }
-          screenGame.renderCivilisation.root.handlePacket(data);
+    CLIENT = new Client<>(host, 1234, id, ((connection, data) -> Platform.runLater(() -> {
+      if (data instanceof PacketGame) {
+        Game game = new Game(((PacketGame) data).map);
+        screenGame = new ScreenGame(game, id);
+        primaryStage.setScene(screenGame.makeScene(primaryStage, width, height));
+      } else if (data instanceof PacketChat) {
+        screenGame.handlePacketChat((PacketChat) data);
+      } else {
+        if(data instanceof PacketReady) {
+          screenGame.handlePacketReady((PacketReady) data);
         }
-      });
-    }));
+        screenGame.renderCivilisation.root.handlePacket(data);
+      }
+    })));
     CLIENT.broadcast(new PacketInit());
   }
 

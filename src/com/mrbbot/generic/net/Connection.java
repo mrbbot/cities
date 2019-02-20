@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Date;
 import java.util.function.Predicate;
 
 public class Connection<T> implements Runnable, Broadcaster<T> {
@@ -30,6 +31,7 @@ public class Connection<T> implements Runnable, Broadcaster<T> {
   }
 
   public void send(Object object) throws IOException {
+    System.out.println(String.format("[%s] %s -> %s", new Date().toString(), object.getClass().getSimpleName(), id));
     outputStream.writeObject(object);
     outputStream.flush();
   }
@@ -39,6 +41,7 @@ public class Connection<T> implements Runnable, Broadcaster<T> {
     while(open) {
       try {
         Object object = inputStream.readObject();
+        System.out.println(String.format("[%s] %s <- %s", new Date().toString(), object.getClass().getSimpleName(), id));
         if(id == null) {
           idHandler.accept(this, (String)object);
         } else {

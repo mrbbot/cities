@@ -6,9 +6,4 @@ public class PacketReady extends Packet {
   public PacketReady(boolean ready) {
     this.ready = ready;
   }
-
-  @Override
-  public String getName() {
-    return "ready";
-  }
 }

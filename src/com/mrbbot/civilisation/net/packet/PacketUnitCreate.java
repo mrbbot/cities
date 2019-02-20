@@ -17,9 +17,4 @@ public class PacketUnitCreate extends PacketUpdate {
   public UnitType getUnitType() {
     return UnitType.fromName(unitType);
   }
-
-  @Override
-  public String getName() {
-    return "unit-create";
-  }
 }

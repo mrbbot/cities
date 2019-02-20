@@ -6,9 +6,4 @@ public class PacketChat extends PacketUpdate {
   public PacketChat(String message) {
     this.message = message;
   }
-
-  @Override
-  public String getName() {
-    return "chat";
-  }
 }

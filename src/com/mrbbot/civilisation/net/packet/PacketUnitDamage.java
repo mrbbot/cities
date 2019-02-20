@@ -9,9 +9,4 @@ public class PacketUnitDamage extends PacketUpdate {
     this.targetX = targetX;
     this.targetY = targetY;
   }
-
-  @Override
-  public String getName() {
-    return "unit-damage";
-  }
 }

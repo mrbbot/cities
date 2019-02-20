@@ -9,9 +9,4 @@ public class PacketCityCreate extends PacketUpdate {
     this.x = x;
     this.y = y;
   }
-
-  @Override
-  public String getName() {
-    return "city-create";
-  }
 }
