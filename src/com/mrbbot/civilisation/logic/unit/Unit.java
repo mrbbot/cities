@@ -47,6 +47,10 @@ public class Unit extends Living implements Positionable {
     assert this.unitType != null;
     this.remainingMovementPointsThisTurn = (int) map.get("remainingMovementPoints");
     this.hasAttackedThisTurn = canAttack() && (boolean) map.get("hasAttacked");
+    if(map.containsKey("workerBuilding"))
+      workerBuilding = Improvement.fromName((String) map.get("workerBuilding"));
+    if(map.containsKey("workerBuildTurnsRemaining"))
+      workerBuildTurnsRemaining = (int) map.get("workerBuildTurnsRemaining");
     if (tile.unit != null) {
       throw new IllegalArgumentException("Unit created on tile with another unit");
     }
@@ -73,6 +77,10 @@ public class Unit extends Living implements Positionable {
     map.put("type", unitType.getName());
     map.put("remainingMovementPoints", remainingMovementPointsThisTurn);
     if (canAttack()) map.put("hasAttacked", hasAttackedThisTurn);
+    if(workerBuilding != Improvement.NONE)
+      map.put("workerBuilding", workerBuilding.name);
+    if(workerBuildTurnsRemaining != 0)
+      map.put("workerBuildTurnsRemaining", workerBuildTurnsRemaining);
 
     return map;
   }
@@ -118,6 +126,8 @@ public class Unit extends Living implements Positionable {
       if (workerBuildTurnsRemaining == 0) {
         HashMap<String, Object> meta = new HashMap<>();
 
+        // check existing for road
+        if(tile.improvement == Improvement.ROAD) allTilesNeedReRendering = true;
         if (workerBuilding == Improvement.CHOP_FOREST) {
           tile.improvement = Improvement.NONE;
         } else {

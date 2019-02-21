@@ -14,7 +14,7 @@ Computer Science Coursework
 - [x] Buildings in cities (UI requirement)
 - [x] Building in cities with gold instead of production
 - [x] Building units
-- [ ] Finish improvements
+- [x] Finish improvements
 - [ ] Attacking cities (all tiles with player cities lead to victory)
 
 ### Technology
@@ -28,3 +28,4 @@ Computer Science Coursework
 - [ ] Create server from start screen with loading games
 - [ ] Upgrades
 - [ ] Purchasing land
+- [ ] Fix weird bug with disappearing city walls with improving workers
