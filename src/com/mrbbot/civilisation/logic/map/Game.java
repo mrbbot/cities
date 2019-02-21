@@ -154,13 +154,43 @@ public class Game implements Mappable, TurnHandler {
   }
 
   private Tile[] handleUnitCreatePacket(PacketUnitCreate packet) {
-    Tile tile = hexagonGrid.get(packet.x, packet.y);
+    ArrayList<Tile> checkedTiles = new ArrayList<>();
+    Queue<Tile> placementTilesToCheck = new LinkedList<>();
+    placementTilesToCheck.add(hexagonGrid.get(packet.x, packet.y));
 
-    Player player = new Player(packet.id);
-    Unit unit = new Unit(player, tile, packet.getUnitType());
-    units.add(unit);
+    Tile tileToCheck;
+    while((tileToCheck = placementTilesToCheck.poll()) != null) {
+      boolean tileIsCapital = false;
+      if(tileToCheck.city != null) {
+        tileIsCapital = tileToCheck.city.getCenter().samePositionAs(tileToCheck);
+      }
+      if(!tileIsCapital && tileToCheck.unit == null && tileToCheck.canTraverse()) {
+        break;
+      }
 
-    return new Tile[]{tile};
+      checkedTiles.add(tileToCheck);
+
+      placementTilesToCheck.addAll(
+        hexagonGrid.getNeighbours(
+          tileToCheck.x,
+          tileToCheck.y,
+          false
+        ).stream()
+          .filter(tile -> !checkedTiles.contains(tile))
+          .collect(Collectors.toList())
+      );
+    }
+
+    if(tileToCheck != null) {
+      //found space
+      Player player = new Player(packet.id);
+      Unit unit = new Unit(player, tileToCheck, packet.getUnitType());
+      units.add(unit);
+
+      return new Tile[]{tileToCheck};
+    }
+
+    return null;
   }
 
   private Tile[] handleUnitMovePacket(PacketUnitMove packet) {
@@ -247,7 +277,7 @@ public class Game implements Mappable, TurnHandler {
       CityBuildable buildable = packet.getBuildable();
       if(packet.withProduction) {
         t.city.currentlyBuilding = buildable;
-      } else if(buildable.canBuildWithGold(getPlayerGold(t.city.player.id))) {
+      } else if(buildable.canBuildWithGold(getPlayerGoldTotal(t.city.player.id))) {
         increasePlayerGoldBy(t.city.player.id, -buildable.getGoldCost());
         buildable.build(t.city, this);
       }
@@ -290,7 +320,7 @@ public class Game implements Mappable, TurnHandler {
       }
       playerStatsListener.accept(new PlayerStats(
         totalSciencePerTurn,
-        getPlayerGold(currentPlayerId),
+        getPlayerGoldTotal(currentPlayerId),
         totalGoldPerTurn
       ));
     }
@@ -352,7 +382,7 @@ public class Game implements Mappable, TurnHandler {
 
     PacketUnitCreate[] packetUnitCreates = new PacketUnitCreate[]{
       new PacketUnitCreate(playerId, x, y, UnitType.SETTLER),
-      new PacketUnitCreate(playerId, x + 1, y, UnitType.WARRIOR)
+      new PacketUnitCreate(playerId, x, y, UnitType.WARRIOR)
     };
     for (PacketUnitCreate packetUnitCreate : packetUnitCreates) handlePacket(packetUnitCreate);
     return packetUnitCreates;
@@ -372,11 +402,11 @@ public class Game implements Mappable, TurnHandler {
     return counts.getOrDefault(playerId, 0);
   }
 
-  public int getPlayerGold(String playerId) {
+  public int getPlayerGoldTotal(String playerId) {
     return getPlayerResource(playerGoldCounts, playerId);
   }
 
-  public int getPlayerScience(String playerId) {
+  public int getPlayerScienceTotal(String playerId) {
     return getPlayerResource(playerScienceCounts, playerId);
   }
 

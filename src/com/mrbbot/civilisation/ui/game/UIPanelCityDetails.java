@@ -215,7 +215,7 @@ public class UIPanelCityDetails extends ScrollPane {
       } else if (city.currentlyBuilding != null) {
         tooltipText = "You are currently building something else";
         canBuild = false;
-      } else if (!buildWithProduction && game.getPlayerGold(city.player.id) < buildable.getGoldCost()) {
+      } else if (!buildWithProduction && game.getPlayerGoldTotal(city.player.id) < buildable.getGoldCost()) {
         tooltipText = "You don't have enough gold to build this";
         canBuild = false;
       } else if (cantBuildReason != null && cantBuildReason.length() > 0) {

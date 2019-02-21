@@ -3,6 +3,7 @@ package com.mrbbot.civilisation.logic.unit;
 import com.mrbbot.civilisation.logic.CityBuildable;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.City;
+import com.mrbbot.civilisation.net.packet.PacketUnitCreate;
 import com.mrbbot.civilisation.ui.game.BadgeType;
 import javafx.scene.paint.Color;
 
@@ -141,6 +142,10 @@ public class UnitType extends CityBuildable {
     return (abilities & ability) > 0;
   }
 
+  public boolean canAttack() {
+    return hasAbility(ABILITY_ATTACK) || hasAbility(ABILITY_RANGED_ATTACK);
+  }
+
   @Override
   public ArrayList<Detail> getDetails() {
     ArrayList<Detail> details = super.getDetails();
@@ -154,6 +159,8 @@ public class UnitType extends CityBuildable {
 
   @Override
   public void build(City city, Game game) {
-    //TODO: build unit
+    PacketUnitCreate packetUnitCreate = new PacketUnitCreate(city.player.id, city.getX(), city.getY(), this);
+    game.handlePacket(packetUnitCreate);
+    // no need to broadcast packet as this method is called on the client and the server automatically
   }
 }

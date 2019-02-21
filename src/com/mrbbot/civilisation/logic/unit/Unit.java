@@ -38,7 +38,7 @@ public class Unit extends Living implements Positionable {
     this.unitType = UnitType.fromName((String) map.get("type"));
     assert this.unitType != null;
     this.remainingMovementPointsThisTurn = (int) map.get("remainingMovementPoints");
-    this.hasAttackedThisTurn = (boolean) map.get("hasAttacked");
+    this.hasAttackedThisTurn = unitType.canAttack() && (boolean) map.get("hasAttacked");
     if(tile.unit != null) {
       throw new IllegalArgumentException("Unit created on tile with another unit");
     }
@@ -64,7 +64,7 @@ public class Unit extends Living implements Positionable {
     map.put("y", tile.y);
     map.put("type", unitType.getName());
     map.put("remainingMovementPoints", remainingMovementPointsThisTurn);
-    map.put("hasAttacked", hasAttackedThisTurn);
+    if(unitType.canAttack()) map.put("hasAttacked", hasAttackedThisTurn);
 
     return map;
   }
