@@ -1,6 +1,8 @@
 package com.mrbbot.civilisation.ui.game;
 
 import com.mrbbot.civilisation.Civilisation;
+import com.mrbbot.civilisation.logic.map.Game;
+import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitAbility;
 import com.mrbbot.civilisation.net.packet.PacketReady;
@@ -76,11 +78,13 @@ public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
     if (unit == null) {
       selectedUnitLabel.setText("None");
     } else {
+      Tile tile = unit.tile;
+
       selectedUnitLabel.setText(unit.unitType.getName());
 
       if (unit.unitType.hasAbility(UnitAbility.ABILITY_SETTLE)) {
         actionButton.setText("Settle");
-        actionButton.setDisable(false);
+        actionButton.setDisable(tile.city != null);
       }
     }
   }

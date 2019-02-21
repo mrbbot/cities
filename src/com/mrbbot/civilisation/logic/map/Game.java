@@ -68,21 +68,22 @@ public class Game implements Mappable, TurnHandler {
       .collect(Collectors.toList());
 
     //noinspection unchecked
-    List<List<Map<String, Object>>> terrainList = (List<List<Map<String, Object>>>) map.get("terrain");
+    List<List<Double>> terrainList = (List<List<Double>>) map.get("terrain");
+    //noinspection unchecked
+    List<List<Integer>> treeList = (List<List<Integer>>) map.get("trees");
     int height = terrainList.size();
     for (int y = 0; y < height; y++) {
-      List<Map<String, Object>> row = terrainList.get(y);
-      int width = row.size();
+      List<Double> terrainRow = terrainList.get(y);
+      List<Integer> treeRow = treeList.get(y);
+      int width = terrainRow.size();
 
       if (hexagonGrid == null) {
         hexagonGrid = new HexagonGrid<>(width, height, 1);
       }
 
       for (int x = 0; x < width; x++) {
-        Map<String, Object> terrain = row.get(x);
-
-        double terrainHeight = (double) terrain.get("height");
-        boolean tree = (boolean) terrain.get("tree");
+        double terrainHeight = terrainRow.get(x);
+        boolean tree = treeRow.get(x) == 1;
 
         hexagonGrid.set(x, y, new Tile(hexagonGrid.getHexagon(x, y), x, y, terrainHeight, tree));
       }
@@ -122,23 +123,23 @@ public class Game implements Mappable, TurnHandler {
       .collect(Collectors.toList());
     map.put("players", playerList);
 
-    ArrayList<ArrayList<Map<String, Object>>> terrainList = new ArrayList<>();
+    ArrayList<ArrayList<Double>> terrainList = new ArrayList<>();
+    ArrayList<ArrayList<Integer>> treeList = new ArrayList<>();
     int gridWidth = hexagonGrid.getWidth() + 1;
     int gridHeight = hexagonGrid.getHeight();
     for (int y = 0; y < gridHeight; y++) {
-      ArrayList<Map<String, Object>> row = new ArrayList<>();
+      ArrayList<Double> terrainRow = new ArrayList<>();
+      ArrayList<Integer> treeRow = new ArrayList<>();
       for (int x = 0; x < gridWidth - ((y + 1) % 2); x++) {
-        Map<String, Object> terrainMap = new HashMap<>();
         Terrain terrain = hexagonGrid.get(x, y).getTerrain();
-
-        terrainMap.put("height", terrain.height);
-        terrainMap.put("tree", terrain.hasTree);
-
-        row.add(terrainMap);
+        terrainRow.add(terrain.height);
+        treeRow.add(terrain.hasTree ? 1 : 0);
       }
-      terrainList.add(row);
+      terrainList.add(terrainRow);
+      treeList.add(treeRow);
     }
     map.put("terrain", terrainList);
+    map.put("trees", treeList);
 
     List<Map<String, Object>> cityList = cities.stream()
       .map(City::toMap)

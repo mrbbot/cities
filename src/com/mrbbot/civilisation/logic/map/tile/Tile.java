@@ -77,6 +77,11 @@ public class Tile implements Traversable {
   }
 
   public boolean samePositionAs(Tile t) {
-    return x == t.x && x == t.y;
+    return x == t.x && y == t.y;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Tile[x=%d, y=%d]", x, y);
   }
 }

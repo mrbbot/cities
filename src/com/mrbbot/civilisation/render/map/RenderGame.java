@@ -276,6 +276,8 @@ public class RenderGame extends RenderData<Game> {
 
         pathStartTile.updateRender();
         pathEndTile.updateRender();
+
+        selectedUnitListener.accept(data.selectedUnit);
       }
     }
 
