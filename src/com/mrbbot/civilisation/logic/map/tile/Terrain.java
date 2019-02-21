@@ -18,9 +18,10 @@ public class Terrain {
 
   Terrain(double height, boolean hasTree) {
     this.height = height;
-    this.hasTree = hasTree;
 
     level = Level.of(this.height);
     if (level.fixToMax) this.height = level.maxHeight;
+
+    this.hasTree = hasTree && level == Level.PLAIN;
   }
 }

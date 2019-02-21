@@ -74,8 +74,15 @@ public class City extends Living {
         int x = (int) m.get("x");
         int y = (int) m.get("y");
         Tile center = grid.get(x, y);
+
         if(m.containsKey("improvement")) {
-          center.improvement = Improvement.valueOf((String) m.get("improvement"));
+          //noinspection unchecked
+          Map<String, Object> improvement = (Map<String, Object>) m.get("improvement");
+          center.improvement = Improvement.fromName((String) improvement.get("name"));
+          //noinspection unchecked
+          center.improvementMetadata = (Map<String, Object>) improvement.get("meta");
+        } else {
+          center.improvement = Improvement.NONE;
         }
         return center;
       })
@@ -87,7 +94,7 @@ public class City extends Living {
       .map(Building::fromName)
       .collect(Collectors.toList());
 
-    if(map.containsKey("currentlyBuilding")) {
+    if (map.containsKey("currentlyBuilding")) {
       currentlyBuilding = CityBuildable.fromName((String) map.get("currentlyBuilding"));
     }
 
@@ -182,8 +189,11 @@ public class City extends Living {
       Map<String, Object> tileMap = new HashMap<>();
       tileMap.put("x", tile.x);
       tileMap.put("y", tile.y);
-      if(tile.improvement != Improvement.NONE) {
-        tileMap.put("improvement", tile.improvement.toString());
+      if (tile.improvement != Improvement.NONE) {
+        Map<String, Object> improvementMap = new HashMap<>();
+        improvementMap.put("name", tile.improvement.name);
+        improvementMap.put("meta", tile.improvementMetadata);
+        tileMap.put("improvement", improvementMap);
       }
       tileMaps.add(tileMap);
     }
@@ -195,7 +205,7 @@ public class City extends Living {
       .map(CityBuildable::getName)
       .collect(Collectors.toList()));
 
-    if(currentlyBuilding != null) {
+    if (currentlyBuilding != null) {
       map.put("currentlyBuilding", currentlyBuilding.getName());
     }
 
@@ -214,7 +224,7 @@ public class City extends Living {
       multiplier *= building.productionPerTurnMultiplier;
     }
     for (Tile tile : tiles) {
-      if(tile.improvement != null) {
+      if (tile.improvement != null) {
         productionPerTurn += tile.improvement.productionPerTurn;
       }
     }
@@ -247,7 +257,7 @@ public class City extends Living {
   public int getFoodPerTurn() {
     int foodPerTurn = 5 - citizens;
     for (Tile tile : tiles) {
-      if(tile.improvement != null) {
+      if (tile.improvement != null) {
         foodPerTurn += tile.improvement.foodPerTurn;
       }
     }
@@ -264,7 +274,7 @@ public class City extends Living {
     int foodPerTurn = getFoodPerTurn();
 
     productionTotal += productionPerTurn;
-    if(currentlyBuilding != null && currentlyBuilding.canBuildWithProduction(productionTotal)) {
+    if (currentlyBuilding != null && currentlyBuilding.canBuildWithProduction(productionTotal)) {
       currentlyBuilding.build(this, game);
       productionTotal -= currentlyBuilding.getProductionCost();
       currentlyBuilding = null;
@@ -273,12 +283,12 @@ public class City extends Living {
     excessFoodCounter += foodPerTurn;
     double starvationValue = 10 + Math.pow(1.25, citizens - 1);
     double growthValue = 10 + Math.pow(1.25, citizens);
-    if(citizens > 1 && excessFoodCounter < starvationValue) {
+    if (citizens > 1 && excessFoodCounter < starvationValue) {
       citizens--;
-    } else if(excessFoodCounter > growthValue) {
+    } else if (excessFoodCounter > growthValue) {
       citizens++;
       for (Point2D grownPoint : grow(1)) {
-        updatedTiles.add(grid.get((int)grownPoint.getX(), (int)grownPoint.getY()));
+        updatedTiles.add(grid.get((int) grownPoint.getX(), (int) grownPoint.getY()));
       }
     }
 

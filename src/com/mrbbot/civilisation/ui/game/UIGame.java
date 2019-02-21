@@ -1,15 +1,16 @@
 package com.mrbbot.civilisation.ui.game;
 
 import com.mrbbot.civilisation.Civilisation;
-import com.mrbbot.civilisation.logic.CityBuildable;
 import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.City;
+import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.net.packet.PacketChat;
 import com.mrbbot.civilisation.net.packet.PacketCityCreate;
 import com.mrbbot.civilisation.net.packet.PacketReady;
+import com.mrbbot.civilisation.net.packet.PacketWorkerImproveRequest;
 import com.mrbbot.civilisation.render.map.RenderGame;
 import com.mrbbot.generic.net.ClientOnly;
 import javafx.geometry.Insets;
@@ -152,6 +153,12 @@ public class UIGame extends AnchorPane {
         renderGame.updateTileRenders();
         renderGame.setSelectedUnit(null);
         renderGame.deleteUnit(unit, true);
+      } else if(unit.unitType.equals(UnitType.WORKER)) {
+        Improvement improvement = Improvement.fromName(actionDetails);
+        PacketWorkerImproveRequest packetWorkerImproveRequest = new PacketWorkerImproveRequest(unit.tile.x, unit.tile.y, improvement);
+        renderGame.data.handlePacket(packetWorkerImproveRequest);
+        Civilisation.CLIENT.broadcast(packetWorkerImproveRequest);
+        renderGame.setSelectedUnit(null);
       }
     }
   }

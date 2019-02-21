@@ -8,6 +8,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 
+import java.util.Map;
+
 @ClientOnly
 public class RenderImprovement extends RenderData<Improvement> {
   private final Tile tile;
@@ -15,10 +17,10 @@ public class RenderImprovement extends RenderData<Improvement> {
   public RenderImprovement(Tile tile) {
     super(tile.improvement);
     this.tile = tile;
-    setImprovement(data);
+    setImprovement(data, tile.improvementMetadata);
   }
 
-  public void setImprovement(Improvement data) {
+  public void setImprovement(Improvement data, Map<String, Object> metadata) {
     this.data = data;
     this.getChildren().clear();
     this.reset();
@@ -34,7 +36,7 @@ public class RenderImprovement extends RenderData<Improvement> {
         add(new RenderImprovementHouse(tile.city.wallColour));
         break;
       case FARM:
-        add(new RenderImprovementFarm());
+        add(new RenderImprovementFarm(metadata));
         break;
       case TREE:
         add(new RenderImprovementTree());

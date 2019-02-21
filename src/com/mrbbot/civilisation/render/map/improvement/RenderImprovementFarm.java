@@ -6,19 +6,19 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 @ClientOnly
 public class RenderImprovementFarm extends Render {
-  private static final Random RANDOM = new Random();
-
   private static final double SIZE = 0.7;
   private static final Color FENCE_COLOUR = Color.BROWN.darker().darker();
   private static final Color GRASS_COLOUR = Color.GREEN;
   private static final Color SOIL_COLOUR = Color.BROWN.darker();
 
-  RenderImprovementFarm() {
-    double numStrips = ((RANDOM.nextInt(3) + 1) * 2) + 1;
+  RenderImprovementFarm(Map<String, Object> metadata) {
+    double numStrips = (int) metadata.get("strips");
 
     double stripSize = SIZE / numStrips;
     double startTranslate = -(numStrips - 1) / 2.0 * stripSize;
@@ -35,12 +35,12 @@ public class RenderImprovementFarm extends Render {
     add(makeWall(270));
 
     translate.setZ(0.05);
-    rotateZ.setAngle(RANDOM.nextInt(6) * 60);
+    rotateZ.setAngle((int) metadata.get("angle"));
 
-    RenderImprovementHouse house = new RenderImprovementHouse(null);
+    /*RenderImprovementHouse house = new RenderImprovementHouse(null);
     //house.translate.setZ(2);
     house.scaleTo(0.5);
-    add(house);
+    add(house);*/
   }
 
   private Render makeWall(double angle) {

@@ -242,12 +242,12 @@ public class Game implements Mappable, TurnHandler {
     Point2D attackerPos = attacker.tile.getHexagon().getCenter();
     double distanceBetween = targetPos.distance(attackerPos);
     int tilesBetween = (int) Math.round(distanceBetween / Hexagon.SQRT_3);
-    if (attacker.unitType.hasAbility(UnitAbility.ABILITY_ATTACK) && tilesBetween <= 1) {
+    if (attacker.hasAbility(UnitAbility.ABILITY_ATTACK) && tilesBetween <= 1) {
       target.health -= attacker.unitType.getAttackStrength();
       attacker.health -= target.unitType.getBaseHealth() / 5;
       attacker.hasAttackedThisTurn = true;
     }
-    if (attacker.unitType.hasAbility(UnitAbility.ABILITY_RANGED_ATTACK) && tilesBetween <= 2) {
+    if (attacker.hasAbility(UnitAbility.ABILITY_RANGED_ATTACK) && tilesBetween <= 2) {
       target.health -= attacker.unitType.getAttackStrength();
       attacker.hasAttackedThisTurn = true;
     }
@@ -293,6 +293,15 @@ public class Game implements Mappable, TurnHandler {
         buildable.build(t.city, this);
       }
 
+    }
+    return null;
+  }
+
+  private Tile[] handleWorkerImproveRequest(PacketWorkerImproveRequest packet) {
+    Tile t = hexagonGrid.get(packet.x, packet.y);
+    if(t.unit != null) {
+      t.unit.startWorkerBuilding(packet.improvement);
+      return new Tile[] {t};
     }
     return null;
   }
@@ -359,6 +368,8 @@ public class Game implements Mappable, TurnHandler {
       return handleCityRename((PacketCityRename) packet);
     } else if(packet instanceof PacketCityBuildRequest) {
       return handleCityBuildRequest((PacketCityBuildRequest) packet);
+    } else if(packet instanceof PacketWorkerImproveRequest) {
+      return handleWorkerImproveRequest((PacketWorkerImproveRequest) packet);
     } else if (packet instanceof PacketReady) {
       return handleTurn(this);
     }

@@ -1,6 +1,5 @@
 package com.mrbbot.generic.render;
 
-@SuppressWarnings("WeakerAccess")
 public class RenderData<T>
   extends Render {
   public T data;

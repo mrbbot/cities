@@ -86,7 +86,7 @@ public class RenderTile extends RenderData<Tile> {
   }
 
   public void updateImprovement() {
-    improvement.setImprovement(data.improvement);
+    improvement.setImprovement(data.improvement, data.improvementMetadata);
   }
 
   void setOverlayVisible(boolean visible) {

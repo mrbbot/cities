@@ -138,12 +138,8 @@ public class UnitType extends CityBuildable {
     return baseHealth;
   }
 
-  public boolean hasAbility(int ability) {
-    return (abilities & ability) > 0;
-  }
-
-  public boolean canAttack() {
-    return hasAbility(ABILITY_ATTACK) || hasAbility(ABILITY_RANGED_ATTACK);
+  int getAbilities() {
+    return abilities;
   }
 
   @Override

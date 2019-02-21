@@ -2,6 +2,7 @@ package com.mrbbot.civilisation.ui.game;
 
 import com.mrbbot.civilisation.Civilisation;
 import com.mrbbot.civilisation.logic.map.Game;
+import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitAbility;
@@ -82,9 +83,33 @@ public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
 
       selectedUnitLabel.setText(unit.unitType.getName());
 
-      if (unit.unitType.hasAbility(UnitAbility.ABILITY_SETTLE)) {
+      if (unit.hasAbility(UnitAbility.ABILITY_SETTLE)) {
         actionButton.setText("Settle");
         actionButton.setDisable(tile.city != null);
+      }
+
+      //TODO: Check belongs to city
+      if (unit.hasAbility(UnitAbility.ABILITY_IMPROVE)) {
+        for (Improvement improvement : Improvement.values()) {
+          if(improvement.workerCanDo) {
+            actionsList.add(improvement.name);
+          }
+        }
+        if(tile.improvement == Improvement.TREE) {
+          actionsList.add(Improvement.CHOP_FOREST.name);
+        }
+
+        actionButton.setText("Improve");
+        if(actionsList.size() > 0) {
+          actionsComboBox.setValue(actionsList.get(0));
+          actionButton.setDisable(tile.city == null || !tile.city.player.equals(unit.player));
+        }
+
+        if(unit.workerBuilding != Improvement.NONE) {
+          actionButton.setText(String.format("Improving... (%d turns remaining)", unit.workerBuildTurnsRemaining));
+          actionsComboBox.setValue(unit.workerBuilding.name);
+          actionButton.setDisable(true);
+        }
       }
     }
   }

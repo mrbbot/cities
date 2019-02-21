@@ -39,7 +39,7 @@ public enum Improvement {
     3,
     0,
     0,
-    true
+    false
   ),
   MINE(
     0x12,
@@ -65,6 +65,13 @@ public enum Improvement {
     0,
     true
   );
+
+  public static Improvement fromName(String name) {
+    for (Improvement value : values()) {
+      if(value.name.equals(name)) return value;
+    }
+    return null;
+  }
 
   public int unlockId;
   public String name;

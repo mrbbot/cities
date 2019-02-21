@@ -22,7 +22,9 @@ Computer Science Coursework
 
 ### Misc
 - [ ] Rocket blast off (victory)
-- [ ] Can settle only if no city (reflect in UI)
+- [x] Can settle only if no city (reflect in UI)
 - [x] In game chat
 - [x] Send game state to clients on join
 - [ ] Create server from start screen with loading games
+- [ ] Upgrades
+- [ ] Purchasing land

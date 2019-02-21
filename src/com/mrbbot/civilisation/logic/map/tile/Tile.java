@@ -5,6 +5,8 @@ import com.mrbbot.civilisation.logic.interfaces.Traversable;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.render.map.RenderTile;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class Tile implements Traversable {
@@ -14,6 +16,7 @@ public class Tile implements Traversable {
   private final Terrain terrain;
   public City city;
   public Improvement improvement;
+  public Map<String, Object> improvementMetadata = new HashMap<>();
   public Unit unit;
   public boolean selected = false;
 
