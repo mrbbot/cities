@@ -1,6 +1,7 @@
 package com.mrbbot.civilisation.render.map;
 
 import com.mrbbot.civilisation.Civilisation;
+import com.mrbbot.civilisation.geometry.Path;
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.map.Game;
@@ -56,7 +57,7 @@ public class RenderGame extends RenderData<Game> {
     });
 
     data.hexagonGrid.forEach((tile, hex, x, y) -> {
-      RenderTile renderTile = new RenderTile(tile);
+      RenderTile renderTile = new RenderTile(tile, data.hexagonGrid.getNeighbours(x, y, false));
       tile.renderer = renderTile;
 
       Point2D center = hex.getCenter();
@@ -153,7 +154,7 @@ public class RenderGame extends RenderData<Game> {
                 potentialEnd.data.x,
                 potentialEnd.data.y,
                 pathStartTile.data.unit.remainingMovementPointsThisTurn
-              );
+              ).path;
               path.forEach((p) -> p.renderer.setOverlayVisible(true));
 
               if (path.size() > 1) {
@@ -248,15 +249,16 @@ public class RenderGame extends RenderData<Game> {
 
   public void resetPathfinding() {
     if (pathStartTile != null && pathEndTile != null) {
-      List<Tile> path = data.hexagonGrid.findPath(
+      Path<Tile> path = data.hexagonGrid.findPath(
         pathStartTile.data.x,
         pathStartTile.data.y,
         pathEndTile.data.x,
         pathEndTile.data.y,
         pathStartTile.data.unit.remainingMovementPointsThisTurn
       );
-      if (path.size() > 1) {
-        int usedMovementPoints = path.size() - 1;
+      if (path.path.size() > 1) {
+        int usedMovementPoints = path.totalCost;
+
         pathStartTile.data.unit.remainingMovementPointsThisTurn -= usedMovementPoints;
         assert pathStartTile.data.unit.remainingMovementPointsThisTurn >= 0;
 

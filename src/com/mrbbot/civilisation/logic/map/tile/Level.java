@@ -4,8 +4,8 @@ import java.util.Random;
 
 public enum Level {
   MOUNTAIN(100, 0.8, 1.0, false),
-  PLAIN(2, 0.3, 0.8, false),
-  BEACH(2, 0.25, 0.3, false),
+  PLAIN(1, 0.3, 0.8, false),
+  BEACH(1, 0.25, 0.3, false),
   OCEAN(100, 0.0, 0.25, true);
 
   public final int cost;

@@ -16,8 +16,6 @@ public class RenderImprovementPasture extends Render {
     add(makeFence(90));
     add(makeFence(180));
     add(makeFence(270));
-
-    //translate.setZ(0.05);
   }
 
   private Render makeFence(double angle) {

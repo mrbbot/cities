@@ -116,7 +116,7 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   }
 
   //TODO: change to max cost in prep for roads
-  public List<E> findPath(int x1, int y1, int x2, int y2, int maxLength) {
+  public Path<E> findPath(int x1, int y1, int x2, int y2, int maxCost) {
     Map<E, Integer> costs = new HashMap<>();
     PriorityQueue<E> frontier = new PriorityQueue<>(Comparator.comparingInt(costs::get));
 
@@ -154,12 +154,15 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
     }
 
     Collections.reverse(path);
-    maxLength++;
-    if(maxLength > 0 && path.size() >= maxLength) {
-      path = path.subList(0, maxLength);
+    int travelledCost = 0;
+    int lastListIndex = 1;
+    while(travelledCost < maxCost && lastListIndex < path.size()) {
+      travelledCost += path.get(lastListIndex).getCost();
+      lastListIndex++;
     }
+    path = path.subList(0, lastListIndex);
 
-    return path;
+    return new Path<>(path, travelledCost);
   }
 
   public void set(int x, int y, E cell) {

@@ -83,6 +83,10 @@ public class RenderCivilisation extends RenderRoot<RenderGame> {
         case S:
           camera.rotateBy(1, 0, 0);
           break;
+        case R:
+          root.updateTileRenders();
+          System.out.println("Updated tile renders");
+          break;
       }
       eventHandler.handle(e);
     });

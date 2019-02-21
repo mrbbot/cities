@@ -71,7 +71,7 @@ public class Tile implements Traversable {
 
   @Override
   public int getCost() {
-    return terrain.level.cost;
+    return hasRoad() ? 0 : terrain.level.cost;
   }
 
   @Override
@@ -81,6 +81,10 @@ public class Tile implements Traversable {
 
   public boolean samePositionAs(Tile t) {
     return x == t.x && y == t.y;
+  }
+
+  public boolean hasRoad() {
+    return improvement == Improvement.CAPITAL || improvement == Improvement.ROAD;
   }
 
   @Override

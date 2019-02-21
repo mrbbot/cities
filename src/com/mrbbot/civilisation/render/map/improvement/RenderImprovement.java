@@ -8,19 +8,20 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 @ClientOnly
 public class RenderImprovement extends RenderData<Improvement> {
   private final Tile tile;
 
-  public RenderImprovement(Tile tile) {
+  public RenderImprovement(Tile tile, ArrayList<Tile> adjacentTiles) {
     super(tile.improvement);
     this.tile = tile;
-    setImprovement(data, tile.improvementMetadata);
+    setImprovement(data, tile.improvementMetadata, adjacentTiles);
   }
 
-  public void setImprovement(Improvement data, Map<String, Object> metadata) {
+  public void setImprovement(Improvement data, Map<String, Object> metadata, ArrayList<Tile> adjacentTiles) {
     this.data = data;
     this.getChildren().clear();
     this.reset();
@@ -33,6 +34,7 @@ public class RenderImprovement extends RenderData<Improvement> {
         c.setTranslateZ(1);
         c.setMaterial(new PhongMaterial(tile.city.wallColour));
         add(c);*/
+        add(new RenderImprovementRoad(tile, adjacentTiles));
         add(new RenderImprovementHouse(tile.city.wallColour));
         break;
       case FARM:
@@ -46,6 +48,9 @@ public class RenderImprovement extends RenderData<Improvement> {
         break;
       case PASTURE:
         add(new RenderImprovementPasture());
+        break;
+      case ROAD:
+        add(new RenderImprovementRoad(tile, adjacentTiles));
         break;
     }
   }

@@ -12,6 +12,8 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.transform.Translate;
 
+import java.util.ArrayList;
+
 @ClientOnly
 public class RenderTile extends RenderData<Tile> {
   private static Color colourForTerrain(Terrain terrain) {
@@ -44,9 +46,11 @@ public class RenderTile extends RenderData<Tile> {
   private RenderTileOverlay overlay;
   private RenderUnit unit;
   private double height;
+  private final ArrayList<Tile> adjacentTiles;
 
-  RenderTile(Tile data) {
+  RenderTile(Tile data, ArrayList<Tile> adjacentTiles) {
     super(data);
+    this.adjacentTiles = adjacentTiles;
 
     Point2D center = data.getHexagon().getCenter();
     translateTo(center.getX(), center.getY(), 0);
@@ -63,7 +67,7 @@ public class RenderTile extends RenderData<Tile> {
     aboveGround.translateTo(0, 0, height);
     add(aboveGround);
 
-    improvement = new RenderImprovement(data);
+    improvement = new RenderImprovement(data, adjacentTiles);
     aboveGround.add(improvement);
 
     overlay = new RenderTileOverlay(Color.WHITE);
@@ -86,7 +90,7 @@ public class RenderTile extends RenderData<Tile> {
   }
 
   public void updateImprovement() {
-    improvement.setImprovement(data.improvement, data.improvementMetadata);
+    improvement.setImprovement(data.improvement, data.improvementMetadata, adjacentTiles);
   }
 
   void setOverlayVisible(boolean visible) {

@@ -32,7 +32,7 @@ public class Unit extends Living implements Positionable {
     this.unitType = unitType;
     this.remainingMovementPointsThisTurn = unitType.getMovementPoints();
     this.hasAttackedThisTurn = false;
-    if(tile.unit != null) {
+    if (tile.unit != null) {
       throw new IllegalArgumentException("Unit created on tile with another unit");
     }
     tile.unit = this;
@@ -47,7 +47,7 @@ public class Unit extends Living implements Positionable {
     assert this.unitType != null;
     this.remainingMovementPointsThisTurn = (int) map.get("remainingMovementPoints");
     this.hasAttackedThisTurn = canAttack() && (boolean) map.get("hasAttacked");
-    if(tile.unit != null) {
+    if (tile.unit != null) {
       throw new IllegalArgumentException("Unit created on tile with another unit");
     }
     tile.unit = this;
@@ -72,13 +72,13 @@ public class Unit extends Living implements Positionable {
     map.put("y", tile.y);
     map.put("type", unitType.getName());
     map.put("remainingMovementPoints", remainingMovementPointsThisTurn);
-    if(canAttack()) map.put("hasAttacked", hasAttackedThisTurn);
+    if (canAttack()) map.put("hasAttacked", hasAttackedThisTurn);
 
     return map;
   }
 
   public void startWorkerBuilding(Improvement improvement) {
-    if(workerBuilding == Improvement.NONE) {
+    if (workerBuilding == Improvement.NONE) {
       workerBuilding = improvement;
       workerBuildTurnsRemaining = improvement.turnCost;
     }
@@ -86,7 +86,7 @@ public class Unit extends Living implements Positionable {
 
   private int getAbilities() {
     int abilities = unitType.getAbilities();
-    if(workerBuilding != Improvement.NONE) {
+    if (workerBuilding != Improvement.NONE) {
       abilities -= UnitAbility.ABILITY_MOVEMENT;
     }
     return abilities;
@@ -103,6 +103,7 @@ public class Unit extends Living implements Positionable {
   @Override
   public Tile[] handleTurn(Game game) {
     boolean workerTileUpdated = false;
+    boolean allTilesNeedReRendering = false;
 
     remainingMovementPointsThisTurn = unitType.getMovementPoints();
     hasAttackedThisTurn = false;
@@ -112,12 +113,12 @@ public class Unit extends Living implements Positionable {
       workerTileUpdated = true;
     }
 
-    if(workerBuilding != Improvement.NONE) {
+    if (workerBuilding != Improvement.NONE) {
       workerBuildTurnsRemaining--;
-      if(workerBuildTurnsRemaining == 0) {
+      if (workerBuildTurnsRemaining == 0) {
         HashMap<String, Object> meta = new HashMap<>();
 
-        if(workerBuilding == Improvement.CHOP_FOREST) {
+        if (workerBuilding == Improvement.CHOP_FOREST) {
           tile.improvement = Improvement.NONE;
         } else {
           tile.improvement = workerBuilding;
@@ -139,6 +140,9 @@ public class Unit extends Living implements Positionable {
               meta.put("sizes", sizes);
               meta.put("colours", colours);
               break;
+            case ROAD:
+              allTilesNeedReRendering = true;
+              break;
           }
         }
 
@@ -148,6 +152,10 @@ public class Unit extends Living implements Positionable {
       workerTileUpdated = true;
     }
 
-    return workerTileUpdated ? new Tile[]{tile} : null;
+    return allTilesNeedReRendering
+      ? new Tile[]{}
+      : (workerTileUpdated
+      ? new Tile[]{tile}
+      : null);
   }
 }
