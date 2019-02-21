@@ -13,7 +13,7 @@ Computer Science Coursework
 - [x] Health points (ILiving?)
 - [x] Buildings in cities (UI requirement)
 - [x] Building in cities with gold instead of production
-- [ ] Building units
+- [x] Building units
 - [ ] Finish improvements
 - [ ] Attacking cities (all tiles with player cities lead to victory)
 

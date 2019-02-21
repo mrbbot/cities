@@ -36,6 +36,9 @@ public class RenderImprovement extends RenderData<Improvement> {
       case FARM:
         add(new RenderImprovementFarm());
         break;
+      case TREE:
+        add(new RenderImprovementTree());
+        break;
     }
   }
 }

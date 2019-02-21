@@ -17,6 +17,14 @@ public enum Improvement {
     0,
     false
   ),
+  TREE(
+    0x00,
+    "Tree",
+    0,
+    1,
+    0,
+    false
+  ),
   FARM(
     0x10,
     "Farm",

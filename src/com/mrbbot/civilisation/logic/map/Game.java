@@ -8,6 +8,7 @@ import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.interfaces.Mappable;
 import com.mrbbot.civilisation.logic.interfaces.TurnHandler;
 import com.mrbbot.civilisation.logic.map.tile.City;
+import com.mrbbot.civilisation.logic.map.tile.Terrain;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitAbility;
@@ -67,10 +68,10 @@ public class Game implements Mappable, TurnHandler {
       .collect(Collectors.toList());
 
     //noinspection unchecked
-    List<List<Double>> terrainList = (List<List<Double>>) map.get("terrain");
+    List<List<Map<String, Object>>> terrainList = (List<List<Map<String, Object>>>) map.get("terrain");
     int height = terrainList.size();
     for (int y = 0; y < height; y++) {
-      List<Double> row = terrainList.get(y);
+      List<Map<String, Object>> row = terrainList.get(y);
       int width = row.size();
 
       if (hexagonGrid == null) {
@@ -78,8 +79,12 @@ public class Game implements Mappable, TurnHandler {
       }
 
       for (int x = 0; x < width; x++) {
-        double terrainHeight = row.get(x);
-        hexagonGrid.set(x, y, new Tile(hexagonGrid.getHexagon(x, y), x, y, terrainHeight));
+        Map<String, Object> terrain = row.get(x);
+
+        double terrainHeight = (double) terrain.get("height");
+        boolean tree = (boolean) terrain.get("tree");
+
+        hexagonGrid.set(x, y, new Tile(hexagonGrid.getHexagon(x, y), x, y, terrainHeight, tree));
       }
     }
 
@@ -117,14 +122,19 @@ public class Game implements Mappable, TurnHandler {
       .collect(Collectors.toList());
     map.put("players", playerList);
 
-    ArrayList<ArrayList<Double>> terrainList = new ArrayList<>();
+    ArrayList<ArrayList<Map<String, Object>>> terrainList = new ArrayList<>();
     int gridWidth = hexagonGrid.getWidth() + 1;
     int gridHeight = hexagonGrid.getHeight();
     for (int y = 0; y < gridHeight; y++) {
-      ArrayList<Double> row = new ArrayList<>();
+      ArrayList<Map<String, Object>> row = new ArrayList<>();
       for (int x = 0; x < gridWidth - ((y + 1) % 2); x++) {
-        hexagonGrid.get(x, y);
-        row.add(hexagonGrid.get(x, y).getTerrain().height);
+        Map<String, Object> terrainMap = new HashMap<>();
+        Terrain terrain = hexagonGrid.get(x, y).getTerrain();
+
+        terrainMap.put("height", terrain.height);
+        terrainMap.put("tree", terrain.hasTree);
+
+        row.add(terrainMap);
       }
       terrainList.add(row);
     }
