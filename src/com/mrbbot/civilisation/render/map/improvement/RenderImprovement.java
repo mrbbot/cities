@@ -43,6 +43,10 @@ public class RenderImprovement extends RenderData<Improvement> {
         break;
       case MINE:
         add(new RenderImprovementMine(metadata));
+        break;
+      case PASTURE:
+        add(new RenderImprovementPasture());
+        break;
     }
   }
 }
