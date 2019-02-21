@@ -30,6 +30,13 @@ public class UIPanelCityDetails extends ScrollPane {
   private HashMap<CityBuildable, Pane> buildablePanes;
   private HashMap<CityBuildable, Tooltip> buildableTooltips;
   private HashMap<CityBuildable, ProgressIndicator> buildableProgresses;
+  private ToggleGroup[] productionGoldToggleGroups;
+  private RadioButton[] productionRadioButtons, goldRadioButtons;
+  private boolean buildWithProduction;
+
+  private Game lastSelectedGame;
+  private City lastSelectedCity;
+  private ArrayList<City> lastSelectedPlayersCities;
 
   UIPanelCityDetails() {
     super();
@@ -62,20 +69,76 @@ public class UIPanelCityDetails extends ScrollPane {
     );
     list.getChildren().addAll(detailsTitle, details);
 
-    Label unitsTitle = new Label("Units");
-    unitsTitle.getStyleClass().add("production-list-title");
-    Label buildingsTitle = new Label("Buildings");
-    buildingsTitle.getStyleClass().add("production-list-title");
+    productionGoldToggleGroups = new ToggleGroup[2];
+    productionRadioButtons = new RadioButton[2];
+    goldRadioButtons = new RadioButton[2];
+    buildWithProduction = true;
 
-    list.getChildren().add(unitsTitle);
+    list.getChildren().add(buildListTitle("Units", 0));
     for (UnitType unit : UnitType.VALUES) list.getChildren().add(buildListItem(unit));
-    list.getChildren().add(buildingsTitle);
+    list.getChildren().add(buildListTitle("Buildings", 1));
     for (Building building : Building.VALUES) list.getChildren().add(buildListItem(building));
 
     setHbarPolicy(ScrollBarPolicy.NEVER);
     setVbarPolicy(ScrollBarPolicy.ALWAYS);
 
     setContent(list);
+  }
+
+  @SuppressWarnings("Duplicates")
+  private Pane buildListTitle(String title, int i) {
+    BorderPane pane = new BorderPane();
+    pane.getStyleClass().add("production-list-title");
+
+    pane.setLeft(new Label(title));
+
+    final ToggleGroup toggleGroup = new ToggleGroup();
+    productionGoldToggleGroups[i] = toggleGroup;
+
+    HBox prodGoldBox = new HBox();
+    Label buildWithLabel = new Label("Build with");
+
+    final RadioButton productionButton = new RadioButton();
+    productionRadioButtons[i] = productionButton;
+    productionButton.setToggleGroup(toggleGroup);
+    productionButton.setSelected(true);
+    StackPane productionButtonPane = new StackPane(productionButton);
+    productionButtonPane.setPadding(new Insets(0, 0, 0, 7));
+
+    final RadioButton goldButton = new RadioButton();
+    goldRadioButtons[i] = goldButton;
+    goldButton.setToggleGroup(toggleGroup);
+    StackPane goldButtonPane = new StackPane(goldButton);
+    goldButtonPane.setPadding(new Insets(0, 0, 0, 7));
+
+    toggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+      boolean newBuildWithProduction = newValue == productionButton;
+      if (buildWithProduction != newBuildWithProduction) {
+        buildWithProduction = newBuildWithProduction;
+        int otherIndex = (i + 1) % 2;
+        productionGoldToggleGroups[otherIndex].selectToggle(
+          buildWithProduction
+            ? productionRadioButtons[otherIndex]
+            : goldRadioButtons[otherIndex]
+        );
+        setSelectedCity(
+          lastSelectedGame,
+          lastSelectedCity,
+          lastSelectedPlayersCities
+        );
+      }
+    });
+
+    prodGoldBox.getChildren().addAll(
+      buildWithLabel,
+      productionButtonPane,
+      new Badge(BadgeType.PRODUCTION),
+      goldButtonPane,
+      new Badge(BadgeType.GOLD)
+    );
+    pane.setRight(prodGoldBox);
+
+    return pane;
   }
 
   private Pane buildListItem(CityBuildable buildable) {
@@ -115,6 +178,10 @@ public class UIPanelCityDetails extends ScrollPane {
   }
 
   void setSelectedCity(Game game, City city, ArrayList<City> playersCities) {
+    lastSelectedGame = game;
+    lastSelectedCity = city;
+    lastSelectedPlayersCities = playersCities;
+
     cityProductionLabel.setText(String.valueOf(city.getProductionPerTurn()));
     cityScienceLabel.setText(String.valueOf(city.getSciencePerTurn()));
     cityGoldLabel.setText(String.valueOf(city.getGoldPerTurn()));
@@ -142,13 +209,16 @@ public class UIPanelCityDetails extends ScrollPane {
 
       String tooltipText = "Click to build this in the city";
       boolean canBuild = true;
-      if(currentlyBuildingThis) {
+      if (currentlyBuildingThis) {
         tooltipText = "You are currently building this";
         canBuild = false;
-      } else if(city.currentlyBuilding != null) {
+      } else if (city.currentlyBuilding != null) {
         tooltipText = "You are currently building something else";
         canBuild = false;
-      } else if(cantBuildReason != null && cantBuildReason.length() > 0) {
+      } else if (!buildWithProduction && game.getPlayerGold(city.player.id) < buildable.getGoldCost()) {
+        tooltipText = "You don't have enough gold to build this";
+        canBuild = false;
+      } else if (cantBuildReason != null && cantBuildReason.length() > 0) {
         tooltipText = cantBuildReason;
         canBuild = false;
       }
@@ -158,16 +228,21 @@ public class UIPanelCityDetails extends ScrollPane {
       UIHelpers.toggleClass(buildablePane, "can-build", canBuild);
       UIHelpers.toggleClass(buildablePane, "building", currentlyBuildingThis);
 
-      if(currentlyBuildingThis) {
+      if (currentlyBuildingThis) {
         progressIndicator.setProgress(
-          Math.min((double)city.productionTotal / (double)buildable.getProductionCost(), 1.0)
+          Math.min((double) city.productionTotal / (double) buildable.getProductionCost(), 1.0)
         );
       }
       progressIndicator.setVisible(currentlyBuildingThis);
 
-      if(canBuild) {
+      if (canBuild) {
         buildablePane.setOnMouseClicked(e -> {
-          PacketCityBuildRequest packetCityBuildRequest = new PacketCityBuildRequest(city.getX(), city.getY(), buildable);
+          PacketCityBuildRequest packetCityBuildRequest = new PacketCityBuildRequest(
+            city.getX(),
+            city.getY(),
+            buildable,
+            buildWithProduction
+          );
           game.handlePacket(packetCityBuildRequest);
           setSelectedCity(game, city, playersCities);
           Civilisation.CLIENT.broadcast(packetCityBuildRequest);

@@ -13,7 +13,7 @@ import java.util.Objects;
 public abstract class CityBuildable implements Unlockable {
   public static CityBuildable fromName(String name) {
     UnitType unitType = UnitType.fromName(name);
-    if(unitType != null) return unitType;
+    if (unitType != null) return unitType;
     return Building.fromName(name);
   }
 
@@ -50,7 +50,7 @@ public abstract class CityBuildable implements Unlockable {
 
   @Override
   public boolean equals(Object obj) {
-    if(obj instanceof CityBuildable) {
+    if (obj instanceof CityBuildable) {
       return Objects.equals(name, ((CityBuildable) obj).name);
     }
     return false;
@@ -72,16 +72,27 @@ public abstract class CityBuildable implements Unlockable {
     return productionCost;
   }
 
+  public final int getGoldCost() {
+    return (int) Math.round(productionCost * 1.5);
+  }
+
   public final boolean canBuildWithProduction(int productionTotal) {
     return productionTotal >= productionCost;
+  }
+
+  public final boolean canBuildWithGold(int goldTotal) {
+    return goldTotal >= getGoldCost();
   }
 
   public ArrayList<Detail> getDetails() {
     ArrayList<Detail> details = new ArrayList<>();
     details.add(new Detail(BadgeType.PRODUCTION, productionCost));
+    details.add(new Detail(BadgeType.GOLD, getGoldCost()));
     return details;
   }
+
   public abstract void build(City city, Game game);
+
   public String canBuildGivenCities(City city, ArrayList<City> cities) {
     //TODO: check tech unlocks
     return "";

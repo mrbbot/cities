@@ -2,6 +2,7 @@ package com.mrbbot.civilisation.logic.map;
 
 import com.mrbbot.civilisation.geometry.Hexagon;
 import com.mrbbot.civilisation.geometry.HexagonGrid;
+import com.mrbbot.civilisation.logic.CityBuildable;
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.interfaces.Mappable;
@@ -243,7 +244,14 @@ public class Game implements Mappable, TurnHandler {
   private Tile[] handleCityBuildRequest(PacketCityBuildRequest packet) {
     Tile t = hexagonGrid.get(packet.x, packet.y);
     if(t.city != null) {
-      t.city.currentlyBuilding = packet.getBuildable();
+      CityBuildable buildable = packet.getBuildable();
+      if(packet.withProduction) {
+        t.city.currentlyBuilding = buildable;
+      } else if(buildable.canBuildWithGold(getPlayerGold(t.city.player.id))) {
+        increasePlayerGoldBy(t.city.player.id, -buildable.getGoldCost());
+        buildable.build(t.city, this);
+      }
+
     }
     return null;
   }
@@ -282,7 +290,7 @@ public class Game implements Mappable, TurnHandler {
       }
       playerStatsListener.accept(new PlayerStats(
         totalSciencePerTurn,
-        playerGoldCounts.getOrDefault(currentPlayerId, 0),
+        getPlayerGold(currentPlayerId),
         totalGoldPerTurn
       ));
     }
@@ -360,12 +368,25 @@ public class Game implements Mappable, TurnHandler {
     return true;
   }
 
+  private int getPlayerResource(Map<String, Integer> counts, String playerId) {
+    return counts.getOrDefault(playerId, 0);
+  }
+
+  public int getPlayerGold(String playerId) {
+    return getPlayerResource(playerGoldCounts, playerId);
+  }
+
+  public int getPlayerScience(String playerId) {
+    return getPlayerResource(playerScienceCounts, playerId);
+  }
+
   private void increasePlayerResourceBy(Map<String, Integer> counts, String playerId, int amount) {
     if(counts.containsKey(playerId)) {
       counts.put(playerId, counts.get(playerId) + amount);
     } else {
       counts.put(playerId, amount);
     }
+    sendPlayerStats();
   }
 
   public void increasePlayerGoldBy(String playerId, int gold) {

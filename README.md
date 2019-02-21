@@ -12,14 +12,17 @@ Computer Science Coursework
 ### Cities
 - [x] Health points (ILiving?)
 - [x] Buildings in cities (UI requirement)
-- [ ] Building in cities with gold instead of production
+- [x] Building in cities with gold instead of production
+- [ ] Building units
 - [ ] Finish improvements
-- [ ] Attacking cities
+- [ ] Attacking cities (all tiles with player cities lead to victory)
 
 ### Technology
 - [ ] Unlocking
 
 ### Misc
+- [ ] Rocket blast off (victory)
+- [ ] Can settle only if no city (reflect in UI)
 - [x] In game chat
 - [x] Send game state to clients on join
 - [ ] Create server from start screen with loading games
