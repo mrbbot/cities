@@ -102,12 +102,15 @@ public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
         actionButton.setText("Improve");
         if(actionsList.size() > 0) {
           actionsComboBox.setValue(actionsList.get(0));
-          actionButton.setDisable(tile.city == null || !tile.city.player.equals(unit.player));
+          boolean canImprove = tile.city == null || !tile.city.player.equals(unit.player);
+          actionsComboBox.setDisable(canImprove);
+          actionButton.setDisable(canImprove);
         }
 
         if(unit.workerBuilding != Improvement.NONE) {
           actionButton.setText(String.format("Improving... (%d turns remaining)", unit.workerBuildTurnsRemaining));
           actionsComboBox.setValue(unit.workerBuilding.name);
+          actionsComboBox.setDisable(true);
           actionButton.setDisable(true);
         }
       }

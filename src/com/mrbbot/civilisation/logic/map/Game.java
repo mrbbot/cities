@@ -45,7 +45,7 @@ public class Game implements Mappable, TurnHandler {
     this.name = name;
 
     //hexagonGrid = new HexagonGrid<>(40, 34, 1);
-    //hexagonGrid = new HexagonGrid<>(20, 17, 1);
+//    hexagonGrid = new HexagonGrid<>(20, 17, 1);
     hexagonGrid = new HexagonGrid<>(5, 5, 1);
     //hexagonGrid = new HexagonGrid<>(100, 40, 1);
     //hexagonGrid = new HexagonGrid<>(1, 1, 1);

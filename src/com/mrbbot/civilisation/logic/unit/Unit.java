@@ -8,9 +8,7 @@ import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static com.mrbbot.civilisation.logic.unit.UnitAbility.ABILITY_ATTACK;
 import static com.mrbbot.civilisation.logic.unit.UnitAbility.ABILITY_RANGED_ATTACK;
@@ -117,14 +115,34 @@ public class Unit extends Living implements Positionable {
     if(workerBuilding != Improvement.NONE) {
       workerBuildTurnsRemaining--;
       if(workerBuildTurnsRemaining == 0) {
-        tile.improvementMetadata = new HashMap<>();
+        HashMap<String, Object> meta = new HashMap<>();
+
         if(workerBuilding == Improvement.CHOP_FOREST) {
           tile.improvement = Improvement.NONE;
         } else {
           tile.improvement = workerBuilding;
-          tile.improvementMetadata.put("strips", ((RANDOM.nextInt(3) + 1) * 2) + 1);
-          tile.improvementMetadata.put("angle", RANDOM.nextInt(6) * 60);
+
+          // Add metadata
+          switch (workerBuilding) {
+            case FARM:
+              meta.put("strips", ((RANDOM.nextInt(3) + 1) * 2) + 1);
+              meta.put("angle", RANDOM.nextInt(6) * 60);
+              break;
+            case MINE:
+              //Rocks
+              List<Double> sizes = new ArrayList<>();
+              List<Integer> colours = new ArrayList<>();
+              for (int i = 0; i < 3; i++) {
+                sizes.add(RANDOM.nextDouble() / 3.0 + 0.5);
+                colours.add(RANDOM.nextInt(3));
+              }
+              meta.put("sizes", sizes);
+              meta.put("colours", colours);
+              break;
+          }
         }
+
+        tile.improvementMetadata = meta;
         workerBuilding = Improvement.NONE;
       }
       workerTileUpdated = true;

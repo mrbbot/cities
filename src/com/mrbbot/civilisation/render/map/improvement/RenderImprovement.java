@@ -41,6 +41,8 @@ public class RenderImprovement extends RenderData<Improvement> {
       case TREE:
         add(new RenderImprovementTree());
         break;
+      case MINE:
+        add(new RenderImprovementMine(metadata));
     }
   }
 }
