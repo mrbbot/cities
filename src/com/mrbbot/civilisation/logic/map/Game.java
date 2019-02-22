@@ -163,7 +163,7 @@ public class Game implements Mappable, TurnHandler {
   }
 
   private void sendMessage(String message, boolean isError) {
-    if(this.messageListener != null) this.messageListener.accept(message, isError);
+    if (this.messageListener != null) this.messageListener.accept(message, isError);
   }
 
   public Map<String, Object> toMap() {
@@ -241,11 +241,11 @@ public class Game implements Mappable, TurnHandler {
     String playerId = null;
 
     Iterator<Tile> tileIterator = hexagonGrid.iterator();
-    while(tileIterator.hasNext()) {
+    while (tileIterator.hasNext()) {
       Tile tile = tileIterator.next();
-      if(tile.city == null) return;
-      if(playerId == null) playerId = tile.city.player.id;
-      if(!playerId.equals(tile.city.player.id)) return;
+      if (tile.city == null) return;
+      if (playerId == null) playerId = tile.city.player.id;
+      if (!playerId.equals(tile.city.player.id)) return;
     }
 
     if (playerId != null) {
@@ -335,7 +335,8 @@ public class Game implements Mappable, TurnHandler {
     //prioritise unit
     Living target = targetTile.unit == null ? (targetIsCity ? targetTile.city : null) : targetTile.unit;
 
-    if (attacker == null || target == null) {
+    if (attacker == null || !attacker.canAttack()) return null;
+    if (target == null) {
       sendMessage("You can't attack nothing!", true);
       return null;
     }
@@ -441,13 +442,13 @@ public class Game implements Mappable, TurnHandler {
 
   private Tile[] handlePurchaseTileRequestPacket(PacketPurchaseTileRequest packet) {
     Tile t = hexagonGrid.get(packet.cityX, packet.cityY);
-    if(t.city != null) {
+    if (t.city != null) {
       String playerId = t.city.player.id;
 
       Tile purchaseTile = hexagonGrid.get(packet.purchaseX, packet.purchaseY);
 
       // already part of city
-      if(purchaseTile.city != null) {
+      if (purchaseTile.city != null) {
         sendMessage("This tile is already part of a city!", true);
         return null;
       }
@@ -455,7 +456,7 @@ public class Game implements Mappable, TurnHandler {
       ArrayList<Tile> neighbours = hexagonGrid.getNeighbours(packet.purchaseX, packet.purchaseY, false);
       boolean isNeighbour = neighbours.stream().anyMatch(tile -> tile.city != null && tile.city.sameCenterAs(t.city));
       // not neighbouring tile in city
-      if(!isNeighbour) {
+      if (!isNeighbour) {
         sendMessage("This tile isn't adjacent to this city!", true);
         return null;
       }
@@ -470,7 +471,7 @@ public class Game implements Mappable, TurnHandler {
       int goldTotal = getPlayerGoldTotal(t.city.player.id);
       int roundCost = (int) Math.round(cost);
       // not enough money
-      if(goldTotal < roundCost) {
+      if (goldTotal < roundCost) {
         sendMessage(String.format("This tile costs %d gold to purchase, you only have %d!", roundCost, goldTotal), true);
         return null;
       }
@@ -479,7 +480,7 @@ public class Game implements Mappable, TurnHandler {
       ArrayList<Point2D> grownTo = new ArrayList<>();
       grownTo.add(new Point2D(purchaseTile.x, purchaseTile.y));
       t.city.growTo(grownTo);
-      return new Tile[] {};
+      return new Tile[]{};
     }
     return null;
   }
@@ -569,9 +570,9 @@ public class Game implements Mappable, TurnHandler {
       return handlePlayerResearchRequestPacket((PacketPlayerResearchRequest) packet);
     } else if (packet instanceof PacketUnitUpgrade) {
       return handleUnitUpgradePacket((PacketUnitUpgrade) packet);
-    } else if(packet instanceof PacketPurchaseTileRequest) {
+    } else if (packet instanceof PacketPurchaseTileRequest) {
       return handlePurchaseTileRequestPacket((PacketPurchaseTileRequest) packet);
-    } else if(packet instanceof PacketBlastOff) {
+    } else if (packet instanceof PacketBlastOff) {
       win(((PacketBlastOff) packet).playerId, VICTORY_REASON_SCIENCE);
     } else if (packet instanceof PacketReady) {
       return handleTurn(this);
