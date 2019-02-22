@@ -1,5 +1,6 @@
 package com.mrbbot.civilisation.ui.game;
 
+import com.mrbbot.civilisation.logic.techs.PlayerTechDetails;
 import com.mrbbot.generic.net.ClientOnly;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -7,7 +8,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 
 @ClientOnly
@@ -34,13 +35,12 @@ public class UIPanelTech extends BorderPane {
     setBottom(openTechTree);
   }
 
-  void setCurrentlyResearching(String currentlyResearching, double progress) {
-    this.currentlyResearching.setText(currentlyResearching);
-    setProgress(progress);
-  }
-
-  void setProgress(double progress) {
-    this.progress.setProgress(progress);
+  void setTechDetails(PlayerTechDetails details) {
+    this.currentlyResearching.setText(details.currentlyUnlocking == null
+      ? "Nothing"
+      : details.currentlyUnlocking.getName()
+    );
+    this.progress.setProgress(details.percentUnlocked);
   }
 
   void setOnOpenTechTree(EventHandler<ActionEvent> value) {

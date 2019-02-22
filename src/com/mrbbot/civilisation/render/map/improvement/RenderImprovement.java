@@ -26,32 +26,19 @@ public class RenderImprovement extends RenderData<Improvement> {
     this.getChildren().clear();
     this.reset();
 
-    switch(data) {
-      case NONE:
-        break;
-      case CAPITAL:
-        /*Box c = new Box(1, 1, 2);
-        c.setTranslateZ(1);
-        c.setMaterial(new PhongMaterial(tile.city.wallColour));
-        add(c);*/
-        add(new RenderImprovementRoad(tile, adjacentTiles));
-        add(new RenderImprovementHouse(tile.city.wallColour));
-        break;
-      case FARM:
-        add(new RenderImprovementFarm(metadata));
-        break;
-      case TREE:
-        add(new RenderImprovementTree());
-        break;
-      case MINE:
-        add(new RenderImprovementMine(metadata));
-        break;
-      case PASTURE:
-        add(new RenderImprovementPasture());
-        break;
-      case ROAD:
-        add(new RenderImprovementRoad(tile, adjacentTiles));
-        break;
+    if (Improvement.CAPITAL.equals(data)) {
+      add(new RenderImprovementRoad(tile, adjacentTiles));
+      add(new RenderImprovementHouse(tile.city.wallColour));
+    } else if (Improvement.FARM.equals(data)) {
+      add(new RenderImprovementFarm(metadata));
+    } else if (Improvement.TREE.equals(data)) {
+      add(new RenderImprovementTree());
+    } else if (Improvement.MINE.equals(data)) {
+      add(new RenderImprovementMine(metadata));
+    } else if (Improvement.PASTURE.equals(data)) {
+      add(new RenderImprovementPasture());
+    } else if (Improvement.ROAD.equals(data)) {
+      add(new RenderImprovementRoad(tile, adjacentTiles));
     }
   }
 }

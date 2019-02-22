@@ -129,25 +129,20 @@ public class Unit extends Living implements Positionable {
           tile.improvement = workerBuilding;
 
           // Add metadata
-          switch (workerBuilding) {
-            case FARM:
-              meta.put("strips", ((RANDOM.nextInt(3) + 1) * 2) + 1);
-              meta.put("angle", RANDOM.nextInt(6) * 60);
-              break;
-            case MINE:
-              //Rocks
-              List<Double> sizes = new ArrayList<>();
-              List<Integer> colours = new ArrayList<>();
-              for (int i = 0; i < 3; i++) {
-                sizes.add(RANDOM.nextDouble() / 3.0 + 0.5);
-                colours.add(RANDOM.nextInt(3));
-              }
-              meta.put("sizes", sizes);
-              meta.put("colours", colours);
-              break;
-            case ROAD:
-              allTilesNeedReRendering = true;
-              break;
+          if (Improvement.FARM.equals(workerBuilding)) {
+            meta.put("strips", ((RANDOM.nextInt(3) + 1) * 2) + 1);
+            meta.put("angle", RANDOM.nextInt(6) * 60);
+          } else if (Improvement.MINE.equals(workerBuilding)) {//Rocks
+            List<Double> sizes = new ArrayList<>();
+            List<Integer> colours = new ArrayList<>();
+            for (int i = 0; i < 3; i++) {
+              sizes.add(RANDOM.nextDouble() / 3.0 + 0.5);
+              colours.add(RANDOM.nextInt(3));
+            }
+            meta.put("sizes", sizes);
+            meta.put("colours", colours);
+          } else if (Improvement.ROAD.equals(workerBuilding)) {
+            allTilesNeedReRendering = true;
           }
         }
 

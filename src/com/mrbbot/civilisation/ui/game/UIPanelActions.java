@@ -89,7 +89,7 @@ public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
       }
 
       if (unit.hasAbility(UnitAbility.ABILITY_IMPROVE)) {
-        for (Improvement improvement : Improvement.values()) {
+        for (Improvement improvement : Improvement.VALUES) {
           if(improvement.workerCanDo) {
             actionsList.add(improvement.name);
           }

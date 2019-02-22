@@ -15,13 +15,13 @@ import java.io.IOException;
 import java.util.Map;
 
 public class CivilisationServer implements Handler<Packet> {
-  private static Yaml YAML;
+  private static Yaml YAML = new Yaml();
 
-  static {
+  /*static {
     DumperOptions dumperOptions = new DumperOptions();
     dumperOptions.setSplitLines(false);
     YAML = new Yaml(dumperOptions);
-  }
+  }*/
 
   private Game game;
 

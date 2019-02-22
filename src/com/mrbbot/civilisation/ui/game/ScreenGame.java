@@ -42,12 +42,13 @@ public class ScreenGame extends Screen {
     ui = new UIGame(renderGame, width, height);
     ui.setPrefSize(width, height);
     game.setCurrentPlayer(id, (stats) -> ui.onPlayerStatsChanged(stats));
+    game.setTechDetailsListener((details) -> ui.onTechDetailsChanged(game, details));
 
     pane.getChildren().addAll(this.renderCivilisation.subScene, ui);
     Scene scene = new Scene(pane, width, height);
     scene.getStylesheets().add("/com/mrbbot/civilisation/ui/game/styles.css");
     this.renderCivilisation.setScene(scene, e -> {
-      if(e.getCode() == KeyCode.F11) {
+      if (e.getCode() == KeyCode.F11) {
         stage.setFullScreen(!stage.isFullScreen());
       }
     });

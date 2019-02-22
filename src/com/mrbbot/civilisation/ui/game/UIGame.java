@@ -1,10 +1,13 @@
 package com.mrbbot.civilisation.ui.game;
 
 import com.mrbbot.civilisation.Civilisation;
+import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Improvement;
+import com.mrbbot.civilisation.logic.techs.PlayerTechDetails;
+import com.mrbbot.civilisation.logic.techs.Tech;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.net.packet.PacketChat;
@@ -21,6 +24,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 @ClientOnly
 public class UIGame extends AnchorPane {
@@ -41,7 +45,8 @@ public class UIGame extends AnchorPane {
     this.renderGame = renderGame;
     setPickOnBounds(false);
 
-    playerColor = this.renderGame.currentPlayer.getColour();
+    Player player = this.renderGame.currentPlayer;
+    playerColor = player.getColour();
 
     panelTech = new UIPanelTech();
     panelTech.setBorder(makePanelBorder(Pos.BOTTOM_RIGHT));
@@ -88,19 +93,28 @@ public class UIGame extends AnchorPane {
 
     getChildren().addAll(panelTech, panelChat, panelActions, panelStats, panelCityDetails);
 
-    techTree = new UITechTree(height);
-    setAnchors(techTree, 0, 0, 0, 0);
+    PlayerTechDetails techDetails = new PlayerTechDetails(
+      renderGame.data.getPlayerUnlockedTechs(player.id),
+      renderGame.data.getPlayerUnlockingTech(player.id),
+      renderGame.data.getPlayerUnlockingProgress(player.id)
+    );
+    techTree = new UITechTree(
+      renderGame.data,
+      player.id,
+      techDetails,
+      height
+    );
+    techTree.setBorder(makePanelBorder(Pos.CENTER));
+    AnchorPane.setTopAnchor(techTree, 0.0);
+    AnchorPane.setLeftAnchor(techTree, 0.0);
+    AnchorPane.setBottomAnchor(techTree, 0.0);
+    AnchorPane.setRightAnchor(techTree, 0.0);
+    panelTech.setTechDetails(techDetails);
+
     closeTechTreeButton = new Button("Close Tech Tree");
     closeTechTreeButton.setOnAction(e -> setTechTreeVisible(false));
     AnchorPane.setTopAnchor(closeTechTreeButton, 20.0);
     AnchorPane.setLeftAnchor(closeTechTreeButton, 20.0);
-  }
-
-  private void setAnchors(Node node, int top, int left, int bottom, int right) {
-    AnchorPane.setTopAnchor(node, (double) top);
-    AnchorPane.setLeftAnchor(node, (double) left);
-    AnchorPane.setBottomAnchor(node, (double) bottom);
-    AnchorPane.setRightAnchor(node, (double) right);
   }
 
   private CornerRadii makeCornerRadiiForCutout(Pos cutout, int size) {
@@ -183,5 +197,10 @@ public class UIGame extends AnchorPane {
 
   void onPlayerStatsChanged(PlayerStats stats) {
     panelStats.setPlayerStats(stats);
+  }
+
+  void onTechDetailsChanged(Game game, PlayerTechDetails details) {
+    panelTech.setTechDetails(details);
+    techTree.setTechDetails(game, details);
   }
 }

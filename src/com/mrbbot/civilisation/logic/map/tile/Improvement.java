@@ -1,63 +1,65 @@
 package com.mrbbot.civilisation.logic.map.tile;
 
-public enum Improvement {
-  NONE(
+import com.mrbbot.civilisation.logic.interfaces.Unlockable;
+
+public class Improvement implements Unlockable {
+  public static Improvement NONE = new Improvement(
     0x00,
     "None",
     0,
     0,
     0,
     false
-  ),
-  CAPITAL(
+  );
+  public static Improvement CAPITAL = new Improvement(
     0x00,
     "Capital",
     0,
     0,
     0,
     false
-  ),
-  TREE(
+  );
+  public static Improvement TREE = new Improvement(
     0x00,
     "Tree",
     0,
     1,
     0,
     false
-  ),
-  FARM(
+  );
+  public static Improvement FARM = new Improvement(
     0x10,
     "Farm",
     2,
     2,
     0,
     true
-  ),
-  CHOP_FOREST(
+  );
+  public static Improvement CHOP_FOREST = new Improvement(
     0x11,
     "Chop Forest",
     3,
     0,
     0,
     false
-  ),
-  MINE(
+  );
+  public static Improvement MINE = new Improvement(
     0x12,
     "Mine",
     2,
     0,
     15,
     true
-  ),
-  PASTURE(
+  );
+  public static Improvement PASTURE = new Improvement(
     0x13,
     "Pasture",
     4,
     4,
     0,
     true
-  ),
-  ROAD(
+  );
+  public static Improvement ROAD = new Improvement(
     0x14,
     "Road",
     2,
@@ -66,8 +68,19 @@ public enum Improvement {
     true
   );
 
+  public static Improvement[] VALUES = new Improvement[]{
+    NONE,
+    CAPITAL,
+    TREE,
+    FARM,
+    CHOP_FOREST,
+    MINE,
+    PASTURE,
+    ROAD
+  };
+
   public static Improvement fromName(String name) {
-    for (Improvement value : values()) {
+    for (Improvement value : VALUES) {
       if(value.name.equals(name)) return value;
     }
     return null;
@@ -80,7 +93,7 @@ public enum Improvement {
   public int productionPerTurn;
   public boolean workerCanDo;
 
-  Improvement(
+  private Improvement(
     int unlockId,
     String name,
     int turnCost,
@@ -94,5 +107,23 @@ public enum Improvement {
     this.foodPerTurn = foodPerTurn;
     this.productionPerTurn = productionPerTurn;
     this.workerCanDo = workerCanDo;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if(obj instanceof Improvement) {
+      return name.equals(((Improvement) obj).name);
+    }
+    return false;
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public int getUnlockId() {
+    return unlockId;
   }
 }

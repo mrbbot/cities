@@ -15,7 +15,7 @@ Computer Science Coursework
 - [x] Building in cities with gold instead of production
 - [x] Building units
 - [x] Finish improvements
-- [ ] Attacking cities (all tiles with player cities lead to victory)
+- [x] Attacking cities
 
 ### Technology
 - [ ] Unlocking
@@ -24,9 +24,10 @@ Computer Science Coursework
 - [x] Can settle only if no city (reflect in UI)
 - [x] In game chat
 - [x] Send game state to clients on join
-- [ ] Create server from start screen with loading games
 - [ ] Upgrades
 - [ ] Purchasing land
-- [ ] Rocket blast off (victory)
-- [ ] Fix weird bug with disappearing city walls with improving workers
+- [ ] Victories: blast off and all land belongs to one player
+- [ ] Day/Night cycle (just use real time % 60)
+
+- [ ] Create server from start screen with loading games
 - [ ] Documentation/commenting 

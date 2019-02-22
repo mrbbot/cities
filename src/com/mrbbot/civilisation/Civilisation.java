@@ -31,8 +31,8 @@ public class Civilisation
     Rectangle2D screenBounds = Screen.getPrimary().getBounds();
     width = (int) screenBounds.getWidth();
     height = (int) screenBounds.getHeight();
-    width = 1000;
-    height = 600;
+    width = 1600; //1000
+    height = 900; //600
 
     ScreenConnect screenConnect = new ScreenConnect(this);
     primaryStage.setScene(screenConnect.makeScene(primaryStage, width, height));

@@ -8,9 +8,12 @@ import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.interfaces.Mappable;
 import com.mrbbot.civilisation.logic.interfaces.TurnHandler;
+import com.mrbbot.civilisation.logic.interfaces.Unlockable;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Terrain;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
+import com.mrbbot.civilisation.logic.techs.PlayerTechDetails;
+import com.mrbbot.civilisation.logic.techs.Tech;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitAbility;
 import com.mrbbot.civilisation.logic.unit.UnitType;
@@ -31,6 +34,8 @@ public class Game implements Mappable, TurnHandler {
   public ArrayList<Player> players;
   private Map<String, Integer> playerScienceCounts;
   private Map<String, Integer> playerGoldCounts;
+  private Map<String, Set<Tech>> playerUnlockedTechs;
+  private Map<String, Tech> playerUnlockingTechs;
   @ServerOnly
   public Map<String, Boolean> readyPlayers = new HashMap<>();
   @ClientOnly
@@ -41,6 +46,8 @@ public class Game implements Mappable, TurnHandler {
   private String currentPlayerId;
   @ClientOnly
   private Consumer<PlayerStats> playerStatsListener;
+  @ClientOnly
+  private Consumer<PlayerTechDetails> techDetailsListener;
 
   public Game(String name) {
     this.name = name;
@@ -58,6 +65,8 @@ public class Game implements Mappable, TurnHandler {
 
     playerScienceCounts = new HashMap<>();
     playerGoldCounts = new HashMap<>();
+    playerUnlockedTechs = new HashMap<>();
+    playerUnlockingTechs = new HashMap<>();
   }
 
   public Game(Map<String, Object> map) {
@@ -106,12 +115,38 @@ public class Game implements Mappable, TurnHandler {
     this.playerScienceCounts = (Map<String, Integer>) map.get("science");
     //noinspection unchecked
     this.playerGoldCounts = (Map<String, Integer>) map.get("gold");
+
+    //noinspection unchecked
+    Map<String, ArrayList<String>> unlockedTechs = (Map<String, ArrayList<String>>) map.get("unlockedTechs");
+    this.playerUnlockedTechs = new HashMap<>();
+    for (Map.Entry<String, ArrayList<String>> playerEntry : unlockedTechs.entrySet()) {
+      ArrayList<Tech> list = (ArrayList<Tech>) playerEntry.getValue().stream()
+        .map(Tech::fromName)
+        .collect(Collectors.toList());
+      this.playerUnlockedTechs.put(
+        playerEntry.getKey(),
+        new HashSet<>(list)
+      );
+    }
+    //noinspection unchecked
+    Map<String, String> unlockingTechs = (Map<String, String>) map.get("unlockingTechs");
+    this.playerUnlockingTechs = new HashMap<>();
+    for (Map.Entry<String, String> playerEntry : unlockingTechs.entrySet()) {
+      this.playerUnlockingTechs.put(playerEntry.getKey(), Tech.fromName(playerEntry.getValue()));
+    }
   }
 
+  @ClientOnly
   public void setCurrentPlayer(String currentPlayerId, Consumer<PlayerStats> playerStatsListener) {
     this.currentPlayerId = currentPlayerId;
     this.playerStatsListener = playerStatsListener;
     sendPlayerStats();
+  }
+
+  @ClientOnly
+  public void setTechDetailsListener(Consumer<PlayerTechDetails> techDetailsListener) {
+    this.techDetailsListener = techDetailsListener;
+    sendTechDetails();
   }
 
   public Map<String, Object> toMap() {
@@ -154,6 +189,26 @@ public class Game implements Mappable, TurnHandler {
 
     map.put("science", playerScienceCounts);
     map.put("gold", playerGoldCounts);
+
+    Map<String, ArrayList<String>> unlockedTechsMap = new HashMap<>();
+    for (Map.Entry<String, Set<Tech>> playerEntry : playerUnlockedTechs.entrySet()) {
+      unlockedTechsMap.put(
+        playerEntry.getKey(),
+        (ArrayList<String>) playerEntry.getValue().stream().map(Tech::getName).collect(Collectors.toList())
+      );
+    }
+    map.put("unlockedTechs", unlockedTechsMap);
+
+    Map<String, String> unlockingTechsMap = new HashMap<>();
+    for (Map.Entry<String, Tech> playerEntry : playerUnlockingTechs.entrySet()) {
+      if (playerEntry.getValue() != null) {
+        unlockingTechsMap.put(
+          playerEntry.getKey(),
+          playerEntry.getValue().getName()
+        );
+      }
+    }
+    map.put("unlockingTechs", unlockingTechsMap);
 
     return map;
   }
@@ -255,12 +310,12 @@ public class Game implements Mappable, TurnHandler {
       attacker.hasAttackedThisTurn = true;
     }
 
-    if(target instanceof City && target.isDead()) {
+    if (target instanceof City && target.isDead()) {
       City targetCity = (City) target;
       targetCity.setHealth(10);
       targetCity.setOwner(targetCity.lastAttacker.player);
       //TODO: check victory
-      return new Tile[] {};
+      return new Tile[]{};
     }
 
     return new Tile[]{attackerTile, targetTile};
@@ -317,6 +372,12 @@ public class Game implements Mappable, TurnHandler {
     return null;
   }
 
+  private Tile[] handlePlayerResearchRequest(PacketPlayerResearchRequest packet) {
+    playerUnlockingTechs.put(packet.playerId, packet.getTech());
+    sendTechDetails();
+    return null;
+  }
+
   @Override
   public Tile[] handleTurn(Game game) {
     ArrayList<Tile> updatedTiles = new ArrayList<>();
@@ -339,6 +400,7 @@ public class Game implements Mappable, TurnHandler {
     //TODO: check if all tiles belong to one player
 
     sendPlayerStats();
+    sendTechDetails();
 
     return updatedTiles.toArray(new Tile[]{});
   }
@@ -358,6 +420,17 @@ public class Game implements Mappable, TurnHandler {
         totalSciencePerTurn,
         getPlayerGoldTotal(currentPlayerId),
         totalGoldPerTurn
+      ));
+    }
+  }
+
+  @ClientOnly
+  private void sendTechDetails() {
+    if (currentPlayerId != null && techDetailsListener != null) {
+      techDetailsListener.accept(new PlayerTechDetails(
+        getPlayerUnlockedTechs(currentPlayerId),
+        getPlayerUnlockingTech(currentPlayerId),
+        getPlayerUnlockingProgress(currentPlayerId)
       ));
     }
   }
@@ -386,6 +459,8 @@ public class Game implements Mappable, TurnHandler {
       return handleCityBuildRequest((PacketCityBuildRequest) packet);
     } else if (packet instanceof PacketWorkerImproveRequest) {
       return handleWorkerImproveRequest((PacketWorkerImproveRequest) packet);
+    } else if (packet instanceof PacketPlayerResearchRequest) {
+      return handlePlayerResearchRequest((PacketPlayerResearchRequest) packet);
     } else if (packet instanceof PacketReady) {
       return handleTurn(this);
     }
@@ -436,6 +511,35 @@ public class Game implements Mappable, TurnHandler {
     return true;
   }
 
+  public Set<Tech> getPlayerUnlockedTechs(String playerId) {
+    return playerUnlockedTechs.getOrDefault(playerId, new HashSet<>());
+  }
+
+  public Tech getPlayerUnlockingTech(String playerId) {
+    return playerUnlockingTechs.get(playerId);
+  }
+
+  public double getPlayerUnlockingProgress(String playerId) {
+    Tech unlockingTech = getPlayerUnlockingTech(playerId);
+    if(unlockingTech == null) return 0;
+    int scienceTotal = getPlayerScienceTotal(playerId);
+    int scienceCost = unlockingTech.getScienceCost();
+    if(scienceCost == 0) return 0;
+    return Math.min((double) scienceTotal / (double) scienceCost, 1);
+  }
+
+  public boolean playerHasUnlocked(String playerId, Unlockable unlockable) {
+    int unlockId = unlockable.getUnlockId();
+    if (unlockId == 0x00) return true;
+    Set<Tech> unlockedTechs = getPlayerUnlockedTechs(playerId);
+    for (Tech unlockedTech : unlockedTechs) {
+      for (Unlockable unlock : unlockedTech.getUnlocks()) {
+        if (unlock.getUnlockId() == unlockId) return true;
+      }
+    }
+    return false;
+  }
+
   private int getPlayerResource(Map<String, Integer> counts, String playerId) {
     return counts.getOrDefault(playerId, 0);
   }
@@ -463,7 +567,17 @@ public class Game implements Mappable, TurnHandler {
 
   public void increasePlayerScienceBy(String playerId, int science) {
     increasePlayerResourceBy(playerScienceCounts, playerId, science);
-    //TODO: check tech unlock
+
+    Set<Tech> unlockedTechs = getPlayerUnlockedTechs(playerId);
+    Tech unlockingTech = getPlayerUnlockingTech(playerId);
+    double progress = getPlayerUnlockingProgress(playerId);
+
+    if(unlockingTech != null && progress >= 1 && !unlockedTechs.contains(unlockingTech)) {
+      playerUnlockedTechs.putIfAbsent(playerId, new HashSet<>());
+      playerUnlockedTechs.get(playerId).add(unlockingTech);
+      playerUnlockingTechs.put(playerId, null);
+      increasePlayerResourceBy(playerScienceCounts, playerId, -unlockingTech.getScienceCost());
+    }
   }
 
   public ArrayList<City> getPlayersCitiesById(String id) {
