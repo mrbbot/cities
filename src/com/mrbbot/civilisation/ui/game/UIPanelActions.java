@@ -69,7 +69,7 @@ public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
     this.unitActionListener = unitActionListener;
   }
 
-  void setSelectedUnit(Unit unit) {
+  void setSelectedUnit(Game game, Unit unit) {
     this.selectedUnit = unit;
     actionsList.clear();
     actionsComboBox.setValue("");
@@ -90,11 +90,11 @@ public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
 
       if (unit.hasAbility(UnitAbility.ABILITY_IMPROVE)) {
         for (Improvement improvement : Improvement.VALUES) {
-          if(improvement.workerCanDo) {
+          if(improvement.workerCanDo && game.playerHasUnlocked(unit.player.id, improvement)) {
             actionsList.add(improvement.name);
           }
         }
-        if(tile.improvement == Improvement.TREE) {
+        if(tile.improvement == Improvement.TREE && game.playerHasUnlocked(unit.player.id, Improvement.CHOP_FOREST)) {
           actionsList.add(Improvement.CHOP_FOREST.name);
         }
 

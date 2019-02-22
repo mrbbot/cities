@@ -356,7 +356,8 @@ public class Game implements Mappable, TurnHandler {
         t.city.currentlyBuilding = buildable;
       } else if (buildable.canBuildWithGold(getPlayerGoldTotal(t.city.player.id))) {
         increasePlayerGoldBy(t.city.player.id, -buildable.getGoldCost());
-        buildable.build(t.city, this);
+        Tile placed = buildable.build(t.city, this);
+        if (placed != null) return new Tile[]{placed};
       }
 
     }
@@ -366,7 +367,7 @@ public class Game implements Mappable, TurnHandler {
   private Tile[] handleWorkerImproveRequest(PacketWorkerImproveRequest packet) {
     Tile t = hexagonGrid.get(packet.x, packet.y);
     if (t.unit != null) {
-      t.unit.startWorkerBuilding(packet.improvement);
+      t.unit.startWorkerBuilding(packet.getImprovement());
       return new Tile[]{t};
     }
     return null;
@@ -521,10 +522,10 @@ public class Game implements Mappable, TurnHandler {
 
   public double getPlayerUnlockingProgress(String playerId) {
     Tech unlockingTech = getPlayerUnlockingTech(playerId);
-    if(unlockingTech == null) return 0;
+    if (unlockingTech == null) return 0;
     int scienceTotal = getPlayerScienceTotal(playerId);
     int scienceCost = unlockingTech.getScienceCost();
-    if(scienceCost == 0) return 0;
+    if (scienceCost == 0) return 0;
     return Math.min((double) scienceTotal / (double) scienceCost, 1);
   }
 
@@ -572,7 +573,7 @@ public class Game implements Mappable, TurnHandler {
     Tech unlockingTech = getPlayerUnlockingTech(playerId);
     double progress = getPlayerUnlockingProgress(playerId);
 
-    if(unlockingTech != null && progress >= 1 && !unlockedTechs.contains(unlockingTech)) {
+    if (unlockingTech != null && progress >= 1 && !unlockedTechs.contains(unlockingTech)) {
       playerUnlockedTechs.putIfAbsent(playerId, new HashSet<>());
       playerUnlockedTechs.get(playerId).add(unlockingTech);
       playerUnlockingTechs.put(playerId, null);

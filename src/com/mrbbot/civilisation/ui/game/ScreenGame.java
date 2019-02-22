@@ -34,7 +34,7 @@ public class ScreenGame extends Screen {
     RenderGame renderGame = new RenderGame(
       game,
       id,
-      (unit) -> ui.onSelectedUnitChanged(unit),
+      (unit) -> ui.onSelectedUnitChanged(game, unit),
       (city) -> ui.onSelectedCityChanged(game, city, game.getPlayersCitiesById(id))
     );
     this.renderCivilisation = new RenderCivilisation(renderGame, width, height);

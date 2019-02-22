@@ -7,6 +7,7 @@ import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
+import com.mrbbot.civilisation.logic.unit.UnitAbility;
 import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.RenderData;
@@ -62,7 +63,7 @@ public class RenderGame extends RenderData<Game> {
         if (data.waitingForPlayers) return;
 
         if (e.getButton() == MouseButton.PRIMARY) {
-          if(tile.city != null && tile.city.getCenter().samePositionAs(tile) && tile.city.player.equals(currentPlayer)) {
+          if (tile.city != null && tile.city.getCenter().samePositionAs(tile) && tile.city.player.equals(currentPlayer)) {
             setSelectedCity(tile.city);
             setSelectedUnit(null);
             return;
@@ -70,9 +71,9 @@ public class RenderGame extends RenderData<Game> {
           setSelectedCity(null);
           setSelectedUnit(tile.unit);
         } else if (e.getButton() == MouseButton.SECONDARY) {
-          if(data.selectedUnit != null) {
+          if (data.selectedUnit != null) {
             PacketDamage packetDamage = new PacketDamage(data.selectedUnit.tile.x, data.selectedUnit.tile.y, tile.x, tile.y);
-            if(handlePacket(packetDamage) != null) {
+            if (handlePacket(packetDamage) != null) {
               Civilisation.CLIENT.broadcast(packetDamage);
             }
           }
@@ -134,7 +135,7 @@ public class RenderGame extends RenderData<Game> {
         if (data.waitingForPlayers) return;
 
         if (e.getButton() == MouseButton.SECONDARY) {
-          if (pathStartTile == null && renderTile.data.unit != null && renderTile.data.unit.player.equals(currentPlayer)) {
+          if (pathStartTile == null && renderTile.data.unit != null && renderTile.data.unit.player.equals(currentPlayer) && renderTile.data.unit.hasAbility(UnitAbility.ABILITY_MOVEMENT)) {
             pathStartTile = renderTile;
             pathStartTile.setOverlayVisible(true);
           }
@@ -297,7 +298,7 @@ public class RenderGame extends RenderData<Game> {
       if (tilesToUpdate.length == 0) {
         updateTileRenders();
       } else for (Tile tile : tilesToUpdate) {
-        if(tile.unit != null && tile.unit.isDead()) {
+        if (tile.unit != null && tile.unit.isDead()) {
           deleteUnit(tile.unit, false);
         } else {
           tile.renderer.updateRender();

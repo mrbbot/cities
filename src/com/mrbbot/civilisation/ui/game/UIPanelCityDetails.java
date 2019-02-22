@@ -8,6 +8,7 @@ import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.net.packet.PacketCityBuildRequest;
 import com.mrbbot.civilisation.net.packet.PacketCityRename;
+import com.mrbbot.civilisation.render.map.RenderGame;
 import com.mrbbot.civilisation.ui.UIHelpers;
 import com.mrbbot.generic.net.ClientOnly;
 import javafx.geometry.Insets;
@@ -21,6 +22,7 @@ import java.util.Map;
 
 @ClientOnly
 public class UIPanelCityDetails extends ScrollPane {
+  private final RenderGame renderGame;
   private TextField cityNameField;
   private Button renameButton;
   private Label cityProductionLabel;
@@ -38,8 +40,9 @@ public class UIPanelCityDetails extends ScrollPane {
   private City lastSelectedCity;
   private ArrayList<City> lastSelectedPlayersCities;
 
-  UIPanelCityDetails() {
+  UIPanelCityDetails(RenderGame renderGame) {
     super();
+    this.renderGame = renderGame;
     setPrefWidth(300);
 
     buildablePanes = new HashMap<>();
@@ -204,6 +207,10 @@ public class UIPanelCityDetails extends ScrollPane {
       Tooltip buildableTooltip = buildableTooltips.get(buildable);
       ProgressIndicator progressIndicator = buildableProgresses.get(buildable);
 
+      UIHelpers.toggleClass(buildablePane, "not-unlocked", !game.playerHasUnlocked(city.player.id, buildable));
+      buildablePane.setVisible(game.playerHasUnlocked(city.player.id, buildable));
+      buildablePane.setManaged(game.playerHasUnlocked(city.player.id, buildable));
+
       boolean currentlyBuildingThis = buildable.equals(city.currentlyBuilding);
       String cantBuildReason = buildable.canBuildGivenCities(city, playersCities);
 
@@ -243,7 +250,7 @@ public class UIPanelCityDetails extends ScrollPane {
             buildable,
             buildWithProduction
           );
-          game.handlePacket(packetCityBuildRequest);
+          renderGame.handlePacket(packetCityBuildRequest);
           setSelectedCity(game, city, playersCities);
           Civilisation.CLIENT.broadcast(packetCityBuildRequest);
           System.out.println("Clicked on " + buildable.getName());

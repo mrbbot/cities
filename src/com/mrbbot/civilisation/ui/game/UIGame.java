@@ -78,7 +78,7 @@ public class UIGame extends AnchorPane {
     AnchorPane.setBottomAnchor(panelStats, 0.0);
     AnchorPane.setLeftAnchor(panelStats, 0.0);
 
-    panelCityDetails = new UIPanelCityDetails();
+    panelCityDetails = new UIPanelCityDetails(renderGame);
     panelCityDetails.setBorder(new Border(new BorderStroke(
       playerColor,
       BorderStrokeStyle.SOLID,
@@ -144,8 +144,8 @@ public class UIGame extends AnchorPane {
     ));
   }
 
-  void onSelectedUnitChanged(Unit unit) {
-    panelActions.setSelectedUnit(unit);
+  void onSelectedUnitChanged(Game game, Unit unit) {
+    panelActions.setSelectedUnit(game, unit);
   }
 
   void onSelectedCityChanged(Game game, City city, ArrayList<City> playersCities) {

@@ -3,6 +3,8 @@ package com.mrbbot.civilisation.logic.map.tile;
 import com.mrbbot.civilisation.logic.interfaces.Unlockable;
 
 public class Improvement implements Unlockable {
+  public static int BASE_UNLOCK_ID = 0x10;
+
   public static Improvement NONE = new Improvement(
     0x00,
     "None",
@@ -28,7 +30,7 @@ public class Improvement implements Unlockable {
     false
   );
   public static Improvement FARM = new Improvement(
-    0x10,
+    BASE_UNLOCK_ID,
     "Farm",
     2,
     2,
@@ -36,7 +38,7 @@ public class Improvement implements Unlockable {
     true
   );
   public static Improvement CHOP_FOREST = new Improvement(
-    0x11,
+    BASE_UNLOCK_ID + 1,
     "Chop Forest",
     3,
     0,
@@ -44,7 +46,7 @@ public class Improvement implements Unlockable {
     false
   );
   public static Improvement MINE = new Improvement(
-    0x12,
+    BASE_UNLOCK_ID + 2,
     "Mine",
     2,
     0,
@@ -52,7 +54,7 @@ public class Improvement implements Unlockable {
     true
   );
   public static Improvement PASTURE = new Improvement(
-    0x13,
+    BASE_UNLOCK_ID + 3,
     "Pasture",
     4,
     4,
@@ -60,7 +62,7 @@ public class Improvement implements Unlockable {
     true
   );
   public static Improvement ROAD = new Improvement(
-    0x14,
+    BASE_UNLOCK_ID + 4,
     "Road",
     2,
     0,

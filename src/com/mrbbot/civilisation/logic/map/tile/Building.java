@@ -117,14 +117,14 @@ public abstract class Building extends CityBuildable {
     return null;
   }
 
-  protected int goldPerTurnIncrease = 0;
-  protected int sciencePerTurnIncrease = 0;
-  protected int baseHealthIncrease = 0;
+  int goldPerTurnIncrease = 0;
+  int sciencePerTurnIncrease = 0;
+  int baseHealthIncrease = 0;
 
-  protected double goldPerTurnMultiplier = 1;
-  protected double expansionCostMultiplier = 1;
-  protected double sciencePerTurnMultiplier = 1;
-  protected double productionPerTurnMultiplier = 1;
+  double goldPerTurnMultiplier = 1;
+  double expansionCostMultiplier = 1;
+  double sciencePerTurnMultiplier = 1;
+  double productionPerTurnMultiplier = 1;
 
   private Building(String name, String description, int productionCost, int unlockId) {
     super(name, description, productionCost, unlockId);

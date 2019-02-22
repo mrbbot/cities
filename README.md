@@ -18,7 +18,7 @@ Computer Science Coursework
 - [x] Attacking cities
 
 ### Technology
-- [ ] Unlocking
+- [x] Unlocking
 
 ### Misc
 - [x] Can settle only if no city (reflect in UI)

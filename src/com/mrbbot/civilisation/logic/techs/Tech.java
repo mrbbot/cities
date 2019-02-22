@@ -12,6 +12,7 @@ import java.util.Set;
 public class Tech {
   private static ArrayList<Tech> REGISTRY = new ArrayList<>();
   public static int MAX_X = 0;
+
   static {
     // Definitions: names, positions and colours
     Tech civilisation = new Tech("Civilisation", 0, 0, Color.GOLDENROD);
@@ -44,9 +45,9 @@ public class Tech {
     civilisation.unlocks(UnitType.SETTLER);
     civilisation.unlocks(UnitType.SCOUT);
     civilisation.unlocks(UnitType.WARRIOR);
-    civilisation.unlocks(UnitType.WORKER);
 
     agriculture.unlocks(Improvement.FARM);
+    agriculture.unlocks(UnitType.WORKER);
 
     forestry.unlocks(Improvement.CHOP_FOREST);
 
@@ -108,9 +109,10 @@ public class Tech {
 
     // Calculate tech costs
     for (Tech tech : Tech.REGISTRY) {
+      // must be called in order, caches
       int cost = tech.getScienceCost();
       System.out.println(String.format("%s: %d", tech.getName(), cost));
-      if(tech.getX() > MAX_X) MAX_X = tech.getX();
+      if (tech.getX() > MAX_X) MAX_X = tech.getX();
     }
   }
 
@@ -120,7 +122,7 @@ public class Tech {
 
   public static Tech fromName(String name) {
     for (Tech tech : REGISTRY) {
-      if(tech.name.equals(name)) return tech;
+      if (tech.name.equals(name)) return tech;
     }
     return null;
   }
@@ -183,8 +185,8 @@ public class Tech {
 
   public int getScienceCost() {
     // We only want to calculate this once as it's recursive and could take a long time
-    if(scienceCost == -1) {
-      if(requirements.size() == 0) {
+    if (scienceCost == -1) {
+      if (requirements.size() == 0) {
         scienceCost = 0;
       } else {
         scienceCost = requirements.stream().mapToInt(Tech::getScienceCost).sum() + 25;
@@ -208,7 +210,7 @@ public class Tech {
 
   @Override
   public boolean equals(Object obj) {
-    if(obj instanceof Tech) {
+    if (obj instanceof Tech) {
       return name.equals(((Tech) obj).name);
     }
     return false;

@@ -15,6 +15,10 @@
   -fx-opacity: 0.5;
 }
 
+.production-list-item.not-unlocked {
+  -fx-padding: 0;
+}
+
 .production-list-item.can-build, .production-list-item.building {
   -fx-opacity: 1;
 }

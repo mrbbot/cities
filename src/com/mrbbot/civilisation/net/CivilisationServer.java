@@ -6,7 +6,6 @@ import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.generic.net.Connection;
 import com.mrbbot.generic.net.Handler;
 import com.mrbbot.generic.net.Server;
-import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileReader;
@@ -15,7 +14,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class CivilisationServer implements Handler<Packet> {
-  private static Yaml YAML = new Yaml();
+  private static final Yaml YAML = new Yaml();
 
   /*static {
     DumperOptions dumperOptions = new DumperOptions();

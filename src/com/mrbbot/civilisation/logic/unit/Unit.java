@@ -124,6 +124,7 @@ public class Unit extends Living implements Positionable {
         // check existing for road
         if(tile.improvement == Improvement.ROAD) allTilesNeedReRendering = true;
         if (workerBuilding == Improvement.CHOP_FOREST) {
+          if(tile.city != null) tile.city.productionTotal += 30;
           tile.improvement = Improvement.NONE;
         } else {
           tile.improvement = workerBuilding;
