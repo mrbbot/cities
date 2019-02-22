@@ -9,11 +9,9 @@ import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.techs.PlayerTechDetails;
 import com.mrbbot.civilisation.logic.techs.Tech;
 import com.mrbbot.civilisation.logic.unit.Unit;
+import com.mrbbot.civilisation.logic.unit.UnitAbility;
 import com.mrbbot.civilisation.logic.unit.UnitType;
-import com.mrbbot.civilisation.net.packet.PacketChat;
-import com.mrbbot.civilisation.net.packet.PacketCityCreate;
-import com.mrbbot.civilisation.net.packet.PacketReady;
-import com.mrbbot.civilisation.net.packet.PacketWorkerImproveRequest;
+import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.civilisation.render.map.RenderGame;
 import com.mrbbot.generic.net.ClientOnly;
 import javafx.geometry.Insets;
@@ -161,18 +159,27 @@ public class UIGame extends AnchorPane {
       renderGame.setSelectedCity(null);
     } else {
       System.out.println((unit.unitType.getName() + " performed an action (details: \"" + actionDetails + "\")"));
-      if (unit.unitType.equals(UnitType.SETTLER)) {
+      if (unit.hasAbility(UnitAbility.ABILITY_SETTLE)) {
         Civilisation.CLIENT.broadcast(new PacketCityCreate(renderGame.currentPlayer.id, unit.tile.x, unit.tile.y));
         renderGame.data.cities.add(new City(renderGame.data.hexagonGrid, unit.tile.x, unit.tile.y, renderGame.currentPlayer));
         renderGame.updateTileRenders();
         renderGame.setSelectedUnit(null);
         renderGame.deleteUnit(unit, true);
-      } else if(unit.unitType.equals(UnitType.WORKER)) {
+      } else if(unit.hasAbility(UnitAbility.ABILITY_IMPROVE)) {
         Improvement improvement = Improvement.fromName(actionDetails);
+        assert improvement != null;
         PacketWorkerImproveRequest packetWorkerImproveRequest = new PacketWorkerImproveRequest(unit.tile.x, unit.tile.y, improvement);
         renderGame.data.handlePacket(packetWorkerImproveRequest);
         Civilisation.CLIENT.broadcast(packetWorkerImproveRequest);
         renderGame.setSelectedUnit(null);
+      } else if(unit.unitType.getUpgrade() != null) {
+        PacketUnitUpgrade packetUnitUpgrade = new PacketUnitUpgrade(unit.tile.x, unit.tile.y);
+        renderGame.data.handlePacket(packetUnitUpgrade);
+        Civilisation.CLIENT.broadcast(packetUnitUpgrade);
+        renderGame.setSelectedUnit(null);
+      } else if(unit.hasAbility(UnitAbility.ABILITY_BLAST_OFF)) {
+        //TODO: win game
+        System.out.println("Win game here");
       }
     }
   }

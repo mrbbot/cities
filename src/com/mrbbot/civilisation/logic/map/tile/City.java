@@ -261,6 +261,9 @@ public class City extends Living {
         foodPerTurn += tile.improvement.foodPerTurn;
       }
     }
+    for (Building building : buildings) {
+      foodPerTurn *= building.foodPerTurnMultiplier;
+    }
     return foodPerTurn;
   }
 

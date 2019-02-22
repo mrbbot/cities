@@ -60,16 +60,16 @@ public class Tech {
 
     currency.unlocks(Building.BANK);
     dramaAndPoetry.unlocks(Building.AMPHITHEATRE);
-    //ironWorking.unlocks(UnitType.SWORDSMAN);
+    ironWorking.unlocks(UnitType.SWORDSMAN);
 
     education.unlocks(Building.SCHOOL);
     education.unlocks(Building.UNIVERSITY);
 
     industrialisation.unlocks(Building.FACTORY);
-    //steel.unlocks(UnitType.KNIGHT);
+    steel.unlocks(UnitType.KNIGHT);
 
-    //electricity.unlocks(Building.POWER_STATION);
-    //plastics.unlocks(Building.SUPERMARKET);
+    electricity.unlocks(Building.POWER_STATION);
+    plastics.unlocks(Building.SUPERMARKET);
 
     rocketry.unlocks(UnitType.ROCKET);
 
@@ -197,10 +197,6 @@ public class Tech {
 
   public boolean canUnlockGivenUnlocked(Set<Tech> unlockedTechs) {
     return unlockedTechs.containsAll(requirements) || (requirements.size() == 1 && requirements.get(0).requirements.size() == 0);
-  }
-
-  public boolean canUnlockWith(int scienceTotal) {
-    return scienceTotal >= getScienceCost();
   }
 
   @Override

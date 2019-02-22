@@ -1,6 +1,7 @@
 package com.mrbbot.civilisation.render.map;
 
 import com.mrbbot.civilisation.logic.unit.Unit;
+import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.Render;
 import com.mrbbot.generic.render.RenderData;
@@ -12,8 +13,12 @@ import javafx.scene.transform.Rotate;
 
 @ClientOnly
 class RenderUnit extends RenderData<Unit> {
+  private static final double ROCKET_HEIGHT = 1.2;
+  private static final double ROCKET_ENGINE_HEIGHT = 0.2;
+
   private Cylinder[] torsos, belts;
   private Render[] people;
+  private Render rocket;
   private RenderHealthBar healthBar;
 
   RenderUnit(Unit data) {
@@ -24,6 +29,7 @@ class RenderUnit extends RenderData<Unit> {
     people = new Render[7];
 
     add(people[0] = buildPerson(0));
+    add(rocket = buildRocket());
     for (int i = 0; i < 6; i++) {
       Render rotor = new Render();
       rotor.add(people[i + 1] = buildPerson(i + 1));
@@ -98,8 +104,37 @@ class RenderUnit extends RenderData<Unit> {
     return person;
   }
 
+  private Render buildRocket() {
+    Render rocket = new Render();
+
+    Cylinder engine = new Cylinder(0.11, ROCKET_ENGINE_HEIGHT);
+    engine.setTranslateZ(ROCKET_ENGINE_HEIGHT / 2);
+    engine.setRotationAxis(Rotate.X_AXIS);
+    engine.setRotate(90);
+    engine.setMaterial(new PhongMaterial(UnitType.ROCKET.getColor().brighter()));
+    rocket.add(engine);
+
+    Cylinder body = new Cylinder(0.22, ROCKET_HEIGHT);
+    body.setTranslateZ(ROCKET_HEIGHT / 2 + ROCKET_ENGINE_HEIGHT);
+    body.setRotationAxis(Rotate.X_AXIS);
+    body.setRotate(90);
+    body.setMaterial(new PhongMaterial(UnitType.ROCKET.getColor()));
+    rocket.add(body);
+
+    Sphere cone = new Sphere(0.22);
+    cone.setTranslateZ(ROCKET_HEIGHT + ROCKET_ENGINE_HEIGHT);
+    cone.setMaterial(new PhongMaterial(UnitType.ROCKET.getColor()));
+    rocket.add(cone);
+
+    rocket.setVisible(false);
+
+    return rocket;
+  }
+
   void updateRender(Unit unit) {
     if(unit != null) {
+      rocket.setVisible(unit.unitType == UnitType.ROCKET);
+
       PhongMaterial torsoMaterial = new PhongMaterial(unit.unitType.getColor());
       PhongMaterial beltMaterial = new PhongMaterial(unit.player.getColour());
 

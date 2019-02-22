@@ -321,14 +321,14 @@ public class Game implements Mappable, TurnHandler {
     return new Tile[]{attackerTile, targetTile};
   }
 
-  private Tile[] handleCityCreate(PacketCityCreate packet) {
+  private Tile[] handleCityCreatePacket(PacketCityCreate packet) {
     Player player = new Player(packet.id);
     cities.add(new City(hexagonGrid, packet.x, packet.y, player));
     sendPlayerStats();
     return new Tile[]{};
   }
 
-  private Tile[] handleCityGrow(PacketCityGrow packet) {
+  private Tile[] handleCityGrowPacket(PacketCityGrow packet) {
     for (City city : cities) {
       Tile center = city.getCenter();
       if (center.x == packet.x && center.y == packet.y) {
@@ -340,7 +340,7 @@ public class Game implements Mappable, TurnHandler {
     return new Tile[]{};
   }
 
-  private Tile[] handleCityRename(PacketCityRename packet) {
+  private Tile[] handleCityRenamePacket(PacketCityRename packet) {
     Tile t = hexagonGrid.get(packet.x, packet.y);
     if (t.city != null) {
       t.city.name = packet.newName;
@@ -348,7 +348,7 @@ public class Game implements Mappable, TurnHandler {
     return null;
   }
 
-  private Tile[] handleCityBuildRequest(PacketCityBuildRequest packet) {
+  private Tile[] handleCityBuildRequestPacket(PacketCityBuildRequest packet) {
     Tile t = hexagonGrid.get(packet.x, packet.y);
     if (t.city != null) {
       CityBuildable buildable = packet.getBuildable();
@@ -364,7 +364,7 @@ public class Game implements Mappable, TurnHandler {
     return null;
   }
 
-  private Tile[] handleWorkerImproveRequest(PacketWorkerImproveRequest packet) {
+  private Tile[] handleWorkerImproveRequestPacket(PacketWorkerImproveRequest packet) {
     Tile t = hexagonGrid.get(packet.x, packet.y);
     if (t.unit != null) {
       t.unit.startWorkerBuilding(packet.getImprovement());
@@ -373,9 +373,18 @@ public class Game implements Mappable, TurnHandler {
     return null;
   }
 
-  private Tile[] handlePlayerResearchRequest(PacketPlayerResearchRequest packet) {
+  private Tile[] handlePlayerResearchRequestPacket(PacketPlayerResearchRequest packet) {
     playerUnlockingTechs.put(packet.playerId, packet.getTech());
     sendTechDetails();
+    return null;
+  }
+
+  private Tile[] handleUnitUpgradePacket(PacketUnitUpgrade packet) {
+    Tile t = hexagonGrid.get(packet.x, packet.y);
+    if (t.unit != null && t.unit.unitType.getUpgrade() != null) {
+      t.unit.unitType = t.unit.unitType.getUpgrade();
+      return new Tile[]{t};
+    }
     return null;
   }
 
@@ -443,9 +452,9 @@ public class Game implements Mappable, TurnHandler {
         players.add(new Player(newId));
       }
     } else if (packet instanceof PacketCityCreate) {
-      return handleCityCreate((PacketCityCreate) packet);
+      return handleCityCreatePacket((PacketCityCreate) packet);
     } else if (packet instanceof PacketCityGrow) {
-      return handleCityGrow((PacketCityGrow) packet);
+      return handleCityGrowPacket((PacketCityGrow) packet);
     } else if (packet instanceof PacketUnitCreate) {
       return handleUnitCreatePacket((PacketUnitCreate) packet);
     } else if (packet instanceof PacketUnitMove) {
@@ -455,13 +464,15 @@ public class Game implements Mappable, TurnHandler {
     } else if (packet instanceof PacketDamage) {
       return handleUnitDamagePacket((PacketDamage) packet);
     } else if (packet instanceof PacketCityRename) {
-      return handleCityRename((PacketCityRename) packet);
+      return handleCityRenamePacket((PacketCityRename) packet);
     } else if (packet instanceof PacketCityBuildRequest) {
-      return handleCityBuildRequest((PacketCityBuildRequest) packet);
+      return handleCityBuildRequestPacket((PacketCityBuildRequest) packet);
     } else if (packet instanceof PacketWorkerImproveRequest) {
-      return handleWorkerImproveRequest((PacketWorkerImproveRequest) packet);
+      return handleWorkerImproveRequestPacket((PacketWorkerImproveRequest) packet);
     } else if (packet instanceof PacketPlayerResearchRequest) {
-      return handlePlayerResearchRequest((PacketPlayerResearchRequest) packet);
+      return handlePlayerResearchRequestPacket((PacketPlayerResearchRequest) packet);
+    } else if (packet instanceof PacketUnitUpgrade) {
+      return handleUnitUpgradePacket((PacketUnitUpgrade) packet);
     } else if (packet instanceof PacketReady) {
       return handleTurn(this);
     }
@@ -496,7 +507,8 @@ public class Game implements Mappable, TurnHandler {
 
     PacketUnitCreate[] packetUnitCreates = new PacketUnitCreate[]{
       new PacketUnitCreate(playerId, x, y, UnitType.SETTLER),
-      new PacketUnitCreate(playerId, x, y, UnitType.WARRIOR)
+      new PacketUnitCreate(playerId, x, y, UnitType.WARRIOR),
+      new PacketUnitCreate(playerId, x, y, UnitType.ROCKET),
     };
     for (PacketUnitCreate packetUnitCreate : packetUnitCreates) handlePacket(packetUnitCreate);
     return packetUnitCreates;

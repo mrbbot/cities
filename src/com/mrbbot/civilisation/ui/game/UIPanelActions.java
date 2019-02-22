@@ -6,6 +6,7 @@ import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitAbility;
+import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.net.packet.PacketReady;
 import com.mrbbot.generic.net.ClientOnly;
 import javafx.collections.FXCollections;
@@ -112,6 +113,17 @@ public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
           actionsComboBox.setDisable(true);
           actionButton.setDisable(true);
         }
+      }
+
+      UnitType upgradedType = unit.unitType.getUpgrade();
+      if(upgradedType != null && game.playerHasUnlocked(unit.player.id, upgradedType)) {
+        actionButton.setText("Upgrade to " + upgradedType.getName());
+        actionButton.setDisable(false);
+      }
+
+      if(unit.hasAbility(UnitAbility.ABILITY_BLAST_OFF)) {
+        actionButton.setText("Blast off!");
+        actionButton.setDisable(false);
       }
     }
   }

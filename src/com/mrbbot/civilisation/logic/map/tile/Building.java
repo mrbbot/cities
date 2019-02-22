@@ -99,6 +99,29 @@ public abstract class Building extends CityBuildable {
       productionPerTurnMultiplier = 2;
     }
   };
+  public static Building POWER_STATION = new Building(
+    "Power Station",
+    "Increases cities production",
+    400,
+    BASE_UNLOCK_ID + 7
+  ) {
+    @Override
+    protected void setDetails() {
+      productionPerTurnMultiplier = 2;
+    }
+  };
+  public static Building SUPERMARKET = new Building(
+    "Supermarket",
+    "Gives citizens a place to get food",
+    300,
+    BASE_UNLOCK_ID + 8
+  ) {
+    @Override
+    protected void setDetails() {
+      goldPerTurnIncrease = 10;
+      foodPerTurnMultiplier = 2;
+    }
+  };
 
   public static Building[] VALUES = new Building[]{
     WALL,
@@ -107,6 +130,8 @@ public abstract class Building extends CityBuildable {
     AMPHITHEATRE,
     SCHOOL,
     UNIVERSITY,
+    FACTORY,
+    POWER_STATION,
     FACTORY
   };
 
@@ -125,6 +150,7 @@ public abstract class Building extends CityBuildable {
   double expansionCostMultiplier = 1;
   double sciencePerTurnMultiplier = 1;
   double productionPerTurnMultiplier = 1;
+  double foodPerTurnMultiplier = 1;
 
   private Building(String name, String description, int productionCost, int unlockId) {
     super(name, description, productionCost, unlockId);
@@ -132,34 +158,6 @@ public abstract class Building extends CityBuildable {
   }
 
   protected abstract void setDetails();
-
-  public int getGoldPerTurnIncrease() {
-    return goldPerTurnIncrease;
-  }
-
-  public int getSciencePerTurnIncrease() {
-    return sciencePerTurnIncrease;
-  }
-
-  public int getBaseHealthIncrease() {
-    return baseHealthIncrease;
-  }
-
-  public double getGoldPerTurnMultiplier() {
-    return goldPerTurnMultiplier;
-  }
-
-  public double getExpansionCostMultiplier() {
-    return expansionCostMultiplier;
-  }
-
-  public double getSciencePerTurnMultiplier() {
-    return sciencePerTurnMultiplier;
-  }
-
-  public double getProductionPerTurnMultiplier() {
-    return productionPerTurnMultiplier;
-  }
 
   private String getDetailTextForIncreaseWithMultiplier(int increase, double multiplier) {
     StringBuilder text = new StringBuilder();

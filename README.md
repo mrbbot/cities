@@ -24,7 +24,7 @@ Computer Science Coursework
 - [x] Can settle only if no city (reflect in UI)
 - [x] In game chat
 - [x] Send game state to clients on join
-- [ ] Upgrades
+- [x] Upgrades
 - [ ] Purchasing land
 - [ ] Victories: blast off and all land belongs to one player
 - [ ] Day/Night cycle (just use real time % 60)

@@ -48,11 +48,33 @@ public class UnitType extends CityBuildable {
     50,
     ABILITY_MOVEMENT + ABILITY_ATTACK
   );
+  public static UnitType SWORDSMAN = new UnitType(
+    "Swordsman",
+    "Can attack adjacent units",
+    70,
+    BASE_UNLOCK_ID,
+    Color.BROWN.darker(),
+    2,
+    15,
+    60,
+    ABILITY_MOVEMENT + ABILITY_ATTACK
+  );
+  public static UnitType KNIGHT = new UnitType(
+    "Knight",
+    "Can attack adjacent units",
+    90,
+    BASE_UNLOCK_ID + 1,
+    Color.GREY,
+    2,
+    20,
+    70,
+    ABILITY_MOVEMENT + ABILITY_ATTACK
+  );
   public static UnitType ARCHER = new UnitType(
     "Archer",
     "Can attack units up to 2 tiles away",
     60,
-    BASE_UNLOCK_ID,
+    BASE_UNLOCK_ID + 2,
     Color.INDIANRED,
     2,
     5,
@@ -63,7 +85,7 @@ public class UnitType extends CityBuildable {
     "Worker",
     "Can improve a tile",
     40,
-    BASE_UNLOCK_ID + 1,
+    BASE_UNLOCK_ID + 3,
     Color.DODGERBLUE,
     3,
     0,
@@ -74,18 +96,26 @@ public class UnitType extends CityBuildable {
     "Rocket",
     "Wins the game",
     200,
-    BASE_UNLOCK_ID + 2,
-    Color.GREY,
+    BASE_UNLOCK_ID + 4,
+    Color.GREY.darker().darker().darker(),
     0,
     0,
     100,
     ABILITY_BLAST_OFF
   );
 
+  //Unit upgrades
+  static {
+    WARRIOR.canUpgradeTo = SWORDSMAN;
+    SWORDSMAN.canUpgradeTo = KNIGHT;
+  }
+
   public static UnitType[] VALUES = new UnitType[]{
     SETTLER,
     SCOUT,
     WARRIOR,
+    SWORDSMAN,
+    KNIGHT,
     ARCHER,
     WORKER,
     ROCKET
@@ -103,6 +133,7 @@ public class UnitType extends CityBuildable {
   private final int attackStrength;
   private final int baseHealth;
   private final int abilities;
+  private UnitType canUpgradeTo;
 
   private UnitType(
     String name,
@@ -141,6 +172,10 @@ public class UnitType extends CityBuildable {
 
   int getAbilities() {
     return abilities;
+  }
+
+  public UnitType getUpgrade() {
+    return canUpgradeTo;
   }
 
   @Override
