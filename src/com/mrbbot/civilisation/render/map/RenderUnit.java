@@ -32,9 +32,10 @@ class RenderUnit extends RenderData<Unit> {
       add(rotor);
     }
 
-    add(healthBar = new RenderHealthBar(data));
+    add(healthBar = new RenderHealthBar(data, false));
   }
 
+  @SuppressWarnings("Duplicates")
   private Render buildPerson(int i) {
     Render person = new Render();
 
@@ -102,7 +103,7 @@ class RenderUnit extends RenderData<Unit> {
       PhongMaterial torsoMaterial = new PhongMaterial(unit.unitType.getColor());
       PhongMaterial beltMaterial = new PhongMaterial(unit.player.getColour());
 
-      double healthPercent = (double)unit.health / (double)unit.baseHealth;
+      double healthPercent = unit.getHealthPercent();
       double onePersonProportion = 1.0 / (double)people.length;
       for (int i = 0; i < people.length; i++) {
         torsos[i].setMaterial(torsoMaterial);

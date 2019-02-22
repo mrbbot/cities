@@ -66,7 +66,7 @@ public class CivilisationServer implements Handler<Packet> {
       Tile[] tilesToUpdate = game.handlePacket(data);
       if (tilesToUpdate != null && tilesToUpdate.length != 0) {
         for (Tile tile : tilesToUpdate) {
-          if (tile.unit != null && tile.unit.health <= 0) {
+          if (tile.unit != null && tile.unit.isDead()) {
             game.units.remove(tile.unit);
             tile.unit = null;
           }

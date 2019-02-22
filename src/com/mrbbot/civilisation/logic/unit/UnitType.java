@@ -3,6 +3,7 @@ package com.mrbbot.civilisation.logic.unit;
 import com.mrbbot.civilisation.logic.CityBuildable;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.City;
+import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.net.packet.PacketUnitCreate;
 import com.mrbbot.civilisation.ui.game.BadgeType;
 import javafx.scene.paint.Color;
@@ -154,9 +155,10 @@ public class UnitType extends CityBuildable {
   }
 
   @Override
-  public void build(City city, Game game) {
+  public Tile build(City city, Game game) {
     PacketUnitCreate packetUnitCreate = new PacketUnitCreate(city.player.id, city.getX(), city.getY(), this);
-    game.handlePacket(packetUnitCreate);
+    Tile[] placedTiles = game.handlePacket(packetUnitCreate);
+    return placedTiles != null && placedTiles.length > 0 ? placedTiles[0] : null;
     // no need to broadcast packet as this method is called on the client and the server automatically
   }
 }

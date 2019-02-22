@@ -4,6 +4,7 @@ import com.mrbbot.civilisation.logic.interfaces.Unlockable;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.Building;
 import com.mrbbot.civilisation.logic.map.tile.City;
+import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.ui.game.BadgeType;
 
@@ -91,7 +92,7 @@ public abstract class CityBuildable implements Unlockable {
     return details;
   }
 
-  public abstract void build(City city, Game game);
+  public abstract Tile build(City city, Game game);
 
   public String canBuildGivenCities(City city, ArrayList<City> cities) {
     //TODO: check tech unlocks

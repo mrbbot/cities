@@ -200,7 +200,8 @@ public abstract class Building extends CityBuildable {
   }
 
   @Override
-  public void build(City city, Game game) {
+  public Tile build(City city, Game game) {
     city.buildings.add(this);
+    return city.getCenter();
   }
 }

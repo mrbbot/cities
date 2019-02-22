@@ -21,11 +21,12 @@ Computer Science Coursework
 - [ ] Unlocking
 
 ### Misc
-- [ ] Rocket blast off (victory)
 - [x] Can settle only if no city (reflect in UI)
 - [x] In game chat
 - [x] Send game state to clients on join
 - [ ] Create server from start screen with loading games
 - [ ] Upgrades
 - [ ] Purchasing land
+- [ ] Rocket blast off (victory)
 - [ ] Fix weird bug with disappearing city walls with improving workers
+- [ ] Documentation/commenting 

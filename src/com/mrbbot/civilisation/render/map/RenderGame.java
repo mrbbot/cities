@@ -3,12 +3,10 @@ package com.mrbbot.civilisation.render.map;
 import com.mrbbot.civilisation.Civilisation;
 import com.mrbbot.civilisation.geometry.Path;
 import com.mrbbot.civilisation.logic.Player;
-import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.logic.unit.Unit;
-import com.mrbbot.civilisation.logic.unit.UnitAbility;
 import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.RenderData;
@@ -60,14 +58,11 @@ public class RenderGame extends RenderData<Game> {
       RenderTile renderTile = new RenderTile(tile, data.hexagonGrid.getNeighbours(x, y, false));
       tile.renderer = renderTile;
 
-      Point2D center = hex.getCenter();
-      String coord = "(" + center.getX() + ", " + center.getY() + ")";
       renderTile.setOnMouseClicked((e) -> {
         if (data.waitingForPlayers) return;
-        //System.out.println("You clicked on the tile at " + coord);
 
         if (e.getButton() == MouseButton.PRIMARY) {
-          if(tile.city != null && tile.city.getCenter().samePositionAs(tile)) {
+          if(tile.city != null && tile.city.getCenter().samePositionAs(tile) && tile.city.player.equals(currentPlayer)) {
             setSelectedCity(tile.city);
             setSelectedUnit(null);
             return;
@@ -75,10 +70,14 @@ public class RenderGame extends RenderData<Game> {
           setSelectedCity(null);
           setSelectedUnit(tile.unit);
         } else if (e.getButton() == MouseButton.SECONDARY) {
-          Unit target = tile.unit;
-          Unit attacker = data.selectedUnit;
+          if(data.selectedUnit != null) {
+            PacketDamage packetDamage = new PacketDamage(data.selectedUnit.tile.x, data.selectedUnit.tile.y, tile.x, tile.y);
+            if(handlePacket(packetDamage) != null) {
+              Civilisation.CLIENT.broadcast(packetDamage);
+            }
+          }
 
-          // Check if both units exist
+          /*// Check if both units exist
           if (target == null || attacker == null) return;
 
           // Check if target belongs to current player
@@ -90,9 +89,9 @@ public class RenderGame extends RenderData<Game> {
           // Check if attacked already this turn
           if(attacker.hasAttackedThisTurn) return;
 
-          PacketUnitDamage packetUnitDamage = new PacketUnitDamage(attacker.tile.x, attacker.tile.y, target.tile.x, target.tile.y);
-          handlePacket(packetUnitDamage);
-          Civilisation.CLIENT.broadcast(packetUnitDamage);
+          PacketDamage packetDamage = new PacketDamage(attacker.tile.x, attacker.tile.y, target.tile.x, target.tile.y);
+          handlePacket(packetDamage);
+          Civilisation.CLIENT.broadcast(packetDamage);*/
         }
         /*if(tile.unit != null && tile.unit.player.equals(currentPlayer)) {
           if(data.selectedUnit != null) {
@@ -292,18 +291,19 @@ public class RenderGame extends RenderData<Game> {
     }
   }
 
-  public void handlePacket(Packet packet) {
+  public Tile[] handlePacket(Packet packet) {
     Tile[] tilesToUpdate = data.handlePacket(packet);
     if (tilesToUpdate != null) {
       if (tilesToUpdate.length == 0) {
         updateTileRenders();
       } else for (Tile tile : tilesToUpdate) {
-        if(tile.unit != null && tile.unit.health <= 0) {
+        if(tile.unit != null && tile.unit.isDead()) {
           deleteUnit(tile.unit, false);
         } else {
           tile.renderer.updateRender();
         }
       }
     }
+    return tilesToUpdate;
   }
 }

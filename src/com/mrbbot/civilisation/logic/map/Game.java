@@ -3,6 +3,7 @@ package com.mrbbot.civilisation.logic.map;
 import com.mrbbot.civilisation.geometry.Hexagon;
 import com.mrbbot.civilisation.geometry.HexagonGrid;
 import com.mrbbot.civilisation.logic.CityBuildable;
+import com.mrbbot.civilisation.logic.Living;
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.interfaces.Mappable;
@@ -170,12 +171,12 @@ public class Game implements Mappable, TurnHandler {
     placementTilesToCheck.add(hexagonGrid.get(packet.x, packet.y));
 
     Tile tileToCheck;
-    while((tileToCheck = placementTilesToCheck.poll()) != null) {
+    while ((tileToCheck = placementTilesToCheck.poll()) != null) {
       boolean tileIsCapital = false;
-      if(tileToCheck.city != null) {
+      if (tileToCheck.city != null) {
         tileIsCapital = tileToCheck.city.getCenter().samePositionAs(tileToCheck);
       }
-      if(!tileIsCapital && tileToCheck.unit == null && tileToCheck.canTraverse()) {
+      if (!tileIsCapital && tileToCheck.unit == null && tileToCheck.canTraverse()) {
         break;
       }
 
@@ -192,7 +193,7 @@ public class Game implements Mappable, TurnHandler {
       );
     }
 
-    if(tileToCheck != null) {
+    if (tileToCheck != null) {
       //found space
       Player player = new Player(packet.id);
       Unit unit = new Unit(player, tileToCheck, packet.getUnitType());
@@ -229,27 +230,37 @@ public class Game implements Mappable, TurnHandler {
     return new Tile[]{tile};
   }
 
-  private Tile[] handleUnitDamagePacket(PacketUnitDamage packet) {
+  private Tile[] handleUnitDamagePacket(PacketDamage packet) {
     Tile attackerTile = hexagonGrid.get(packet.attackerX, packet.attackerY);
     Tile targetTile = hexagonGrid.get(packet.targetX, packet.targetY);
 
     Unit attacker = attackerTile.unit;
-    Unit target = targetTile.unit;
+    //prioritise unit
+    Living target = targetTile.unit == null ? targetTile.city : targetTile.unit;
 
     if (attacker == null || target == null) return null;
+    if (attacker.getOwner().equals(target.getOwner())) return null;
+    if (attacker.hasAttackedThisTurn) return null;
 
-    Point2D targetPos = target.tile.getHexagon().getCenter();
-    Point2D attackerPos = attacker.tile.getHexagon().getCenter();
+    Point2D targetPos = target.getPosition();
+    Point2D attackerPos = attacker.getPosition();
     double distanceBetween = targetPos.distance(attackerPos);
     int tilesBetween = (int) Math.round(distanceBetween / Hexagon.SQRT_3);
     if (attacker.hasAbility(UnitAbility.ABILITY_ATTACK) && tilesBetween <= 1) {
-      target.health -= attacker.unitType.getAttackStrength();
-      attacker.health -= target.unitType.getBaseHealth() / 5;
+      target.onAttack(attacker, false);
       attacker.hasAttackedThisTurn = true;
     }
     if (attacker.hasAbility(UnitAbility.ABILITY_RANGED_ATTACK) && tilesBetween <= 2) {
-      target.health -= attacker.unitType.getAttackStrength();
+      target.onAttack(attacker, true);
       attacker.hasAttackedThisTurn = true;
+    }
+
+    if(target instanceof City && target.isDead()) {
+      City targetCity = (City) target;
+      targetCity.setHealth(10);
+      targetCity.setOwner(targetCity.lastAttacker.player);
+      //TODO: check victory
+      return new Tile[] {};
     }
 
     return new Tile[]{attackerTile, targetTile};
@@ -276,7 +287,7 @@ public class Game implements Mappable, TurnHandler {
 
   private Tile[] handleCityRename(PacketCityRename packet) {
     Tile t = hexagonGrid.get(packet.x, packet.y);
-    if(t.city != null) {
+    if (t.city != null) {
       t.city.name = packet.newName;
     }
     return null;
@@ -284,11 +295,11 @@ public class Game implements Mappable, TurnHandler {
 
   private Tile[] handleCityBuildRequest(PacketCityBuildRequest packet) {
     Tile t = hexagonGrid.get(packet.x, packet.y);
-    if(t.city != null) {
+    if (t.city != null) {
       CityBuildable buildable = packet.getBuildable();
-      if(packet.withProduction) {
+      if (packet.withProduction) {
         t.city.currentlyBuilding = buildable;
-      } else if(buildable.canBuildWithGold(getPlayerGoldTotal(t.city.player.id))) {
+      } else if (buildable.canBuildWithGold(getPlayerGoldTotal(t.city.player.id))) {
         increasePlayerGoldBy(t.city.player.id, -buildable.getGoldCost());
         buildable.build(t.city, this);
       }
@@ -299,9 +310,9 @@ public class Game implements Mappable, TurnHandler {
 
   private Tile[] handleWorkerImproveRequest(PacketWorkerImproveRequest packet) {
     Tile t = hexagonGrid.get(packet.x, packet.y);
-    if(t.unit != null) {
+    if (t.unit != null) {
       t.unit.startWorkerBuilding(packet.improvement);
-      return new Tile[] {t};
+      return new Tile[]{t};
     }
     return null;
   }
@@ -312,15 +323,20 @@ public class Game implements Mappable, TurnHandler {
 
     for (Unit unit : units) {
       Tile[] unitUpdatedTiles = unit.handleTurn(this);
-      if(unitUpdatedTiles != null) Collections.addAll(updatedTiles, unitUpdatedTiles);
+      if (unitUpdatedTiles != null) Collections.addAll(updatedTiles, unitUpdatedTiles);
     }
 
     for (City city : cities) {
-      city.handleTurn(this);
+      Collections.addAll(updatedTiles, city.handleTurn(this));
+      if (city.naturalHeal()) {
+        updatedTiles.add(city.getCenter());
+      }
     }
 
     waitingForPlayers = false;
     readyPlayers.clear();
+
+    //TODO: check if all tiles belong to one player
 
     sendPlayerStats();
 
@@ -329,11 +345,11 @@ public class Game implements Mappable, TurnHandler {
 
   @ClientOnly
   private void sendPlayerStats() {
-    if(currentPlayerId != null && playerStatsListener != null) {
+    if (currentPlayerId != null && playerStatsListener != null) {
       int totalSciencePerTurn = 0;
       int totalGoldPerTurn = 0;
       for (City city : cities) {
-        if(city.player.id.equals(currentPlayerId)) {
+        if (city.player.id.equals(currentPlayerId)) {
           totalSciencePerTurn += city.getSciencePerTurn();
           totalGoldPerTurn += city.getGoldPerTurn();
         }
@@ -362,13 +378,13 @@ public class Game implements Mappable, TurnHandler {
       return handleUnitMovePacket((PacketUnitMove) packet);
     } else if (packet instanceof PacketUnitDelete) {
       return handleUnitDeletePacket((PacketUnitDelete) packet);
-    } else if (packet instanceof PacketUnitDamage) {
-      return handleUnitDamagePacket((PacketUnitDamage) packet);
-    } else if(packet instanceof PacketCityRename) {
+    } else if (packet instanceof PacketDamage) {
+      return handleUnitDamagePacket((PacketDamage) packet);
+    } else if (packet instanceof PacketCityRename) {
       return handleCityRename((PacketCityRename) packet);
-    } else if(packet instanceof PacketCityBuildRequest) {
+    } else if (packet instanceof PacketCityBuildRequest) {
       return handleCityBuildRequest((PacketCityBuildRequest) packet);
-    } else if(packet instanceof PacketWorkerImproveRequest) {
+    } else if (packet instanceof PacketWorkerImproveRequest) {
       return handleWorkerImproveRequest((PacketWorkerImproveRequest) packet);
     } else if (packet instanceof PacketReady) {
       return handleTurn(this);
@@ -433,7 +449,7 @@ public class Game implements Mappable, TurnHandler {
   }
 
   private void increasePlayerResourceBy(Map<String, Integer> counts, String playerId, int amount) {
-    if(counts.containsKey(playerId)) {
+    if (counts.containsKey(playerId)) {
       counts.put(playerId, counts.get(playerId) + amount);
     } else {
       counts.put(playerId, amount);

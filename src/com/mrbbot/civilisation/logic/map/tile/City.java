@@ -5,6 +5,7 @@ import com.mrbbot.civilisation.logic.CityBuildable;
 import com.mrbbot.civilisation.logic.Living;
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.map.Game;
+import com.mrbbot.civilisation.logic.unit.Unit;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
@@ -14,8 +15,8 @@ import java.util.stream.Collectors;
 public class City extends Living {
   private final HexagonGrid<Tile> grid;
   public Player player;
-  public final Color wallColour;
-  public final Color joinColour;
+  public Color wallColour;
+  public Color joinColour;
 
   public ArrayList<Tile> tiles;
   public double greatestTileHeight;
@@ -26,14 +27,14 @@ public class City extends Living {
   public int citizens;
   public int excessFoodCounter;
 
+  public Unit lastAttacker;
+
   public String name;
 
   public City(HexagonGrid<Tile> grid, int centerX, int centerY, Player player) {
-    super(100);
+    super(200);
     this.grid = grid;
-    this.player = player;
-    this.wallColour = player.getColour();
-    this.joinColour = this.wallColour.darker();
+    setOwner(player);
     this.name = "City";
 
     tiles = new ArrayList<>();
@@ -61,8 +62,7 @@ public class City extends Living {
   }
 
   public City(HexagonGrid<Tile> grid, Map<String, Object> map) {
-    super((int) map.get("baseHealth"));
-    this.health = (int) map.get("health");
+    super((int) map.get("baseHealth"), (int) map.get("health"));
     this.grid = grid;
     this.player = new Player((String) map.get("owner"));
     this.wallColour = player.getColour();
@@ -275,7 +275,7 @@ public class City extends Living {
 
     productionTotal += productionPerTurn;
     if (currentlyBuilding != null && currentlyBuilding.canBuildWithProduction(productionTotal)) {
-      currentlyBuilding.build(this, game);
+      updatedTiles.add(currentlyBuilding.build(this, game));
       productionTotal -= currentlyBuilding.getProductionCost();
       currentlyBuilding = null;
     }
@@ -287,9 +287,8 @@ public class City extends Living {
       citizens--;
     } else if (excessFoodCounter > growthValue) {
       citizens++;
-      for (Point2D grownPoint : grow(1)) {
-        updatedTiles.add(grid.get((int) grownPoint.getX(), (int) grownPoint.getY()));
-      }
+      grow(1);
+      updatedTiles.addAll(tiles);
     }
 
     //TODO: increase player stats, +gold, +science
@@ -297,5 +296,30 @@ public class City extends Living {
     game.increasePlayerGoldBy(player.id, goldPerTurn);
 
     return updatedTiles.toArray(new Tile[]{});
+  }
+
+  @Override
+  public void onAttack(Unit attacker, boolean ranged) {
+    lastAttacker = attacker;
+    damage(attacker.unitType.getAttackStrength());
+    if(!ranged) {
+      attacker.damage(Math.max(attacker.getHealth() / 4, 10));
+    }
+  }
+
+  @Override
+  public Player getOwner() {
+    return player;
+  }
+
+  public void setOwner(Player player) {
+    this.player = player;
+    this.wallColour = player.getColour();
+    this.joinColour = this.wallColour.darker();
+  }
+
+  @Override
+  public Point2D getPosition() {
+    return getCenter().getHexagon().getCenter();
   }
 }

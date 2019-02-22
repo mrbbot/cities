@@ -9,14 +9,16 @@ import javafx.scene.shape.Cylinder;
 
 @ClientOnly
 public class RenderHealthBar extends RenderData<Living> {
+  private final boolean extended;
   private Cylinder healthPart, remainingPart;
 
-  public RenderHealthBar(Living data) {
+  public RenderHealthBar(Living data, boolean extended) {
     super(data);
-    translateTo(0, 0, 0.8);
+    this.extended = extended;
+    translateTo(0, 0, extended ? 1.6 : 0.8);
     rotateTo(0, 0, 90);
 
-    healthPart = new Cylinder(0.1, 1);
+    healthPart = new Cylinder(0.1, extended ? 2 : 1);
     remainingPart = new Cylinder(0.05, 0);
 
     remainingPart.setMaterial(new PhongMaterial(Color.SLATEGREY));
@@ -40,19 +42,21 @@ public class RenderHealthBar extends RenderData<Living> {
   }
 
   public void updateRender(Living living) {
-    if(living == null || living.health == living.baseHealth) {
+    if(living == null || living.getHealth() == living.getBaseHealth()) {
       setVisible(false);
     } else {
-      double healthPercent = (double)living.health / (double)living.baseHealth;
+      double length = extended ? 2 : 1;
+
+      double healthPercent = living.getHealthPercent();
       double remainingPercent = 1 - healthPercent;
 
       healthPart.setMaterial(new PhongMaterial(colorForHealthPercent(healthPercent)));
 
-      healthPart.setHeight(healthPercent);
-      remainingPart.setHeight(remainingPercent);
+      healthPart.setHeight(healthPercent * length);
+      remainingPart.setHeight(remainingPercent * length);
 
-      healthPart.setTranslateY(remainingPercent / 2.0);
-      remainingPart.setTranslateY(-healthPercent / 2.0);
+      healthPart.setTranslateY(remainingPercent * length / 2.0);
+      remainingPart.setTranslateY(-healthPercent * length / 2.0);
 
       setVisible(true);
     }

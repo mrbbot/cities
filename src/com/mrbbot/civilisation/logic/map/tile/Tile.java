@@ -7,7 +7,6 @@ import com.mrbbot.civilisation.render.map.RenderTile;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public class Tile implements Traversable {
   private final Hexagon hexagon;

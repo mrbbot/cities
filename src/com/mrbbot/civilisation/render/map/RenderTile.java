@@ -45,6 +45,7 @@ public class RenderTile extends RenderData<Tile> {
   private RenderImprovement improvement;
   private RenderTileOverlay overlay;
   private RenderUnit unit;
+  private RenderHealthBar cityHealthBar;
   private double height;
   private final ArrayList<Tile> adjacentTiles;
 
@@ -82,6 +83,14 @@ public class RenderTile extends RenderData<Tile> {
     overlay.setColor(data.selected ? Color.LIGHTBLUE : (data.canTraverse() ? Color.WHITE : Color.INDIANRED));
     if(data.city != null) {
       overlay.setCityWalls(data.city, data.getCityWalls(), height);
+
+      // if capital, add health bar
+      if(data.city.getCenter().samePositionAs(data)) {
+        if (cityHealthBar == null) {
+          aboveGround.add(cityHealthBar = new RenderHealthBar(data.city, true));
+        }
+        cityHealthBar.updateRender(data.city);
+      }
     }
     overlay.setSelected(data.selected);
     unit.updateRender(data.unit);

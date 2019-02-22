@@ -7,6 +7,7 @@ import com.mrbbot.civilisation.logic.interfaces.Positionable;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
+import javafx.geometry.Point2D;
 
 import java.util.*;
 
@@ -39,8 +40,7 @@ public class Unit extends Living implements Positionable {
   }
 
   public Unit(HexagonGrid<Tile> grid, Map<String, Object> map) {
-    super((Integer) map.get("baseHealth"));
-    this.health = (int) map.get("health");
+    super((int) map.get("baseHealth"), (int) map.get("health"));
     this.player = new Player((String) map.get("owner"));
     this.tile = grid.get((int) map.get("x"), (int) map.get("y"));
     this.unitType = UnitType.fromName((String) map.get("type"));
@@ -110,16 +110,11 @@ public class Unit extends Living implements Positionable {
 
   @Override
   public Tile[] handleTurn(Game game) {
-    boolean workerTileUpdated = false;
+    boolean workerTileUpdated = naturalHeal();
     boolean allTilesNeedReRendering = false;
 
     remainingMovementPointsThisTurn = unitType.getMovementPoints();
     hasAttackedThisTurn = false;
-    if (health < baseHealth) {
-      health += 5;
-      if (health > baseHealth) health = baseHealth;
-      workerTileUpdated = true;
-    }
 
     if (workerBuilding != Improvement.NONE) {
       workerBuildTurnsRemaining--;
@@ -167,5 +162,23 @@ public class Unit extends Living implements Positionable {
       : (workerTileUpdated
       ? new Tile[]{tile}
       : null);
+  }
+
+  @Override
+  public void onAttack(Unit attacker, boolean ranged) {
+    damage(attacker.unitType.getAttackStrength());
+    if(!ranged) {
+      attacker.damage(unitType.getBaseHealth() / 5);
+    }
+  }
+
+  @Override
+  public Player getOwner() {
+    return player;
+  }
+
+  @Override
+  public Point2D getPosition() {
+    return tile.getHexagon().getCenter();
   }
 }
