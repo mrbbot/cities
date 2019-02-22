@@ -115,7 +115,6 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
     return list;
   }
 
-  //TODO: change to max cost in prep for roads
   public Path<E> findPath(int x1, int y1, int x2, int y2, int maxCost) {
     Map<E, Integer> costs = new HashMap<>();
     PriorityQueue<E> frontier = new PriorityQueue<>(Comparator.comparingInt(costs::get));

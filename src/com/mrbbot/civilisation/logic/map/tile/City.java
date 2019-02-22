@@ -291,7 +291,6 @@ public class City extends Living {
       updatedTiles.addAll(tiles);
     }
 
-    //TODO: increase player stats, +gold, +science
     game.increasePlayerScienceBy(player.id, sciencePerTurn);
     game.increasePlayerGoldBy(player.id, goldPerTurn);
 

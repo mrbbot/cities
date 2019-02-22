@@ -88,7 +88,6 @@ public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
         actionButton.setDisable(tile.city != null);
       }
 
-      //TODO: Check belongs to city
       if (unit.hasAbility(UnitAbility.ABILITY_IMPROVE)) {
         for (Improvement improvement : Improvement.values()) {
           if(improvement.workerCanDo) {
