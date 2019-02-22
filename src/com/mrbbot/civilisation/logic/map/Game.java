@@ -1,6 +1,7 @@
 package com.mrbbot.civilisation.logic.map;
 
 import com.mrbbot.civilisation.geometry.Hexagon;
+import com.mrbbot.civilisation.geometry.HexagonConsumer;
 import com.mrbbot.civilisation.geometry.HexagonGrid;
 import com.mrbbot.civilisation.logic.CityBuildable;
 import com.mrbbot.civilisation.logic.Living;
@@ -19,7 +20,6 @@ import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitAbility;
 import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.net.packet.*;
-import com.mrbbot.civilisation.ui.UIHelpers;
 import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.net.ServerOnly;
 import javafx.geometry.Point2D;
@@ -30,6 +30,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class Game implements Mappable, TurnHandler {
+  private static final String VICTORY_REASON_DOMINATION = "conquering every single tile";
+  private static final String VICTORY_REASON_SCIENCE = "blasting off into space";
+
   private String name;
   public HexagonGrid<Tile> hexagonGrid;
   public ArrayList<City> cities;
@@ -227,6 +230,29 @@ public class Game implements Mappable, TurnHandler {
     return map;
   }
 
+  private void win(String playerId, String reason) {
+    boolean victory = currentPlayerId == null || playerId.equals(currentPlayerId);
+    String messageStart = victory ? "Victory!" : "Defeat!";
+    String playerPart = playerId.equals(currentPlayerId) ? "You've" : String.format("%s has", playerId);
+    sendMessage(String.format("%s %s won the game by %s!", messageStart, playerPart, reason), !victory);
+  }
+
+  private void checkDominationVictory() {
+    String playerId = null;
+
+    Iterator<Tile> tileIterator = hexagonGrid.iterator();
+    while(tileIterator.hasNext()) {
+      Tile tile = tileIterator.next();
+      if(tile.city == null) return;
+      if(playerId == null) playerId = tile.city.player.id;
+      if(!playerId.equals(tile.city.player.id)) return;
+    }
+
+    if (playerId != null) {
+      win(playerId, VICTORY_REASON_DOMINATION);
+    }
+  }
+
   public boolean containsPlayerWithId(String id) {
     for (Player player : players) {
       if (player.id.equals(id)) return true;
@@ -339,7 +365,7 @@ public class Game implements Mappable, TurnHandler {
       City targetCity = (City) target;
       targetCity.setHealth(10);
       targetCity.setOwner(targetCity.lastAttacker.player);
-      //TODO: check victory
+      checkDominationVictory();
       return new Tile[]{};
     }
 
@@ -477,7 +503,7 @@ public class Game implements Mappable, TurnHandler {
     waitingForPlayers = false;
     readyPlayers.clear();
 
-    //TODO: check if all tiles belong to one player
+    checkDominationVictory();
 
     sendPlayerStats();
     sendTechDetails();
@@ -545,6 +571,8 @@ public class Game implements Mappable, TurnHandler {
       return handleUnitUpgradePacket((PacketUnitUpgrade) packet);
     } else if(packet instanceof PacketPurchaseTileRequest) {
       return handlePurchaseTileRequestPacket((PacketPurchaseTileRequest) packet);
+    } else if(packet instanceof PacketBlastOff) {
+      win(((PacketBlastOff) packet).playerId, VICTORY_REASON_SCIENCE);
     } else if (packet instanceof PacketReady) {
       return handleTurn(this);
     }

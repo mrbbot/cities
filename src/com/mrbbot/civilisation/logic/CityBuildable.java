@@ -95,7 +95,6 @@ public abstract class CityBuildable implements Unlockable {
   public abstract Tile build(City city, Game game);
 
   public String canBuildGivenCities(City city, ArrayList<City> cities) {
-    //TODO: check tech unlocks
     return "";
   }
 }

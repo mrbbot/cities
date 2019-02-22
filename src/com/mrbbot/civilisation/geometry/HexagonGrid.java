@@ -183,6 +183,36 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
     }
   }
 
+  private class HexagonGridIterator implements Iterator<E> {
+    private int x, y;
+
+    private HexagonGridIterator() {
+      this.x = 0;
+      this.y = 0;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return cellExists(x, y);
+    }
+
+    @Override
+    public E next() {
+      E next = get(x, y);
+      if(x < grid[0].length - ((y + 1) % 2) - 1) {
+        x++;
+      } else {
+        x = 0;
+        y++;
+      }
+      return next;
+    }
+  }
+
+  public Iterator<E> iterator() {
+    return new HexagonGridIterator();
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();

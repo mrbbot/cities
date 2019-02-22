@@ -178,8 +178,11 @@ public class UIGame extends AnchorPane {
         Civilisation.CLIENT.broadcast(packetUnitUpgrade);
         renderGame.setSelectedUnit(null);
       } else if(unit.hasAbility(UnitAbility.ABILITY_BLAST_OFF)) {
-        //TODO: win game
-        System.out.println("Win game here");
+        PacketBlastOff packetBlastOff = new PacketBlastOff(renderGame.currentPlayer.id);
+        renderGame.handlePacket(packetBlastOff);
+        Civilisation.CLIENT.broadcast(packetBlastOff);
+        renderGame.setSelectedUnit(null);
+        renderGame.deleteUnit(unit, true);
       }
     }
   }

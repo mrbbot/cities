@@ -25,9 +25,8 @@ Computer Science Coursework
 - [x] In game chat
 - [x] Send game state to clients on join
 - [x] Upgrades
-- [ ] Purchasing land
-- [ ] Victories: blast off and all land belongs to one player
+- [x] Purchasing land
+- [x] Victories: blast off and all land belongs to one player
 - [ ] Day/Night cycle (just use real time % 60)
-
 - [ ] Create server from start screen with loading games
 - [ ] Documentation/commenting 

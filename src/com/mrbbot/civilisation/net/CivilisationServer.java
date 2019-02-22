@@ -26,7 +26,6 @@ public class CivilisationServer implements Handler<Packet> {
 
   private CivilisationServer() throws IOException {
     game = new Game("Game");
-    //TODO: remove these, they're just for testing
     save("game.yml");
     load("game.yml");
 
@@ -94,7 +93,6 @@ public class CivilisationServer implements Handler<Packet> {
     }
   }
 
-  //TODO: move this into the client
   public static void main(String[] args) throws IOException {
     new CivilisationServer();
   }
