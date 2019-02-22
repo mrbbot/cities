@@ -132,7 +132,7 @@ public abstract class Building extends CityBuildable {
     UNIVERSITY,
     FACTORY,
     POWER_STATION,
-    FACTORY
+    SUPERMARKET
   };
 
   public static Building fromName(String name) {
@@ -142,15 +142,15 @@ public abstract class Building extends CityBuildable {
     return null;
   }
 
-  int goldPerTurnIncrease = 0;
-  int sciencePerTurnIncrease = 0;
-  int baseHealthIncrease = 0;
+  public int goldPerTurnIncrease = 0;
+  public int sciencePerTurnIncrease = 0;
+  public int baseHealthIncrease = 0;
 
-  double goldPerTurnMultiplier = 1;
-  double expansionCostMultiplier = 1;
-  double sciencePerTurnMultiplier = 1;
-  double productionPerTurnMultiplier = 1;
-  double foodPerTurnMultiplier = 1;
+  public double goldPerTurnMultiplier = 1;
+  public double expansionCostMultiplier = 1;
+  public double sciencePerTurnMultiplier = 1;
+  public double productionPerTurnMultiplier = 1;
+  public double foodPerTurnMultiplier = 1;
 
   private Building(String name, String description, int productionCost, int unlockId) {
     super(name, description, productionCost, unlockId);

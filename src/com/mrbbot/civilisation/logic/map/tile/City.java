@@ -324,4 +324,8 @@ public class City extends Living {
   public Point2D getPosition() {
     return getCenter().getHexagon().getCenter();
   }
+
+  public boolean sameCenterAs(City c) {
+    return getCenter().samePositionAs(c.getCenter());
+  }
 }

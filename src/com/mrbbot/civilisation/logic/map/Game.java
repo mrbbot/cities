@@ -9,6 +9,7 @@ import com.mrbbot.civilisation.logic.PlayerStats;
 import com.mrbbot.civilisation.logic.interfaces.Mappable;
 import com.mrbbot.civilisation.logic.interfaces.TurnHandler;
 import com.mrbbot.civilisation.logic.interfaces.Unlockable;
+import com.mrbbot.civilisation.logic.map.tile.Building;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Terrain;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
@@ -18,11 +19,13 @@ import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.logic.unit.UnitAbility;
 import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.net.packet.*;
+import com.mrbbot.civilisation.ui.UIHelpers;
 import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.net.ServerOnly;
 import javafx.geometry.Point2D;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -48,6 +51,8 @@ public class Game implements Mappable, TurnHandler {
   private Consumer<PlayerStats> playerStatsListener;
   @ClientOnly
   private Consumer<PlayerTechDetails> techDetailsListener;
+  @ClientOnly
+  private BiConsumer<String, Boolean> messageListener;
 
   public Game(String name) {
     this.name = name;
@@ -147,6 +152,15 @@ public class Game implements Mappable, TurnHandler {
   public void setTechDetailsListener(Consumer<PlayerTechDetails> techDetailsListener) {
     this.techDetailsListener = techDetailsListener;
     sendTechDetails();
+  }
+
+  @ClientOnly
+  public void setMessageListener(BiConsumer<String, Boolean> messageListener) {
+    this.messageListener = messageListener;
+  }
+
+  private void sendMessage(String message, boolean isError) {
+    if(this.messageListener != null) this.messageListener.accept(message, isError);
   }
 
   public Map<String, Object> toMap() {
@@ -289,13 +303,24 @@ public class Game implements Mappable, TurnHandler {
     Tile attackerTile = hexagonGrid.get(packet.attackerX, packet.attackerY);
     Tile targetTile = hexagonGrid.get(packet.targetX, packet.targetY);
 
+    boolean targetIsCity = targetTile.city != null && targetTile.city.getCenter().samePositionAs(targetTile);
+
     Unit attacker = attackerTile.unit;
     //prioritise unit
-    Living target = targetTile.unit == null ? targetTile.city : targetTile.unit;
+    Living target = targetTile.unit == null ? (targetIsCity ? targetTile.city : null) : targetTile.unit;
 
-    if (attacker == null || target == null) return null;
-    if (attacker.getOwner().equals(target.getOwner())) return null;
-    if (attacker.hasAttackedThisTurn) return null;
+    if (attacker == null || target == null) {
+      sendMessage("You can't attack nothing!", true);
+      return null;
+    }
+    if (attacker.getOwner().equals(target.getOwner())) {
+      sendMessage("You can't attack yourself!", true);
+      return null;
+    }
+    if (attacker.hasAttackedThisTurn) {
+      sendMessage("You've already attacked this turn!", true);
+      return null;
+    }
 
     Point2D targetPos = target.getPosition();
     Point2D attackerPos = attacker.getPosition();
@@ -388,6 +413,51 @@ public class Game implements Mappable, TurnHandler {
     return null;
   }
 
+  private Tile[] handlePurchaseTileRequestPacket(PacketPurchaseTileRequest packet) {
+    Tile t = hexagonGrid.get(packet.cityX, packet.cityY);
+    if(t.city != null) {
+      String playerId = t.city.player.id;
+
+      Tile purchaseTile = hexagonGrid.get(packet.purchaseX, packet.purchaseY);
+
+      // already part of city
+      if(purchaseTile.city != null) {
+        sendMessage("This tile is already part of a city!", true);
+        return null;
+      }
+
+      ArrayList<Tile> neighbours = hexagonGrid.getNeighbours(packet.purchaseX, packet.purchaseY, false);
+      boolean isNeighbour = neighbours.stream().anyMatch(tile -> tile.city != null && tile.city.sameCenterAs(t.city));
+      // not neighbouring tile in city
+      if(!isNeighbour) {
+        sendMessage("This tile isn't adjacent to this city!", true);
+        return null;
+      }
+
+      // calculate cost
+      double distanceBetween = t.getHexagon().getCenter().distance(purchaseTile.getHexagon().getCenter());
+      int tilesBetween = (int) Math.round(distanceBetween / Hexagon.SQRT_3);
+      double cost = 50.0 * tilesBetween;
+      for (Building building : t.city.buildings) {
+        cost *= building.expansionCostMultiplier;
+      }
+      int goldTotal = getPlayerGoldTotal(t.city.player.id);
+      int roundCost = (int) Math.round(cost);
+      // not enough money
+      if(goldTotal < roundCost) {
+        sendMessage(String.format("This tile costs %d gold to purchase, you only have %d!", roundCost, goldTotal), true);
+        return null;
+      }
+
+      increasePlayerGoldBy(playerId, -roundCost);
+      ArrayList<Point2D> grownTo = new ArrayList<>();
+      grownTo.add(new Point2D(purchaseTile.x, purchaseTile.y));
+      t.city.growTo(grownTo);
+      return new Tile[] {};
+    }
+    return null;
+  }
+
   @Override
   public Tile[] handleTurn(Game game) {
     ArrayList<Tile> updatedTiles = new ArrayList<>();
@@ -473,6 +543,8 @@ public class Game implements Mappable, TurnHandler {
       return handlePlayerResearchRequestPacket((PacketPlayerResearchRequest) packet);
     } else if (packet instanceof PacketUnitUpgrade) {
       return handleUnitUpgradePacket((PacketUnitUpgrade) packet);
+    } else if(packet instanceof PacketPurchaseTileRequest) {
+      return handlePurchaseTileRequestPacket((PacketPurchaseTileRequest) packet);
     } else if (packet instanceof PacketReady) {
       return handleTurn(this);
     }
@@ -507,8 +579,7 @@ public class Game implements Mappable, TurnHandler {
 
     PacketUnitCreate[] packetUnitCreates = new PacketUnitCreate[]{
       new PacketUnitCreate(playerId, x, y, UnitType.SETTLER),
-      new PacketUnitCreate(playerId, x, y, UnitType.WARRIOR),
-      new PacketUnitCreate(playerId, x, y, UnitType.ROCKET),
+      new PacketUnitCreate(playerId, x, y, UnitType.WARRIOR)
     };
     for (PacketUnitCreate packetUnitCreate : packetUnitCreates) handlePacket(packetUnitCreate);
     return packetUnitCreates;
@@ -590,6 +661,7 @@ public class Game implements Mappable, TurnHandler {
       playerUnlockedTechs.get(playerId).add(unlockingTech);
       playerUnlockingTechs.put(playerId, null);
       increasePlayerResourceBy(playerScienceCounts, playerId, -unlockingTech.getScienceCost());
+      sendMessage(String.format("%s has been unlocked!", unlockingTech.getName()), false);
     }
   }
 

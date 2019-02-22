@@ -7,6 +7,7 @@ import com.mrbbot.civilisation.net.packet.PacketReady;
 import com.mrbbot.civilisation.render.RenderCivilisation;
 import com.mrbbot.civilisation.render.map.RenderGame;
 import com.mrbbot.civilisation.ui.Screen;
+import com.mrbbot.civilisation.ui.UIHelpers;
 import com.mrbbot.generic.net.ClientOnly;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -43,6 +44,7 @@ public class ScreenGame extends Screen {
     ui.setPrefSize(width, height);
     game.setCurrentPlayer(id, (stats) -> ui.onPlayerStatsChanged(stats));
     game.setTechDetailsListener((details) -> ui.onTechDetailsChanged(game, details));
+    game.setMessageListener(UIHelpers::showDialog);
 
     pane.getChildren().addAll(this.renderCivilisation.subScene, ui);
     Scene scene = new Scene(pane, width, height);

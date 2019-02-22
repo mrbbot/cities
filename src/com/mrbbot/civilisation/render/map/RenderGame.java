@@ -28,6 +28,7 @@ public class RenderGame extends RenderData<Game> {
   private final Consumer<Unit> selectedUnitListener;
   private final Consumer<City> selectedCityListener;
   public Player currentPlayer;
+  private City selectedCity;
 
   public RenderGame(
     Game data,
@@ -71,64 +72,18 @@ public class RenderGame extends RenderData<Game> {
           setSelectedCity(null);
           setSelectedUnit(tile.unit);
         } else if (e.getButton() == MouseButton.SECONDARY) {
-          if (data.selectedUnit != null) {
+          if(selectedCity != null) {
+            PacketPurchaseTileRequest packetPurchaseTileRequest = new PacketPurchaseTileRequest(selectedCity.getX(), selectedCity.getY(), tile.x, tile.y);
+            if(handlePacket(packetPurchaseTileRequest) != null) {
+              Civilisation.CLIENT.broadcast(packetPurchaseTileRequest);
+            }
+          } else if (data.selectedUnit != null) {
             PacketDamage packetDamage = new PacketDamage(data.selectedUnit.tile.x, data.selectedUnit.tile.y, tile.x, tile.y);
             if (handlePacket(packetDamage) != null) {
               Civilisation.CLIENT.broadcast(packetDamage);
             }
           }
-
-          /*// Check if both units exist
-          if (target == null || attacker == null) return;
-
-          // Check if target belongs to current player
-          if(target.player.equals(currentPlayer)) return;
-
-          // Check if the unit can even attack
-          if(!attacker.hasAbility(UnitAbility.ABILITY_ATTACK) && !attacker.hasAbility(UnitAbility.ABILITY_RANGED_ATTACK)) return;
-
-          // Check if attacked already this turn
-          if(attacker.hasAttackedThisTurn) return;
-
-          PacketDamage packetDamage = new PacketDamage(attacker.tile.x, attacker.tile.y, target.tile.x, target.tile.y);
-          handlePacket(packetDamage);
-          Civilisation.CLIENT.broadcast(packetDamage);*/
         }
-        /*if(tile.unit != null && tile.unit.player.equals(currentPlayer)) {
-          if(data.selectedUnit != null) {
-            data.selectedUnit.tile.selected = false;
-            data.selectedUnit.tile.renderer.updateRender();
-          }
-          tile.selected = true;
-          tile.renderer.updateRender();
-          data.selectedUnit = tile.unit;
-          selectedUnitListener.accept(data.selectedUnit);
-        } else {
-          if(data.selectedUnit != null) {
-            data.selectedUnit.tile.selected = false;
-            data.selectedUnit.tile.renderer.updateRender();
-            data.selectedUnit = null;
-            selectedUnitListener.accept(null);
-          }
-        }*/
-
-        /*if (tile.city != null) {
-          if (e.getButton() == MouseButton.PRIMARY) {
-            ArrayList<SerializableIntPoint2D> grownTo = tile.city.grow(1);
-            Civilisation.CLIENT.broadcast(new PacketCityGrow(currentPlayer.id, tile.x, tile.y, grownTo));
-            updateTileRenders();
-          } else if (e.getButton() == MouseButton.SECONDARY) {
-            if (tile.improvement == Improvement.NONE) {
-              tile.setImprovement(Improvement.FARM);
-            } else if (tile.improvement == Improvement.FARM) {
-              tile.setImprovement(Improvement.NONE);
-            }
-          }
-        } else {
-          Civilisation.CLIENT.broadcast(new PacketCityCreate(currentPlayer.id, tile.x, tile.y));
-          data.cities.add(new City(data.hexagonGrid, tile.x, tile.y, currentPlayer));
-          updateTileRenders();
-        }*/
       });
 
       renderTile.setOnMouseDragged((e) -> {
@@ -205,6 +160,7 @@ public class RenderGame extends RenderData<Game> {
   }
 
   public void setSelectedCity(City city) {
+    selectedCity = city;
     selectedCityListener.accept(city);
   }
 
