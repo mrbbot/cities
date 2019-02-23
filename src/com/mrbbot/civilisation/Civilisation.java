@@ -1,10 +1,10 @@
 package com.mrbbot.civilisation;
 
 import com.mrbbot.civilisation.logic.map.Game;
-import com.mrbbot.civilisation.logic.unit.UnitType;
 import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.civilisation.ui.connect.ConnectionRequestHandler;
 import com.mrbbot.civilisation.ui.connect.ScreenConnect;
+import com.mrbbot.civilisation.ui.connect.ScreenConnectOld;
 import com.mrbbot.civilisation.ui.game.ScreenGame;
 import com.mrbbot.generic.net.Client;
 import javafx.application.Application;
@@ -34,7 +34,7 @@ public class Civilisation
     width = 1600; //1000
     height = 900; //600
 
-    ScreenConnect screenConnect = new ScreenConnect(this);
+    ScreenConnect screenConnect = new ScreenConnect();
     primaryStage.setScene(screenConnect.makeScene(primaryStage, width, height));
 
     primaryStage.setTitle("Civilisation");

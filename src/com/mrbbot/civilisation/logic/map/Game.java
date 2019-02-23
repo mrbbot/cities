@@ -57,12 +57,12 @@ public class Game implements Mappable, TurnHandler {
   @ClientOnly
   private BiConsumer<String, Boolean> messageListener;
 
-  public Game(String name) {
+  public Game(String name, MapSize mapSize) {
     this.name = name;
 
     //hexagonGrid = new HexagonGrid<>(40, 34, 1);
 //    hexagonGrid = new HexagonGrid<>(20, 17, 1);
-    hexagonGrid = new HexagonGrid<>(5, 5, 1);
+    hexagonGrid = new HexagonGrid<>(mapSize.width, mapSize.height, 1);
     //hexagonGrid = new HexagonGrid<>(100, 40, 1);
     //hexagonGrid = new HexagonGrid<>(1, 1, 1);
 

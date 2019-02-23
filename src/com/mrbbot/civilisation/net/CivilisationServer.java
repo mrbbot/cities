@@ -1,6 +1,7 @@
 package com.mrbbot.civilisation.net;
 
 import com.mrbbot.civilisation.logic.map.Game;
+import com.mrbbot.civilisation.logic.map.MapSize;
 import com.mrbbot.civilisation.logic.map.tile.Tile;
 import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.generic.net.Connection;
@@ -8,6 +9,7 @@ import com.mrbbot.generic.net.Handler;
 import com.mrbbot.generic.net.Server;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,20 +18,36 @@ import java.util.Map;
 public class CivilisationServer implements Handler<Packet> {
   private static final Yaml YAML = new Yaml();
 
-  /*static {
-    DumperOptions dumperOptions = new DumperOptions();
-    dumperOptions.setSplitLines(false);
-    YAML = new Yaml(dumperOptions);
-  }*/
-
+  private final File gameFile;
   private Game game;
 
-  private CivilisationServer() throws IOException {
-    game = new Game("Game");
-    save("game.yml");
-    load("game.yml");
+  private CivilisationServer(String gameFileName, String gameName, MapSize mapSize, int port) throws IOException {
+    this.gameFile = new File(gameFileName);
+    if(!this.gameFile.exists()) {
+      assert gameName != null;
 
-    new Server<>(1234, this);
+      game = new Game(gameName, mapSize);
+      save();
+    }
+    load();
+    new Server<>(port, this);
+  }
+
+  private void save() {
+    try (FileWriter writer = new FileWriter(gameFile)) {
+      YAML.dump(game.toMap(), writer);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void load() {
+    try (FileReader reader = new FileReader(gameFile)) {
+      //noinspection unchecked
+      game = new Game(YAML.loadAs(reader, Map.class));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override
@@ -73,27 +91,10 @@ public class CivilisationServer implements Handler<Packet> {
       connection.broadcastExcluding(data);
     }
 
-    save("game.yml");
-  }
-
-  private void save(String fileName) {
-    try (FileWriter writer = new FileWriter(fileName)) {
-      YAML.dump(game.toMap(), writer);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void load(String fileName) {
-    try (FileReader reader = new FileReader(fileName)) {
-      //noinspection unchecked
-      game = new Game(YAML.loadAs(reader, Map.class));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    save();
   }
 
   public static void main(String[] args) throws IOException {
-    new CivilisationServer();
+    new CivilisationServer("game.yml", "Game", MapSize.STANDARD, 1234);
   }
 }

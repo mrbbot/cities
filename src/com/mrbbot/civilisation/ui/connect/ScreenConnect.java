@@ -5,97 +5,87 @@ import com.mrbbot.generic.net.ClientOnly;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 @ClientOnly
-public class ScreenConnect extends Screen implements EventHandler<KeyEvent> {
-  private final ConnectionRequestHandler connectionRequestHandler;
-  private VBox vBox;
-  private TextField hostField, idField;
-  private Button connectButton;
-  private ProgressIndicator progressIndicator;
-  private Label errorLabel;
-
-  public ScreenConnect(ConnectionRequestHandler connectionRequestHandler) {
-    this.connectionRequestHandler = connectionRequestHandler;
-  }
-
+public class ScreenConnect extends Screen {
   @Override
   public Scene makeScene(Stage stage, int width, int height) {
-    StackPane root = new StackPane();
+    VBox root = new VBox(20);
     root.setAlignment(Pos.CENTER);
 
-    vBox = new VBox(5);
-    vBox.setMaxSize(200, 0);
-
-    Label hostLabel = new Label("Host:");
-    hostField = new TextField("127.0.0.1");
-
-    Label idLabel = new Label("ID:");
-    idField = new TextField("MrBBot");
-
-    hostField.setOnKeyTyped(this);
-    idField.setOnKeyTyped(this);
-
-    connectButton = new Button("Connect");
-    connectButton.setPrefWidth(200);
-    //TODO: change to true when no ID
-    connectButton.setDisable(false);
-
-    vBox.getChildren().addAll(hostLabel, hostField, idLabel, idField, connectButton);
-
-    progressIndicator = new ProgressIndicator();
-    progressIndicator.setMaxSize(100, 100);
-    progressIndicator.setVisible(false);
-
-    root.getChildren().addAll(vBox, progressIndicator);
-
-    connectButton.setOnAction((event) -> {
-      setLoading(true);
-      Thread thread = new Thread(() -> {
-        try {
-          connectionRequestHandler.connect(hostField.getText(), idField.getText());
-        } catch (IOException e) {
-          Platform.runLater(() -> showError("Error: " + e.getMessage()));
-          e.printStackTrace();
-        }
-      });
-      thread.setName("ClientLauncher");
-      thread.start();
-    });
+    root.getChildren().add(makeChoicePane());
+    root.getChildren().add(makeJoinPane());
 
     return new Scene(root, width, height);
   }
 
-  private void setLoading(boolean loading) {
-    vBox.setVisible(!loading);
-    progressIndicator.setVisible(loading);
+  private TitledPane makeTitledPane(String title, Node child) {
+    TitledPane titledPane = new TitledPane(title, child);
+    titledPane.setMaxSize(300, 0);
+    titledPane.setPrefWidth(300);
+    titledPane.setCollapsible(false);
+    return titledPane;
   }
 
-  private void showError(String error) {
-    if(errorLabel != null) {
-      errorLabel.setText(error);
-    } else {
-      errorLabel = new Label(error);
-      errorLabel.setTextFill(Color.RED);
-      vBox.getChildren().add(errorLabel);
-    }
-    setLoading(false);
+  private TitledPane makeChoicePane() {
+    Label headerLabel = new Label("I want to...");
+    Label footerLabel = new Label("...a game");
+
+    ToggleGroup toggleGroup = new ToggleGroup();
+    RadioButton joinButton = new RadioButton("Join");
+    joinButton.setToggleGroup(toggleGroup);
+    joinButton.setSelected(true);
+    RadioButton hostButton = new RadioButton("Host");
+    hostButton.setToggleGroup(toggleGroup);
+    HBox buttonBox = new HBox(10, joinButton, hostButton);
+    buttonBox.setAlignment(Pos.CENTER);
+
+    VBox pane = new VBox(10, headerLabel, buttonBox, footerLabel);
+    pane.setAlignment(Pos.CENTER);
+
+    return makeTitledPane("Game", pane);
   }
 
-  @Override
-  public void handle(KeyEvent event) {
-    connectButton.setDisable(hostField.getText().isEmpty() || idField.getText().isEmpty());
+  private TitledPane makeJoinPane() {
+    GridPane pane = new GridPane();
+    pane.setHgap(10);
+    pane.setVgap(10);
+    pane.setMaxWidth(300);
+
+    Label hostLabel = new Label("Host");
+    Label portLabel = new Label("Port");
+    Label idLabel = new Label("ID");
+
+    TextField hostField = new TextField();
+    TextField portField = new TextField();
+    TextField idField = new TextField();
+
+    pane.add(hostLabel, 0, 0);
+    pane.add(hostField, 1, 0, 2, 1);
+    pane.add(portLabel, 3, 0);
+    pane.add(portField, 4, 0, 1, 1);
+    pane.add(idLabel, 0, 1);
+    pane.add(idField, 1, 1, 4, 1);
+
+    pane.add(new Rectangle(40, 10, Color.RED), 0, 2);
+    pane.add(new Rectangle(40, 10, Color.ORANGERED), 1, 2);
+    pane.add(new Rectangle(40, 10, Color.YELLOW), 2, 2);
+    pane.add(new Rectangle(40, 10, Color.GREEN), 3, 2);
+    pane.add(new Rectangle(40, 10, Color.BLUE), 4, 2);
+
+    return makeTitledPane("Join", pane);
   }
 }
