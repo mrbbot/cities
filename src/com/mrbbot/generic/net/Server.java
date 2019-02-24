@@ -69,4 +69,8 @@ public class Server<T> extends BaseBroadcaster<T> implements Runnable {
       }
     }
   }
+
+  public void close() throws IOException {
+    serverSocket.close();
+  }
 }

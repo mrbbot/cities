@@ -16,21 +16,29 @@ import java.io.IOException;
 import java.util.Map;
 
 public class CivilisationServer implements Handler<Packet> {
-  private static final Yaml YAML = new Yaml();
+  public static final Yaml YAML = new Yaml();
 
   private final File gameFile;
   private Game game;
+  private Server<Packet> server;
 
-  private CivilisationServer(String gameFileName, String gameName, MapSize mapSize, int port) throws IOException {
+  public CivilisationServer(String gameFileName, String gameName, MapSize mapSize, int port) throws IOException {
     this.gameFile = new File(gameFileName);
-    if(!this.gameFile.exists()) {
-      assert gameName != null;
-
-      game = new Game(gameName, mapSize);
-      save();
-    }
+    game = new Game(gameName, mapSize);
+    save();
     load();
-    new Server<>(port, this);
+    server = new Server<>(port, this);
+  }
+
+  public CivilisationServer(String gameFileName, int port) throws IOException {
+    this.gameFile = new File(gameFileName);
+    if(!this.gameFile.exists()) throw new IllegalArgumentException("game file doesn't exist");
+    load();
+    server = new Server<>(port, this);
+  }
+
+  public void close() throws IOException {
+    server.close();
   }
 
   private void save() {
@@ -95,6 +103,6 @@ public class CivilisationServer implements Handler<Packet> {
   }
 
   public static void main(String[] args) throws IOException {
-    new CivilisationServer("game.yml", "Game", MapSize.STANDARD, 1234);
+    new CivilisationServer("saves" + File.separator + "game.yml", "Game", MapSize.STANDARD, 1234);
   }
 }

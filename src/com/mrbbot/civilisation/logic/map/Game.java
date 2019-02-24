@@ -163,7 +163,15 @@ public class Game implements Mappable, TurnHandler {
   }
 
   private void sendMessage(String message, boolean isError) {
-    if (this.messageListener != null) this.messageListener.accept(message, isError);
+    if (this.messageListener != null) {
+      this.messageListener.accept(message, isError);
+    }
+  }
+
+  private void sendMessageTo(String forPlayerId, String message, boolean isError) {
+    if (this.messageListener != null && Objects.equals(forPlayerId, currentPlayerId)) {
+      this.messageListener.accept(message, isError);
+    }
   }
 
   public Map<String, Object> toMap() {
@@ -337,15 +345,15 @@ public class Game implements Mappable, TurnHandler {
 
     if (attacker == null || !attacker.canAttack()) return null;
     if (target == null) {
-      sendMessage("You can't attack nothing!", true);
+      sendMessageTo(attacker.player.id, "You can't attack nothing!", true);
       return null;
     }
     if (attacker.getOwner().equals(target.getOwner())) {
-      sendMessage("You can't attack yourself!", true);
+      sendMessageTo(attacker.player.id, "You can't attack yourself!", true);
       return null;
     }
     if (attacker.hasAttackedThisTurn) {
-      sendMessage("You've already attacked this turn!", true);
+      sendMessageTo(attacker.player.id, "You've already attacked this turn!", true);
       return null;
     }
 
@@ -449,7 +457,7 @@ public class Game implements Mappable, TurnHandler {
 
       // already part of city
       if (purchaseTile.city != null) {
-        sendMessage("This tile is already part of a city!", true);
+        sendMessageTo(playerId, "This tile is already part of a city!", true);
         return null;
       }
 
@@ -457,7 +465,7 @@ public class Game implements Mappable, TurnHandler {
       boolean isNeighbour = neighbours.stream().anyMatch(tile -> tile.city != null && tile.city.sameCenterAs(t.city));
       // not neighbouring tile in city
       if (!isNeighbour) {
-        sendMessage("This tile isn't adjacent to this city!", true);
+        sendMessageTo(playerId, "This tile isn't adjacent to this city!", true);
         return null;
       }
 
@@ -472,7 +480,7 @@ public class Game implements Mappable, TurnHandler {
       int roundCost = (int) Math.round(cost);
       // not enough money
       if (goldTotal < roundCost) {
-        sendMessage(String.format("This tile costs %d gold to purchase, you only have %d!", roundCost, goldTotal), true);
+        sendMessageTo(playerId, String.format("This tile costs %d gold to purchase, you only have %d!", roundCost, goldTotal), true);
         return null;
       }
 
@@ -690,7 +698,7 @@ public class Game implements Mappable, TurnHandler {
       playerUnlockedTechs.get(playerId).add(unlockingTech);
       playerUnlockingTechs.put(playerId, null);
       increasePlayerResourceBy(playerScienceCounts, playerId, -unlockingTech.getScienceCost());
-      sendMessage(String.format("%s has been unlocked!", unlockingTech.getName()), false);
+      sendMessageTo(playerId, String.format("%s has been unlocked!", unlockingTech.getName()), false);
     }
   }
 

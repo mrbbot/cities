@@ -1,7 +1,5 @@
 package com.mrbbot.civilisation.render;
 
-import com.mrbbot.civilisation.logic.Player;
-import com.mrbbot.civilisation.net.packet.*;
 import com.mrbbot.civilisation.render.map.RenderGame;
 import com.mrbbot.generic.net.ClientOnly;
 import com.mrbbot.generic.render.RenderRoot;
@@ -13,36 +11,34 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Box;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
-
-import java.util.Date;
 
 @ClientOnly
 public class RenderCivilisation extends RenderRoot<RenderGame> {
   private final static double MAX_ZOOM = 5;
   private final static double MIN_ZOOM = 80;
+  private final static boolean ENABLE_LIGHTING = false;
 
   private double oldMouseX = -1, oldMouseY = -1;
 
   private PointLight sun, moon;
   private Rotate sunMoonRotate;
-  private AmbientLight ambientLight;
 
   public RenderCivilisation(RenderGame root, int width, int height) {
     super(root, width, height);
 
-    sun = new PointLight(Color.WHITE);
-    moon = new PointLight(Color.BLACK);
-    sunMoonRotate = new Rotate(0, Rotate.Y_AXIS);
-    sun.getTransforms().addAll(sunMoonRotate, new Translate(-20, 0, 0));
-    moon.getTransforms().addAll(sunMoonRotate, new Translate(20, 0, 0));
-    ambientLight = new AmbientLight(Color.color(0.1, 0.1, 0.1));
-    getChildren().addAll(sun, moon, ambientLight);
-    setTime(90);
-
-    new Thread(this::runDayNightCycle, "DayNightCycle").start();
+    if(ENABLE_LIGHTING) {
+      sun = new PointLight(Color.WHITE);
+      moon = new PointLight(Color.BLACK);
+      sunMoonRotate = new Rotate(0, Rotate.Y_AXIS);
+      sun.getTransforms().addAll(sunMoonRotate, new Translate(-20, 0, 0));
+      moon.getTransforms().addAll(sunMoonRotate, new Translate(20, 0, 0));
+      AmbientLight ambientLight = new AmbientLight(Color.color(0.1, 0.1, 0.1));
+      getChildren().addAll(sun, moon, ambientLight);
+      setTime(90);
+      new Thread(this::runDayNightCycle, "DayNightCycle").start();
+    }
 
     //
     // PANNING & ZOOMING
