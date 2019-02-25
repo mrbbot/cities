@@ -2,6 +2,13 @@
 
 Computer Science Coursework
 
+## Documentation Sections
+
+
+## Objectives
+
+
+
 ## TODO List
 
 ### Units
@@ -28,5 +35,5 @@ Computer Science Coursework
 - [x] Purchasing land
 - [x] Victories: blast off and all land belongs to one player
 - [x] Day/Night cycle (just use real time % 60)
-- [ ] Create server from start screen with loading games
+- [x] Create server from start screen with loading games
 - [ ] Documentation/commenting 

@@ -6,64 +6,149 @@ import javafx.geometry.Point2D;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * Represents a 2D grid a hexagons and handles the maths for positioning hexagons relative to each other
+ *
+ * @param <E> the type of the data associated with each hexagon (should implement
+ *            {@link com.mrbbot.civilisation.logic.interfaces.Traversable} for pathfinding)
+ */
 public class HexagonGrid<E extends Traversable> implements Serializable {
-  private final int width, height;
+  /**
+   * Grid width of the hexagon grid (how many tiles the grid spans)
+   */
+  private final int width;
+  /**
+   * Grid height of the hexagon grid (how many tiles the grid spans)
+   */
+  private final int height;
+  /**
+   * Radius of each hexagon within the hexagon grid
+   */
   private final double radius;
 
+  /**
+   * 2D array for storing the data associated with each tile. Objects within this array should be of type E. Every
+   * other tile has +-1 element than the previous row.
+   */
   private final Object[][] grid;
+  /**
+   * 2D array for storing the hexagons which contain the data about tile positioning for this grid. Every other tile
+   * has +-1 element than the previous row.
+   */
   private final Hexagon[][] hexagonGrid;
 
+  /**
+   * The distance from the midpoint of one edge to another midpoint of a hexagon
+   */
   private final double cw;    // cell width
+  /**
+   * The distance from the center of a hexagon to the midpoint of an edge of the hexagon
+   */
   private final double hcw;   // half cell width
+  /**
+   * The vertical distance between the center of hexagons on adjacent rows
+   */
   private final double ch;    // cell height
-  private final double gw;    // grid width
-  private final double gh;    // grid height
+  /**
+   * The x-coordinate of where the grid starts relative to the origin
+   */
   private final double sx;    // start x
+  /**
+   * The y-coordinate of where the grid starts relative to the origin
+   */
   private final double sy;    // start y
 
+  /**
+   * Creates a new Hexagon Grid using the default radius of 1
+   *
+   * @param width  grid width of the grid
+   * @param height grid height of the grid
+   */
   public HexagonGrid(int width, int height) {
+    // Call the other constructor with the default
     this(width, height, 1);
   }
 
+  /**
+   * Creates a new Hexagon Grid
+   *
+   * @param width  grid width of the grid
+   * @param height grid height of the grid
+   * @param radius radius of each hexagon within the hexagon grid
+   */
   public HexagonGrid(int width, int height, double radius) {
+    // Initialise class fields
     this.width = width;
     this.height = height;
     this.radius = radius;
+
+    // Construct the grid arrays taking into account the extra element on alternating rows
     grid = new Object[height][width + 1];
     hexagonGrid = new Hexagon[height][width + 1];
 
+    // Calculate constants for the grid that are used when laying out the hexagons
     cw = Hexagon.SQRT_3 * radius;    // cell width
     hcw = cw / 2;                    // half cell width
     ch = 3.0 / 2.0 * radius;         // cell height
-    gw = (width - 1.0) * cw;         // grid width
-    gh = (height - 1.0) * ch;        // grid height
+    double gw = (width - 1.0) * cw;  // grid width
+    double gh = (height - 1.0) * ch; // grid height
     sx = -gw / 2;                    // start x
     sy = gh / 2;                     // start y
 
+    // Calculate the positions of the hexagons on the grid
     calculateHexagonGrid();
   }
 
+  /**
+   * Iterates through every position for a hexagon and creates a new {@link Hexagon} for that position.
+   */
   private void calculateHexagonGrid() {
-    forEach((e, hex, x, y) -> hexagonGrid[y][x] = new Hexagon(new Point2D(sx + (cw * x) - ((y % 2) * hcw), sy - (ch * y)), radius));
+    forEach((e, hex, x, y) -> hexagonGrid[y][x] = new Hexagon(
+      // Center of the hexagon
+      new Point2D(
+        // From the start coordinates, add the extra for this position
+        sx + (cw * x) - ((y % 2) * hcw),
+        sy - (ch * y)
+      ),
+      // Use the specified radius for hexagons
+      radius
+    ));
   }
 
+  /**
+   * Determines whether a cell actually exists in the hexagon grid, taking into account alternating numbers of
+   * elements on each row
+   * @param x x-coordinate of cell to check
+   * @param y y-coordinate of cell to check
+   * @return whether the cell exists
+   */
   private boolean cellExists(int x, int y) {
     return 0 <= x && x < grid[0].length && 0 <= y && y < grid.length && !(y % 2 == 0 && x > grid[0].length - 2);
   }
 
-  private void checkCell(int x, int y) {
-    if (!cellExists(x, y)) {
-      throw new IndexOutOfBoundsException();
-    }
-  }
-
+  /**
+   * Checks whether the specified neighbouring cell exists, sometimes taking into account the traversability of the
+   * cell.
+   * @param x x-coordinate of neighbouring cell to check
+   * @param y y-coordinate of neighbouring cell to check
+   * @param checkTraverse whether to check if the cell is traversable or not (used for pathfinding)
+   * @return whether the neighbouring cell exists
+   */
   private boolean checkNeighbour(int x, int y, boolean checkTraverse) {
     return cellExists(x, y) && (!checkTraverse || get(x, y).canTraverse());
   }
 
+  /**
+   * Gets the data associated with the cell at the coordinate
+   * @param x x-coordinate of cell
+   * @param y y-coordinate of cell
+   * @return data associated with the cell
+   */
   @SuppressWarnings("unchecked")
   public E get(int x, int y) {
-    checkCell(x, y);
+    // Ensure the cell actually exists in the grid
+    assert cellExists(x, y);
+    // Return the data, casting it to the data type
     return (E) grid[y][x];
   }
 
@@ -155,7 +240,7 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
     Collections.reverse(path);
     int travelledCost = 0;
     int lastListIndex = 1;
-    while(travelledCost < maxCost && lastListIndex < path.size()) {
+    while (travelledCost < maxCost && lastListIndex < path.size()) {
       travelledCost += path.get(lastListIndex).getCost();
       lastListIndex++;
     }
@@ -165,12 +250,12 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   }
 
   public void set(int x, int y, E cell) {
-    checkCell(x, y);
+    assert cellExists(x, y);
     grid[y][x] = cell;
   }
 
   public Hexagon getHexagon(int x, int y) {
-    checkCell(x, y);
+    assert cellExists(x, y);
     return hexagonGrid[y][x];
   }
 
@@ -199,7 +284,7 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
     @Override
     public E next() {
       E next = get(x, y);
-      if(x < grid[0].length - ((y + 1) % 2) - 1) {
+      if (x < grid[0].length - ((y + 1) % 2) - 1) {
         x++;
       } else {
         x = 0;

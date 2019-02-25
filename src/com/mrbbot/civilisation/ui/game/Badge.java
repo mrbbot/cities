@@ -20,7 +20,7 @@ class Badge extends StackPane {
     g.fillOval(0, 0, BADGE_SIZE, BADGE_SIZE);
     g.fill();
 
-    Label label = new Label(String.valueOf(badgeType.character));
+    Label label = new Label(badgeType.text);
     label.setTextFill(badgeType.textColor);
     label.setFont(new Font(10));
     getChildren().addAll(canvas, label);
