@@ -1,4 +1,4 @@
-package com.mrbbot.civilisation.logic.interfaces;
+package com.mrbbot.civilisation.logic.techs;
 
 public interface Unlockable {
   String getName();

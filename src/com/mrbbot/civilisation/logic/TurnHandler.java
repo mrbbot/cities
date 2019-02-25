@@ -1,4 +1,4 @@
-package com.mrbbot.civilisation.logic.interfaces;
+package com.mrbbot.civilisation.logic;
 
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.Tile;

@@ -1,6 +1,5 @@
 package com.mrbbot.civilisation.logic.techs;
 
-import com.mrbbot.civilisation.logic.interfaces.Unlockable;
 import com.mrbbot.civilisation.logic.map.tile.Building;
 import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.unit.UnitType;

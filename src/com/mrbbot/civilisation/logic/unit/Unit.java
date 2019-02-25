@@ -3,7 +3,7 @@ package com.mrbbot.civilisation.logic.unit;
 import com.mrbbot.civilisation.geometry.HexagonGrid;
 import com.mrbbot.civilisation.logic.Living;
 import com.mrbbot.civilisation.logic.Player;
-import com.mrbbot.civilisation.logic.interfaces.Positionable;
+import com.mrbbot.civilisation.geometry.Positionable;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.Improvement;
 import com.mrbbot.civilisation.logic.map.tile.Tile;

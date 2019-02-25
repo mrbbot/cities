@@ -1,15 +1,14 @@
 package com.mrbbot.civilisation.logic.map;
 
 import com.mrbbot.civilisation.geometry.Hexagon;
-import com.mrbbot.civilisation.geometry.HexagonConsumer;
 import com.mrbbot.civilisation.geometry.HexagonGrid;
 import com.mrbbot.civilisation.logic.CityBuildable;
 import com.mrbbot.civilisation.logic.Living;
 import com.mrbbot.civilisation.logic.Player;
 import com.mrbbot.civilisation.logic.PlayerStats;
-import com.mrbbot.civilisation.logic.interfaces.Mappable;
-import com.mrbbot.civilisation.logic.interfaces.TurnHandler;
-import com.mrbbot.civilisation.logic.interfaces.Unlockable;
+import com.mrbbot.civilisation.logic.Mappable;
+import com.mrbbot.civilisation.logic.TurnHandler;
+import com.mrbbot.civilisation.logic.techs.Unlockable;
 import com.mrbbot.civilisation.logic.map.tile.Building;
 import com.mrbbot.civilisation.logic.map.tile.City;
 import com.mrbbot.civilisation.logic.map.tile.Terrain;

@@ -1,6 +1,6 @@
 package com.mrbbot.civilisation.logic.map.tile;
 
-import com.mrbbot.civilisation.logic.interfaces.Unlockable;
+import com.mrbbot.civilisation.logic.techs.Unlockable;
 
 public class Improvement implements Unlockable {
   public static int BASE_UNLOCK_ID = 0x10;

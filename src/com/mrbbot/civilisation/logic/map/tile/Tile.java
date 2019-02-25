@@ -1,7 +1,7 @@
 package com.mrbbot.civilisation.logic.map.tile;
 
 import com.mrbbot.civilisation.geometry.Hexagon;
-import com.mrbbot.civilisation.logic.interfaces.Traversable;
+import com.mrbbot.civilisation.geometry.Traversable;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.render.map.RenderTile;
 

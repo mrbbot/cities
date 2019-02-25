@@ -1,6 +1,6 @@
 package com.mrbbot.civilisation.logic;
 
-import com.mrbbot.civilisation.logic.interfaces.Unlockable;
+import com.mrbbot.civilisation.logic.techs.Unlockable;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.map.tile.Building;
 import com.mrbbot.civilisation.logic.map.tile.City;

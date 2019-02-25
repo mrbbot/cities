@@ -1,7 +1,7 @@
 package com.mrbbot.civilisation.ui.game;
 
 import com.mrbbot.civilisation.Civilisation;
-import com.mrbbot.civilisation.logic.interfaces.Unlockable;
+import com.mrbbot.civilisation.logic.techs.Unlockable;
 import com.mrbbot.civilisation.logic.map.Game;
 import com.mrbbot.civilisation.logic.techs.PlayerTechDetails;
 import com.mrbbot.civilisation.logic.techs.Tech;

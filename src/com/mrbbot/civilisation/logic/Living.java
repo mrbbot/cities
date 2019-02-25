@@ -1,8 +1,6 @@
 package com.mrbbot.civilisation.logic;
 
-import com.mrbbot.civilisation.logic.interfaces.Mappable;
-import com.mrbbot.civilisation.logic.interfaces.Positionable;
-import com.mrbbot.civilisation.logic.interfaces.TurnHandler;
+import com.mrbbot.civilisation.geometry.Positionable;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import javafx.geometry.Point2D;
 
