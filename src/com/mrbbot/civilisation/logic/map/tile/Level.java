@@ -1,7 +1,8 @@
 package com.mrbbot.civilisation.logic.map.tile;
 
 /**
- * Enum for level types for tiles. Used to determine which colour to use to render a tile.
+ * Enum for level types for tiles. Used to determine which colour to use to
+ * render a tile.
  */
 public enum Level {
   MOUNTAIN(100, 0.8, 1.0, false),
@@ -22,7 +23,8 @@ public enum Level {
    */
   public final double maxHeight;
   /**
-   * Whether this type of tile should always have the maximum height (only used to maintain constant water height)
+   * Whether this type of tile should always have the maximum height (only used
+   * to maintain constant water height)
    */
   public final boolean fixToMax;
 
@@ -42,7 +44,8 @@ public enum Level {
   static Level of(double height) {
     // Get all possible levels
     Level[] levels = values();
-    // Check if the height exceeds the minimum and if it does, return that level
+    // Check if the height exceeds the minimum and if it does, return that
+    // level
     for (Level level : levels) {
       if (height > level.minHeight) {
         return level;

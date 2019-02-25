@@ -3,11 +3,13 @@ package com.mrbbot.civilisation.logic.map.tile;
 import com.mrbbot.civilisation.logic.techs.Unlockable;
 
 /**
- * Class representing an improvement that can be built within a cities bounds. Most of these are built by workers.
+ * Class representing an improvement that can be built within a cities bounds.
+ * Most of these are built by workers.
  */
 public class Improvement implements Unlockable {
   /**
-   * Base unlock ID for improvements. Used to identify improvements that can be unlocked.
+   * Base unlock ID for improvements. Used to identify improvements that can be
+   * unlocked.
    */
   private static int BASE_UNLOCK_ID = 0x10;
 
@@ -100,7 +102,8 @@ public class Improvement implements Unlockable {
    * Function to get an improvement from just its name
    *
    * @param name name of improvement to get
-   * @return the improvement with the specified name or null if the improvement doesn't exist
+   * @return the improvement with the specified name or null if the improvement
+   * doesn't exist
    */
   public static Improvement fromName(String name) {
     // Iterates through all the improvements...

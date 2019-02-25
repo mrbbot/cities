@@ -23,8 +23,8 @@ public class Hexagon {
    */
   private double r;
   /**
-   * The points that join the edges of the hexagon. All of these points are a {@link #r radius} from the
-   * {@link #c center}.
+   * The points that join the edges of the hexagon. All of these points are a
+   * {@link #r radius} from the {@link #c center}.
    */
   private Point2D[] vertices;
 
@@ -41,8 +41,8 @@ public class Hexagon {
   }
 
   /**
-   * Calculates the vertices of the hexagon. This is only called when any of the data required to calculate them
-   * changes.
+   * Calculates the vertices of the hexagon. This is only called when any of
+   * the data required to calculate them changes.
    */
   private void calculateVertices() {
     double cx = c.getX();       // alias for c.getX()
@@ -50,7 +50,8 @@ public class Hexagon {
     double hr = r / 2;          // half radius
     double hw = SQRT_3 * hr;    // half width
 
-    // Calculate the vertices and store them in a new array (the old one will be garbage collected)
+    // Calculate the vertices and store them in a new array (the old one will
+    // be garbage collected)
     this.vertices = new Point2D[]{
       new Point2D(cx, cy - r),
       new Point2D(cx - hw, cy - hr),
@@ -63,6 +64,7 @@ public class Hexagon {
 
   /**
    * Gets the vertices of this hexagon
+   *
    * @return vertices of this hexagon
    */
   public Point2D[] getVertices() {
@@ -71,6 +73,7 @@ public class Hexagon {
 
   /**
    * Gets a hexagonal prism created by extruding the cross section
+   *
    * @param height the height of the new prism
    * @return a 3D hexagonal prism
    */
@@ -83,6 +86,7 @@ public class Hexagon {
 
   /**
    * Gets the center of this hexagon
+   *
    * @return center of this hexagon
    */
   public Point2D getCenter() {
@@ -91,6 +95,7 @@ public class Hexagon {
 
   /**
    * Sets the center of this hexagon and then recalculates the vertices
+   *
    * @param center new center of the hexagon
    */
   public void setCenter(Point2D center) {
@@ -100,6 +105,7 @@ public class Hexagon {
 
   /**
    * Gets the radius of this hexagon
+   *
    * @return radius of this hexagon
    */
   public double getRadius() {
@@ -108,6 +114,7 @@ public class Hexagon {
 
   /**
    * Sets the radius of this hexagon and then recalculates the vertices
+   *
    * @param radius new radius of the hexagon
    */
   public void setRadius(double radius) {
@@ -117,6 +124,7 @@ public class Hexagon {
 
   @Override
   public String toString() {
-    return "Hexagon[cx = " + c.getX() + ", cy = " + c.getY() + ", r = " + r + "]";
+    return "Hexagon[cx = " + c.getX()
+      + ", cy = " + c.getY() + ", r = " + r + "]";
   }
 }

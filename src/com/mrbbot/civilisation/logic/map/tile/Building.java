@@ -7,13 +7,15 @@ import com.mrbbot.civilisation.ui.game.BadgeType;
 import java.util.ArrayList;
 
 /**
- * Class representing a building that can be built within a city. Declared abstract as buildings must implement
- * {@link Building#setDetails()} to register the abilities each building has.
+ * Class representing a building that can be built within a city. Declared
+ * abstract as buildings must implement {@link Building#setDetails()} to
+ * register the abilities each building has.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class Building extends CityBuildable {
   /**
-   * Base unlock ID for buildings. Used to identify buildings that can be unlocked.
+   * Base unlock ID for buildings. Used to identify buildings that can be
+   * unlocked.
    */
   private static int BASE_UNLOCK_ID = 0x30;
 
@@ -89,7 +91,8 @@ public abstract class Building extends CityBuildable {
 
     @Override
     public String canBuildGivenCities(City city, ArrayList<City> cities) {
-      // Check if there is a reason why this can't be built already and return it if there is
+      // Check if there is a reason why this can't be built already and return
+      // it if there is
       String superReason = super.canBuildGivenCities(city, cities);
       if (superReason.length() > 0) return superReason;
 
@@ -100,7 +103,8 @@ public abstract class Building extends CityBuildable {
         }
       }
 
-      // If they do, return an empty string indicating this building can be built
+      // If they do, return an empty string indicating this building can be
+      // built
       return "";
     }
   };
@@ -161,7 +165,8 @@ public abstract class Building extends CityBuildable {
    * Function to get a building from just its name
    *
    * @param name name of building to get
-   * @return the building with the specified name or null if the building doesn't exist
+   * @return the building with the specified name or null if the building
+   * doesn't exist
    */
   public static Building fromName(String name) {
     // Iterates through all the buildings...
@@ -206,26 +211,35 @@ public abstract class Building extends CityBuildable {
    */
   public double foodPerTurnMultiplier = 1;
 
-  private Building(String name, String description, int productionCost, int unlockId) {
+  private Building(
+    String name,
+    String description,
+    int productionCost,
+    int unlockId
+  ) {
     // Pass required values to CityBuildable constructor
     super(name, description, productionCost, unlockId);
     setDetails();
   }
 
   /**
-   * Called by the constructor to set the increases/multipliers this building provides for the city it's built in
+   * Called by the constructor to set the increases/multipliers this building
+   * provides for the city it's built in
    */
   protected abstract void setDetails();
 
   /**
-   * Get the text to be displayed in the city production list for a resource that may have an increase and/or a
-   * multiplier
+   * Get the text to be displayed in the city production list for a resource
+   * that may have an increase and/or a multiplier
    *
-   * @param increase increase in resource this building provides
+   * @param increase   increase in resource this building provides
    * @param multiplier multiplier in resource this building provides
    * @return text to be displayed in the city production list, example "7 (x3)"
    */
-  private String getDetailTextForIncreaseWithMultiplier(int increase, double multiplier) {
+  private String getDetailTextForIncreaseWithMultiplier(
+    int increase,
+    double multiplier
+  ) {
     StringBuilder text = new StringBuilder();
     // If there is an increase, add it to the text
     if (increase > 0) text.append(increase);
@@ -244,7 +258,9 @@ public abstract class Building extends CityBuildable {
   }
 
   /**
-   * Gets the details to be displayed in the city production list for this building
+   * Gets the details to be displayed in the city production list for this
+   * building
+   *
    * @return details to be displayed
    */
   @Override
@@ -253,16 +269,25 @@ public abstract class Building extends CityBuildable {
     ArrayList<Detail> details = super.getDetails();
 
     // Add the gold increase/multiplier (if there is one)
-    String goldText = getDetailTextForIncreaseWithMultiplier(goldPerTurnIncrease, goldPerTurnMultiplier);
-    if (goldText.length() > 0) details.add(new Detail(BadgeType.GOLD, goldText));
+    String goldText = getDetailTextForIncreaseWithMultiplier(
+      goldPerTurnIncrease, goldPerTurnMultiplier
+    );
+    if (goldText.length() > 0)
+      details.add(new Detail(BadgeType.GOLD, goldText));
 
     // Add the science increase/multiplier (if there is one)
-    String scienceText = getDetailTextForIncreaseWithMultiplier(sciencePerTurnIncrease, sciencePerTurnMultiplier);
-    if (scienceText.length() > 0) details.add(new Detail(BadgeType.SCIENCE, scienceText));
+    String scienceText = getDetailTextForIncreaseWithMultiplier(
+      sciencePerTurnIncrease, sciencePerTurnMultiplier
+    );
+    if (scienceText.length() > 0)
+      details.add(new Detail(BadgeType.SCIENCE, scienceText));
 
     // Add the production multiplier (if there is one)
     if (productionPerTurnMultiplier != 1) {
-      details.add(new Detail(BadgeType.PRODUCTION, String.format("x%d", (int) productionPerTurnMultiplier)));
+      details.add(new Detail(
+        BadgeType.PRODUCTION,
+        String.format("x%d", (int) productionPerTurnMultiplier))
+      );
     }
 
     // Add the science base health increase (if there is one)
@@ -274,18 +299,24 @@ public abstract class Building extends CityBuildable {
   }
 
   /**
-   * Determine if a building can be built in a city given the player's other cities
-   * @param city target city to build in
+   * Determine if a building can be built in a city given the player's other
+   * cities
+   *
+   * @param city   target city to build in
    * @param cities player's other cities
-   * @return reason why the building cannot be built, or an empty string if it can
+   * @return reason why the building cannot be built, or an empty string if it
+   * can
    */
   @Override
   public String canBuildGivenCities(City city, ArrayList<City> cities) {
-    return city.buildings.contains(this) ? "You can only have one of these buildings per city" : "";
+    return city.buildings.contains(this)
+      ? "You can only have one of these buildings per city"
+      : "";
   }
 
   /**
    * Build the building in the specified city
+   *
    * @param city city to build in
    * @param game game the city is contained within
    * @return tile to update the render of

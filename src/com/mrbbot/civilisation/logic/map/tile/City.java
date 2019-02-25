@@ -48,20 +48,24 @@ public class City extends Living {
    */
   public CityBuildable currentlyBuilding;
   /**
-   * The current production total in the city. When this value reaches the currentlyBuilding's cost it will be built.
+   * The current production total in the city. When this value reaches the
+   * currentlyBuilding's cost it will be built.
    */
   public int productionTotal;
   /**
-   * The number of citizens within the city. Used to calculated gold/science per turn.
+   * The number of citizens within the city. Used to calculated gold/science
+   * per turn.
    */
   public int citizens;
   /**
-   * The amount of excess food the city has. Controls when the city grows/starves.
+   * The amount of excess food the city has. Controls when the city
+   * grows/starves.
    */
   public int excessFoodCounter;
 
   /**
-   * The last unit that attacked this city. Used to control who to give the city to if its health reaches 0.
+   * The last unit that attacked this city. Used to control who to give the
+   * city to if its health reaches 0.
    */
   public Unit lastAttacker;
 
@@ -92,14 +96,19 @@ public class City extends Living {
     // Get center and check it doesn't already have a city
     Tile center = grid.get(centerX, centerY);
     if (center.city != null) {
-      throw new IllegalArgumentException("City created on tile with another city");
+      throw new IllegalArgumentException(
+        "City created on tile with another city"
+      );
     }
     tiles.add(center);
     // Make the center of the city a capital
     center.improvement = Improvement.CAPITAL;
 
     // Add all of the adjacent tiles that don't already have a city
-    ArrayList<Tile> adjacentTiles = grid.getNeighbours(centerX, centerY, false);
+    ArrayList<Tile> adjacentTiles = grid.getNeighbours(
+      centerX, centerY,
+      false
+    );
     adjacentTiles.removeIf(tile -> tile.city != null);
     tiles.addAll(adjacentTiles);
 
@@ -134,7 +143,8 @@ public class City extends Living {
 
     // Load the tiles belonging to the city
     //noinspection unchecked
-    tiles = (ArrayList<Tile>) ((List<Map<String, Object>>) map.get("tiles")).stream()
+    tiles = (ArrayList<Tile>) ((List<Map<String, Object>>) map.get("tiles"))
+      .stream()
       .map(m -> {
         // Get the tile with the specified coordinates
         int x = (int) m.get("x");
@@ -144,10 +154,13 @@ public class City extends Living {
         // Load the tile's improvement if there is one
         if (m.containsKey("improvement")) {
           //noinspection unchecked
-          Map<String, Object> improvement = (Map<String, Object>) m.get("improvement");
-          center.improvement = Improvement.fromName((String) improvement.get("name"));
+          Map<String, Object> improvement =
+            (Map<String, Object>) m.get("improvement");
+          center.improvement =
+            Improvement.fromName((String) improvement.get("name"));
           //noinspection unchecked
-          center.improvementMetadata = (Map<String, Object>) improvement.get("meta");
+          center.improvementMetadata =
+            (Map<String, Object>) improvement.get("meta");
         } else {
           // Otherwise set the improvement to none
           center.improvement = Improvement.NONE;
@@ -160,13 +173,15 @@ public class City extends Living {
 
     // Load the buildings the city has
     //noinspection unchecked
-    buildings = (ArrayList<Building>) ((List<String>) map.get("buildings")).stream()
+    buildings = (ArrayList<Building>) ((List<String>) map.get("buildings"))
+      .stream()
       .map(Building::fromName)
       .collect(Collectors.toList());
 
     // Load the current build of the city if there is one
     if (map.containsKey("currentlyBuilding")) {
-      currentlyBuilding = CityBuildable.fromName((String) map.get("currentlyBuilding"));
+      currentlyBuilding =
+        CityBuildable.fromName((String) map.get("currentlyBuilding"));
     }
 
     // Load totals from the map
@@ -193,7 +208,8 @@ public class City extends Living {
     // Get the center coordinate of the city
     final Point2D center = getCenter().getHexagon().getCenter();
 
-    // Create a new queue to pull potential tiles from that sorts tiles by their distance from the center
+    // Create a new queue to pull potential tiles from that sorts tiles by
+    // their distance from the center
     PriorityQueue<Tile> potentialTiles = new PriorityQueue<>((a, b) -> {
       double aDist = center.distance(a.getHexagon().getCenter());
       double bDist = center.distance(b.getHexagon().getCenter());
@@ -201,12 +217,15 @@ public class City extends Living {
     });
 
     // Add all adjacent tiles that don't have a city to the potential tile list
-    tiles.forEach(tile -> potentialTiles.addAll(grid.getNeighbours(tile.x, tile.y, false)
-      .parallelStream()
-      .filter(adjTile -> adjTile.city == null)
-      .collect(Collectors.toList())));
+    tiles.forEach(tile -> potentialTiles.addAll(
+      grid.getNeighbours(tile.x, tile.y, false)
+        .stream()
+        .filter(adjTile -> adjTile.city == null)
+        .collect(Collectors.toList()))
+    );
 
-    // Keep picking tiles from the queue until the specified number of tiles have been picked
+    // Keep picking tiles from the queue until the specified number of tiles
+    // have been picked
     while (newTiles > 0 && potentialTiles.size() >= newTiles) {
       // Get the next tile
       Tile tile = potentialTiles.remove();
@@ -243,18 +262,22 @@ public class City extends Living {
   }
 
   /**
-   * Get the directions from the center that should have walls (that is, adjacent directions that don't belong to the
+   * Get the directions from the center that should have walls (that is,
+   * adjacent directions that don't belong to the
    * city)
    *
    * @param tile tile to get walls from
-   * @return boolean array of whether the tile should have walls in that direction
+   * @return boolean array of whether the tile should have walls in that
+   * direction
    */
   boolean[] getWalls(Tile tile) {
     // If this tile isn't part of the city, return an "empty" array
-    if (!tiles.contains(tile)) return new boolean[]{false, false, false, false, false, false};
+    if (!tiles.contains(tile))
+      return new boolean[]{false, false, false, false, false, false};
     // Alias the x and y coordinates
     int x = tile.x, y = tile.y;
-    // Return the array for all of the directions, checking if the tile in each direction belongs to this city.
+    // Return the array for all of the directions, checking if the tile in each
+    // direction belongs to this city.
     return new boolean[]{
       !tiles.contains(grid.getTopLeft(x, y, false)),
       !tiles.contains(grid.getLeft(x, y, false)),
@@ -266,7 +289,8 @@ public class City extends Living {
   }
 
   /**
-   * Calculates the greatest height of a tile in the city, used for rendering walls
+   * Calculates the greatest height of a tile in the city, used for rendering
+   * walls
    */
   private void updateGreatestHeight() {
     greatestTileHeight = tiles.stream()
@@ -358,8 +382,9 @@ public class City extends Living {
   }
 
   /**
-   * Gets the production per turn produced by this city. Calculated from the number of citizens, buildings with
-   * production bonuses, and tile improvements owned by the city.
+   * Gets the production per turn produced by this city. Calculated from the
+   * number of citizens, buildings with production bonuses, and tile
+   * improvements owned by the city.
    *
    * @return city's production per turn
    */
@@ -380,8 +405,8 @@ public class City extends Living {
   }
 
   /**
-   * Gets the science per turn produced by this city. Calculated from the number of citizens and buildings with
-   * science bonuses.
+   * Gets the science per turn produced by this city. Calculated from the
+   * number of citizens and buildings with science bonuses.
    *
    * @return city's science per turn
    */
@@ -401,8 +426,8 @@ public class City extends Living {
   }
 
   /**
-   * Gets the gold per turn provided by this city. Calculated from the number of citizens and buildings with
-   * gold bonuses.
+   * Gets the gold per turn provided by this city. Calculated from the number
+   * of citizens and buildings with gold bonuses.
    *
    * @return city's gold per turn
    */
@@ -422,13 +447,14 @@ public class City extends Living {
   }
 
   /**
-   * Gets the food per turn for this city. Calculated from the number of citizens and buildings and tiles with food
-   * bonuses.
+   * Gets the food per turn for this city. Calculated from the number of
+   * citizens and buildings and tiles with food bonuses.
    *
    * @return city's food per turn
    */
   public int getFoodPerTurn() {
-    // Start with 5 base food per turn and subtract the number of citizens from this
+    // Start with 5 base food per turn and subtract the number of citizens from
+    // this
     int foodPerTurn = 5 - citizens;
     // Apply tile bonuses
     for (Tile tile : tiles) {
@@ -459,9 +485,13 @@ public class City extends Living {
     int goldPerTurn = getGoldPerTurn();
     int foodPerTurn = getFoodPerTurn();
 
-    // Add the production total and check if the currently building thing can now be built
+    // Add the production total and check if the currently building thing can
+    // now be built
     productionTotal += productionPerTurn;
-    if (currentlyBuilding != null && currentlyBuilding.canBuildWithProduction(productionTotal)) {
+    if (
+      currentlyBuilding != null &&
+        currentlyBuilding.canBuildWithProduction(productionTotal)
+    ) {
       // If it can build it
       updatedTiles.add(currentlyBuilding.build(this, game));
       // Remove the cost from the total
@@ -480,7 +510,8 @@ public class City extends Living {
       citizens--;
     } else if (excessFoodCounter > growthValue) {
       citizens++;
-      // If growing, grow the city by an extra tile and mark the grown tiles for updating
+      // If growing, grow the city by an extra tile and mark the grown tiles
+      // for updating
       grow(1);
       updatedTiles.addAll(tiles);
     }

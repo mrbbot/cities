@@ -86,7 +86,8 @@ public class Unit extends Living implements Positionable {
   }
 
   public void startWorkerBuilding(Improvement improvement) {
-    if (workerBuilding == Improvement.NONE) {
+    if (hasAbility(UnitAbility.ABILITY_IMPROVE)
+      && workerBuilding == Improvement.NONE) {
       workerBuilding = improvement;
       workerBuildTurnsRemaining = improvement.turnCost;
     }
@@ -110,7 +111,7 @@ public class Unit extends Living implements Positionable {
 
   @Override
   public Tile[] handleTurn(Game game) {
-    boolean workerTileUpdated = naturalHeal();
+    boolean tileUpdated = naturalHeal();
     boolean allTilesNeedReRendering = false;
 
     remainingMovementPointsThisTurn = unitType.getMovementPoints();
@@ -150,12 +151,12 @@ public class Unit extends Living implements Positionable {
         tile.improvementMetadata = meta;
         workerBuilding = Improvement.NONE;
       }
-      workerTileUpdated = true;
+      tileUpdated = true;
     }
 
     return allTilesNeedReRendering
       ? new Tile[]{}
-      : (workerTileUpdated
+      : (tileUpdated
       ? new Tile[]{tile}
       : null);
   }
