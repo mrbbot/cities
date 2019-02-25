@@ -1,6 +1,6 @@
 package com.mrbbot.civilisation.logic.unit;
 
-public class UnitAbility {
+public final class UnitAbility {
   public static final int ABILITY_MOVEMENT = 0b1;
   public static final int ABILITY_SETTLE = 0b10;
   public static final int ABILITY_ATTACK = 0b100;
