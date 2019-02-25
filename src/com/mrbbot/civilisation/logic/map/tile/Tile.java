@@ -4,21 +4,56 @@ import com.mrbbot.civilisation.geometry.Hexagon;
 import com.mrbbot.civilisation.geometry.Traversable;
 import com.mrbbot.civilisation.logic.unit.Unit;
 import com.mrbbot.civilisation.render.map.RenderTile;
+import com.mrbbot.generic.net.ClientOnly;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class for a tile of the map. Stored in the game's hexagon grid.
+ */
 public class Tile implements Traversable {
+  /**
+   * Hexagon this tile represents
+   */
   private final Hexagon hexagon;
+  /**
+   * X-coordinate of this tile within the hexagon grid
+   */
   public final int x;
+  /**
+   * Y-coordinate of this tile within the hexagon grid
+   */
   public final int y;
+  /**
+   * Terrain object for this tile
+   */
   private final Terrain terrain;
+  /**
+   * The city this tile is part of. May be null.
+   */
   public City city;
+  /**
+   * This tiles improvement. Defaults to {@link Improvement#NONE}.
+   */
   public Improvement improvement;
+  /**
+   * Metadata associated with the improvement (angle, strip count, width).
+   */
   public Map<String, Object> improvementMetadata = new HashMap<>();
+  /**
+   * Unit currently on the tile. May be null.
+   */
   public Unit unit;
+  /**
+   * Whether this tile is the currently selected tile.
+   */
+  @ClientOnly
   public boolean selected = false;
-
+  /**
+   * Renderer for this tile. Only used by the client.
+   */
+  @ClientOnly
   public RenderTile renderer;
 
   public Tile(Hexagon hexagon, int x, int y) {

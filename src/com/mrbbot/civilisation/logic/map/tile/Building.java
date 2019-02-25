@@ -284,9 +284,17 @@ public abstract class Building extends CityBuildable {
     return city.buildings.contains(this) ? "You can only have one of these buildings per city" : "";
   }
 
+  /**
+   * Build the building in the specified city
+   * @param city city to build in
+   * @param game game the city is contained within
+   * @return tile to update the render of
+   */
   @Override
   public Tile build(City city, Game game) {
+    // Add this building to the city
     city.buildings.add(this);
+    // Return the city center for re-rendering
     return city.getCenter();
   }
 }
