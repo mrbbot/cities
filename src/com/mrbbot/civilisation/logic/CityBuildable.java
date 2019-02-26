@@ -11,22 +11,60 @@ import com.mrbbot.civilisation.ui.game.BadgeType;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * Abstract class representing an item that can be built within a city by the
+ * city instead of a worker
+ */
 public abstract class CityBuildable implements Unlockable {
+  /**
+   * Gets a city buildable from just its name
+   *
+   * @param name name of the city buildable to get
+   * @return the city buildable with the specified name or null if it doesn't
+   * exist
+   */
   public static CityBuildable fromName(String name) {
+    // Try get it as a unit type
     UnitType unitType = UnitType.fromName(name);
     if (unitType != null) return unitType;
+    // Otherwise, try get it as a building (this will return null if it doesn't
+    // exist)
     return Building.fromName(name);
   }
 
+  /**
+   * Class representing a detail in the city production list. This could be the
+   * production cost, the amount of movement points, or something like the
+   * gold per turn increase.
+   */
   public class Detail {
+    /**
+     * Type of badge that should be used to represent this detail
+     */
     public final BadgeType badge;
+    /**
+     * Text contents of this detail
+     */
     public final String text;
 
+    /**
+     * Creates a new detail
+     *
+     * @param badge badge type of the detail
+     * @param text  text to be shown next to the badge
+     */
     public Detail(BadgeType badge, String text) {
       this.badge = badge;
       this.text = text;
     }
 
+    /**
+     * Creates a new detail with a number that is automatically converted to a
+     * string
+     *
+     * @param badge  badge type of the detail
+     * @param number number to be shown next to the badge
+     */
     public Detail(BadgeType badge, int number) {
       this(badge, String.valueOf(number));
     }

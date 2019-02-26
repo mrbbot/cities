@@ -12,9 +12,20 @@ import java.util.ArrayList;
 
 import static com.mrbbot.civilisation.logic.unit.UnitAbility.*;
 
+/**
+ * Class representing a type of unit that can be built within a city. The class
+ * contains a variety of constants for the different types of units.
+ */
 public class UnitType extends CityBuildable {
-  public static int BASE_UNLOCK_ID = 0x20;
+  /**
+   * Base unlock ID for unit types. Used to identify unit types that can be
+   * unlocked.
+   */
+  private static int BASE_UNLOCK_ID = 0x20;
 
+  /*
+   * START UNIT TYPE DEFINITIONS
+   */
   public static UnitType SETTLER = new UnitType(
     "Settler",
     "Creates cities",
@@ -103,13 +114,19 @@ public class UnitType extends CityBuildable {
     100,
     ABILITY_BLAST_OFF
   );
+  /*
+   * END UNIT TYPE DEFINITIONS
+   */
 
-  //Unit upgrades
+  //Define unit upgrade paths
   static {
     WARRIOR.canUpgradeTo = SWORDSMAN;
     SWORDSMAN.canUpgradeTo = KNIGHT;
   }
 
+  /**
+   * Array containing all defined unit types.
+   */
   public static UnitType[] VALUES = new UnitType[]{
     SETTLER,
     SCOUT,
@@ -121,18 +138,48 @@ public class UnitType extends CityBuildable {
     ROCKET
   };
 
+  /**
+   * Function to get a unit type from just its name
+   *
+   * @param name name of unit type to get
+   * @return the unit type with the specified name or null if the unit type
+   * doesn't exist
+   */
   public static UnitType fromName(String name) {
+    // Iterates through all the unit types...
     for (UnitType value : VALUES) {
-      if(value.name.equals(name)) return value;
+      // Check if the names match
+      if (value.name.equals(name)) return value;
     }
     return null;
   }
 
+  /**
+   * Colour representing this unit (the torso colour, the other belt colour
+   * represents the player)
+   */
   private final Color color;
+  /**
+   * Base number of movement points units of this type should start with
+   */
   private final int movementPoints;
+  /**
+   * Attack strength of this unit type (i.e. how much damage it will do to
+   * other units or cities)
+   */
   private final int attackStrength;
+  /**
+   * Starting health for the unit
+   */
   private final int baseHealth;
+  /**
+   * A number representing this unit's abilities (see {@link UnitAbility}) for
+   * more information on how this works.
+   */
   private final int abilities;
+  /**
+   * A unit type that this unit can be upgraded to if it's been unlocked.
+   */
   private UnitType canUpgradeTo;
 
   private UnitType(
@@ -154,46 +201,102 @@ public class UnitType extends CityBuildable {
     this.abilities = abilities;
   }
 
+  /**
+   * Gets the unit's colour
+   *
+   * @return unit's colour
+   */
   public Color getColor() {
     return color;
   }
 
+  /**
+   * Gets the unit's base movement points
+   *
+   * @return unit's base movement points
+   */
+  @SuppressWarnings("WeakerAccess")
   public int getMovementPoints() {
     return movementPoints;
   }
 
+  /**
+   * Gets the unit's attack strength
+   *
+   * @return unit's attack strength
+   */
   public int getAttackStrength() {
     return attackStrength;
   }
 
+  /**
+   * Gets the unit's base health
+   *
+   * @return unit's base/starting health
+   */
   public int getBaseHealth() {
     return baseHealth;
   }
 
+  /**
+   * Gets a number representing the units abilities
+   *
+   * @return unit's abilities
+   */
   int getAbilities() {
     return abilities;
   }
 
+  /**
+   * Gets the unit type that this unit type can update to
+   *
+   * @return upgraded unit type, or null if this unit type cannot be upgraded
+   */
   public UnitType getUpgrade() {
     return canUpgradeTo;
   }
 
+  /**
+   * Gets the details to be displayed in the city production list for this
+   * unit type
+   *
+   * @return details to be displayed
+   */
   @Override
   public ArrayList<Detail> getDetails() {
     ArrayList<Detail> details = super.getDetails();
 
     details.add(new Detail(BadgeType.HEALTH, baseHealth));
-    if(movementPoints != 0) details.add(new Detail(BadgeType.MOVEMENT, movementPoints));
-    if(attackStrength != 0) details.add(new Detail(BadgeType.ATTACK, attackStrength));
+    if (movementPoints != 0)
+      details.add(new Detail(BadgeType.MOVEMENT, movementPoints));
+    if (attackStrength != 0)
+      details.add(new Detail(BadgeType.ATTACK, attackStrength));
 
     return details;
   }
 
+  /**
+   * Builds an instance of this unit type in the specified city, creating a new
+   * unit object
+   *
+   * @param city city to build in
+   * @param game game the city is contained within
+   * @return tile to update the render of (i.e. the tile the new unit was
+   * created in)
+   */
   @Override
   public Tile build(City city, Game game) {
-    PacketUnitCreate packetUnitCreate = new PacketUnitCreate(city.player.id, city.getX(), city.getY(), this);
+    PacketUnitCreate packetUnitCreate = new PacketUnitCreate(
+      city.player.id,
+      city.getX(), city.getY(),
+      this
+    );
     Tile[] placedTiles = game.handlePacket(packetUnitCreate);
-    return placedTiles != null && placedTiles.length > 0 ? placedTiles[0] : null;
-    // no need to broadcast packet as this method is called on the client and the server automatically
+    return placedTiles != null
+      && placedTiles.length > 0
+      ? placedTiles[0]
+      : null;
+    // No need to broadcast packet as this method is called on the client and
+    // the server automatically on receiving a PacketReady
   }
 }

@@ -390,7 +390,9 @@ public class Tech {
    * @return whether or not the player has met all the requirements
    */
   public boolean canUnlockGivenUnlocked(Set<Tech> unlockedTechs) {
-    return unlockedTechs.containsAll(requirements) || (requirements.size() == 1 && requirements.get(0).requirements.size() == 0);
+    return unlockedTechs.containsAll(requirements) ||
+      (requirements.size() == 1
+        && requirements.get(0).requirements.size() == 0);
   }
 
   @Override
