@@ -25,14 +25,10 @@ public class RenderImprovementRoad extends Render {
     join.setRotate(90);
     add(join);
 
-    int count = 0;
     for (Tile adjacentTile : adjacentTiles) {
       if (adjacentTile.hasRoad()) {
-        count++;
         int dx = adjacentTile.x - thisTile.x;
         int dy = adjacentTile.y - thisTile.y;
-        /*System.out.println(dx);
-        System.out.println(dy);*/
 
         int angle = 0;
         int xOffset = thisTile.y % 2;
