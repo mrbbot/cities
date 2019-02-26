@@ -391,7 +391,7 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   }
 
   /**
-   * Implementation of {@link Iterator<E>} for iterating over the cells in a hexagon grid
+   * Implementation of {@link Iterator} for iterating over the cells in a hexagon grid
    */
   private class HexagonGridIterator implements Iterator<E> {
     /**

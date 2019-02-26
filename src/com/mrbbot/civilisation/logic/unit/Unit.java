@@ -14,54 +14,122 @@ import java.util.*;
 import static com.mrbbot.civilisation.logic.unit.UnitAbility.ABILITY_ATTACK;
 import static com.mrbbot.civilisation.logic.unit.UnitAbility.ABILITY_RANGED_ATTACK;
 
+/**
+ * Class representing an instance of a unit in the game.
+ */
 public class Unit extends Living implements Positionable {
+  /**
+   * Random number generator for generating improvement metadata
+   */
   private static final Random RANDOM = new Random();
 
+  /**
+   * The owner of this unit. Only the owner can move the unit, or perform an action with it.
+   */
   public Player player;
+  /**
+   * The tile this unit is currently occupying
+   */
   public Tile tile;
+  /**
+   * The type of this unit. Contains information on the units abilities.
+   */
   public UnitType unitType;
 
+  /**
+   * The number of movement points this unit has remaining this turn. When a unit moves, the cost of the movement is
+   * taken away from this number. The unit can't move if this value is 0.
+   */
   public int remainingMovementPointsThisTurn;
+  /**
+   * Whether or not the unit has attacked a living object this turn. Each attacking unit can only attack one unit per
+   * turn, so this ensures that when it's set to true no more attacking can take place.
+   */
   public boolean hasAttackedThisTurn;
+  /**
+   * What the unit is currently trying to build on the tile. Although this is part of the Unit class, this is only
+   * relevant for units that have {@link UnitAbility#ABILITY_IMPROVE}.
+   */
   public Improvement workerBuilding = Improvement.NONE;
+  /**
+   * How many turns the current unit has left on its build project. Again, this is only relevant for units that have
+   * {@link UnitAbility#ABILITY_IMPROVE}.
+   */
   public int workerBuildTurnsRemaining = 0;
 
+  /**
+   * Creates a new unit object with the specified data
+   * @param player owner of the unit
+   * @param tile tile the unit is occupying
+   * @param unitType type of the unit
+   */
   public Unit(Player player, Tile tile, UnitType unitType) {
+    // Set required living parameters
     super(unitType.getBaseHealth());
     this.player = player;
     this.tile = tile;
     this.unitType = unitType;
+
+    // Reset movement and attack state
     this.remainingMovementPointsThisTurn = unitType.getMovementPoints();
     this.hasAttackedThisTurn = false;
+
+    // Check the tile doesn't already have a unit
     if (tile.unit != null) {
       throw new IllegalArgumentException("Unit created on tile with another unit");
     }
     tile.unit = this;
   }
 
+  /**
+   * Loads a unit from a map containing information about it
+   * @param grid hexagon grid containing the unit
+   * @param map map containing information on the unit
+   */
   public Unit(HexagonGrid<Tile> grid, Map<String, Object> map) {
+    // Load base health and health for living
     super((int) map.get("baseHealth"), (int) map.get("health"));
+
+    // Load player
     this.player = new Player((String) map.get("owner"));
+
+    // Load tile from the hexagon grid
     this.tile = grid.get((int) map.get("x"), (int) map.get("y"));
+
+    // Load the unit type and check it exists
     this.unitType = UnitType.fromName((String) map.get("type"));
     assert this.unitType != null;
+
+    // Load movement and attack state
     this.remainingMovementPointsThisTurn = (int) map.get("remainingMovementPoints");
     this.hasAttackedThisTurn = canAttack() && (boolean) map.get("hasAttacked");
-    if(map.containsKey("workerBuilding"))
+
+    // Load specific worker information
+    if (map.containsKey("workerBuilding"))
       workerBuilding = Improvement.fromName((String) map.get("workerBuilding"));
-    if(map.containsKey("workerBuildTurnsRemaining"))
+    if (map.containsKey("workerBuildTurnsRemaining"))
       workerBuildTurnsRemaining = (int) map.get("workerBuildTurnsRemaining");
+
+    // Check the tile doesn't already have a unit
     if (tile.unit != null) {
       throw new IllegalArgumentException("Unit created on tile with another unit");
     }
     tile.unit = this;
   }
 
+  /**
+   * Gets the x-coordinate of this unit
+   * @return x-coordinate of this unit
+   */
   @Override
   public int getX() {
     return tile.x;
   }
 
+  /**
+   * Gets the y-coordinate of this unit
+   * @return y-coordinate of this unit
+   */
   @Override
   public int getY() {
     return tile.y;
@@ -77,9 +145,9 @@ public class Unit extends Living implements Positionable {
     map.put("type", unitType.getName());
     map.put("remainingMovementPoints", remainingMovementPointsThisTurn);
     if (canAttack()) map.put("hasAttacked", hasAttackedThisTurn);
-    if(workerBuilding != Improvement.NONE)
+    if (workerBuilding != Improvement.NONE)
       map.put("workerBuilding", workerBuilding.name);
-    if(workerBuildTurnsRemaining != 0)
+    if (workerBuildTurnsRemaining != 0)
       map.put("workerBuildTurnsRemaining", workerBuildTurnsRemaining);
 
     return map;
@@ -123,9 +191,9 @@ public class Unit extends Living implements Positionable {
         HashMap<String, Object> meta = new HashMap<>();
 
         // check existing for road
-        if(tile.improvement == Improvement.ROAD) allTilesNeedReRendering = true;
+        if (tile.improvement == Improvement.ROAD) allTilesNeedReRendering = true;
         if (workerBuilding == Improvement.CHOP_FOREST) {
-          if(tile.city != null) tile.city.productionTotal += 30;
+          if (tile.city != null) tile.city.productionTotal += 30;
           tile.improvement = Improvement.NONE;
         } else {
           tile.improvement = workerBuilding;
@@ -164,7 +232,7 @@ public class Unit extends Living implements Positionable {
   @Override
   public void onAttack(Unit attacker, boolean ranged) {
     damage(attacker.unitType.getAttackStrength());
-    if(!ranged) {
+    if (!ranged) {
       attacker.damage(unitType.getBaseHealth() / 5);
     }
   }
