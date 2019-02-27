@@ -16,7 +16,7 @@ public class Terrain {
   private static final Random RANDOM = new Random();
 
   /**
-   * Height of the tile. This is a number in the range 0 <= height <= 1;
+   * Height of the tile. This is a number in the range [0, 1];
    */
   public double height;
   /**

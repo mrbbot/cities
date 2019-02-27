@@ -70,12 +70,34 @@ public abstract class CityBuildable implements Unlockable {
     }
   }
 
+  /**
+   * Name of this buildable (i.e. what is displayed in the city production
+   * list)
+   */
   protected final String name;
+  /**
+   * Description of this buildable (i.e. what is displayed in the city
+   * production list)
+   */
   protected final String description;
+  /**
+   * Amount of production points required to build this thing. Also determines
+   * the gold cost (1.5x this value).
+   */
+  @SuppressWarnings("WeakerAccess")
   protected final int productionCost;
+  /**
+   * Unlock ID of this buildable. Used to track what things are unlocked by a
+   * technology.
+   */
   protected final int unlockId;
 
-  public CityBuildable(String name, String description, int productionCost, int unlockId) {
+  public CityBuildable(
+    String name,
+    String description,
+    int productionCost,
+    int unlockId
+  ) {
     this.name = name;
     this.description = description;
     this.productionCost = productionCost;
@@ -84,54 +106,120 @@ public abstract class CityBuildable implements Unlockable {
 
   @Override
   public int hashCode() {
+    // Name should be unique
     return name.hashCode();
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof CityBuildable) {
+      // Name should be unique
       return Objects.equals(name, ((CityBuildable) obj).name);
     }
     return false;
   }
 
+  /**
+   * Gets the name of the buildable to be displayed in the production list
+   *
+   * @return name of the buildable
+   */
   public final String getName() {
     return name;
   }
 
+  /**
+   * Gets the unlock ID of the buildable
+   *
+   * @return unlock ID of the buildable
+   */
   public final int getUnlockId() {
     return unlockId;
   }
 
+  /**
+   * Gets the description of the buildable to be displayed in the production
+   * list
+   *
+   * @return description of the buildable
+   */
   public final String getDescription() {
     return description;
   }
 
+  /**
+   * Gets the required production total for this buildable
+   *
+   * @return production cost of this buildable
+   */
   public final int getProductionCost() {
     return productionCost;
   }
 
+  /**
+   * Calculates the gold cost of this item from the production cost
+   *
+   * @return productionCost * 1.5
+   */
   public final int getGoldCost() {
     return (int) Math.round(productionCost * 1.5);
   }
 
+  /**
+   * Checks if this buildable can be built with the player's current production
+   * total
+   *
+   * @param productionTotal player's current production total to check against
+   * @return whether the buildable can be built
+   */
   public final boolean canBuildWithProduction(int productionTotal) {
     return productionTotal >= productionCost;
   }
 
+  /**
+   * Checks if this buildable can be built with the player's current gold total
+   *
+   * @param goldTotal player's current gold total to check against
+   * @return whether the buildable can be built
+   */
   public final boolean canBuildWithGold(int goldTotal) {
     return goldTotal >= getGoldCost();
   }
 
+  /**
+   * Gets the details to be displayed in the city production list for this
+   * building. This should be overridden in subclasses to add more specific
+   * details.
+   *
+   * @return details to be displayed
+   */
   public ArrayList<Detail> getDetails() {
     ArrayList<Detail> details = new ArrayList<>();
+    // Add cost details (common for all buildables)
     details.add(new Detail(BadgeType.PRODUCTION, productionCost));
     details.add(new Detail(BadgeType.GOLD, getGoldCost()));
     return details;
   }
 
+  /**
+   * Function that builds the buildable in the city. Must be overridden in
+   * subclasses for actual implementation.
+   *
+   * @param city city to build the buildable in
+   * @param game game containing the city
+   * @return tile updated during the build process
+   */
   public abstract Tile build(City city, Game game);
 
+  /**
+   * Determine if a buildable can be built in a city given the player's other
+   * cities. Designed to be overridden in subclasses.
+   *
+   * @param city   target city to build in
+   * @param cities player's other cities
+   * @return reason why the buildable cannot be built, or an empty string if it
+   * can
+   */
   public String canBuildGivenCities(City city, ArrayList<City> cities) {
     return "";
   }

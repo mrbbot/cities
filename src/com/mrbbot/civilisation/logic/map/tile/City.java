@@ -531,7 +531,7 @@ public class City extends Living {
    * @param ranged   whether the unit performed a ranged attack
    */
   @Override
-  public void onAttack(Unit attacker, boolean ranged) {
+  public void onAttacked(Unit attacker, boolean ranged) {
     // Mark the attack as the last attacker to this city
     lastAttacker = attacker;
     // Damage the city the correct amount

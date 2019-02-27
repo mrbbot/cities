@@ -24,7 +24,7 @@ public class NoiseGenerator {
    *
    * @param x x-coordinate of noise to get
    * @param y y-coordinate of noise to get
-   * @return random noise in the range -1 < noise < 1
+   * @return random noise in the range (-1, 1)
    */
   private static double getNoise(int x, int y) {
     // Set the seed of the random generator as a constant plus some multiple of
@@ -42,7 +42,7 @@ public class NoiseGenerator {
    *
    * @param x x-coordinate of noise to get
    * @param y y-coordinate of noise to get
-   * @return random noise in the range -1 < noise < 1
+   * @return random noise in the range (-1, 1)
    */
   private static double getSmoothNoise(int x, int y) {
     double topLeft = getNoise(x - 1, y - 1);
@@ -67,8 +67,8 @@ public class NoiseGenerator {
    *
    * @param a first value
    * @param b second value
-   * @param t amount to interpolate between the values (0 <= t <= 1)
-   * @return a value between in the range a <= x <= b
+   * @param t amount to interpolate in the interval [0, 1]
+   * @return a value between in the range [a, b]
    */
   private static double cosInterpolate(double a, double b, double t) {
     t = (1.0 - Math.cos(Math.PI * t)) + 0.5;
@@ -82,7 +82,7 @@ public class NoiseGenerator {
    *
    * @param x x-coordinate of noise to get
    * @param y y-coordinate of noise to get
-   * @return random noise in the range -1 < noise < 1
+   * @return random noise in the range (-1, 1)
    */
   public static double getInterpolatedNoise(double x, double y) {
     // Gets the fractional components of the x and y coordinates

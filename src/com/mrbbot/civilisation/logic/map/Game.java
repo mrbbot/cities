@@ -341,7 +341,7 @@ public class Game implements Mappable, TurnHandler {
 
   /**
    * Stores the game state in a map so that it can be restored later. Used for
-   * sending the gme state over a network or for storing it in a file.
+   * sending the game state over a network or for storing it in a file.
    *
    * @return map representing the game state
    */
@@ -679,7 +679,7 @@ public class Game implements Mappable, TurnHandler {
       attacker.hasAbility(UnitAbility.ABILITY_ATTACK)
         && tilesBetween <= 1
     ) {
-      target.onAttack(attacker, false);
+      target.onAttacked(attacker, false);
       attacker.hasAttackedThisTurn = true;
     }
 
@@ -688,7 +688,7 @@ public class Game implements Mappable, TurnHandler {
       attacker.hasAbility(UnitAbility.ABILITY_RANGED_ATTACK)
         && tilesBetween <= 2
     ) {
-      target.onAttack(attacker, true);
+      target.onAttacked(attacker, true);
       attacker.hasAttackedThisTurn = true;
     }
 
@@ -848,6 +848,8 @@ public class Game implements Mappable, TurnHandler {
     if (t.unit != null && t.unit.unitType.getUpgrade() != null) {
       // Upgrade the unit
       t.unit.unitType = t.unit.unitType.getUpgrade();
+      // Set the new health proportional to its current health
+      t.unit.setBaseHealth(t.unit.unitType.getBaseHealth());
       return new Tile[]{t};
     }
     return null;
@@ -941,7 +943,8 @@ public class Game implements Mappable, TurnHandler {
 
   /**
    * Main turn handler for the game. Updates units (health, attack state,
-   * remaining movement), cities (health, build progress) & players (research).
+   * remaining movement), cities (health, build progress) and players
+   * (research).
    *
    * @param game game to update (redundant but required by the
    *             {@link TurnHandler} interface)
@@ -990,8 +993,8 @@ public class Game implements Mappable, TurnHandler {
    * depending on the packet type.
    *
    * @param packet packet to process
-   * @return an array of tiles to update, if empty, should update all tiles, if
-   * null, should update no tiles
+   * @return an array of tiles to rerender, if empty, should rerender all
+   * tiles, if null, should rerender no tiles
    */
   public Tile[] handlePacket(Packet packet) {
     // Checks the type of the packet and handles it accordingly
@@ -1304,6 +1307,7 @@ public class Game implements Mappable, TurnHandler {
 
   /**
    * Gets a player's cities
+   *
    * @param id id of the player to get cities of
    * @return list of cities belonging to the player
    */

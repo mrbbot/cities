@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Civilisation:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Civilisation_jar</output-path>
+    <root id="archive" name="Civilisation.jar">
+      <element id="module-output" name="Civilisation" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/snakeyaml-1.23.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

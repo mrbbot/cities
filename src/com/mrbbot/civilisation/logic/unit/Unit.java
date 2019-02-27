@@ -322,7 +322,7 @@ public class Unit extends Living implements Positionable {
    * @param ranged   whether this was a ranged attack
    */
   @Override
-  public void onAttack(Unit attacker, boolean ranged) {
+  public void onAttacked(Unit attacker, boolean ranged) {
     // Damage the unit an amount based on the attacker's strength
     damage(attacker.unitType.getAttackStrength());
     if (!ranged) {

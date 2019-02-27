@@ -118,7 +118,7 @@ public class Tile implements Traversable {
   /**
    * Gets the actual height of this tile
    *
-   * @return terrain height mapped onto range 1 <= height <= 3
+   * @return terrain height mapped onto range [1, 3]
    */
   public double getHeight() {
     return (terrain.height * 2) + 1; // 1 <= height <= 3

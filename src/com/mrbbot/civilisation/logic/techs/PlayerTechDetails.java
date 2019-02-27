@@ -21,7 +21,7 @@ public class PlayerTechDetails {
   public Tech currentlyUnlocking;
   /**
    * The progress of the current research project. This is a value in the range
-   * 0 <= percentUnlocked <= 1. If the player isn't researching anything at the
+   * [0, 1]. If the player isn't researching anything at the
    * moment, this value will be 0.
    */
   public double percentUnlocked;
