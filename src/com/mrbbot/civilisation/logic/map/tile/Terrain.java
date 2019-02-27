@@ -2,6 +2,7 @@ package com.mrbbot.civilisation.logic.map.tile;
 
 import com.mrbbot.civilisation.geometry.NoiseGenerator;
 import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
 
 import java.util.Random;
 
@@ -66,5 +67,35 @@ public class Terrain {
     // Only keep the tree if this is on the plains level (we don't want trees
     // in the ocean)
     this.hasTree = hasTree && level == Level.PLAIN;
+  }
+
+  /**
+   * Calculates the colour that should be used when rendering this terrain
+   * @return colour to be used for rendering
+   */
+  public Color getColour() {
+    Color min = Color.BLACK;
+    Color max = Color.BLACK;
+    switch (level) {
+      case MOUNTAIN:
+        min = Color.GRAY;
+        max = Color.WHITE;
+        break;
+      case PLAIN:
+        min = Color.GREEN;
+        max = Color.LIGHTGREEN;
+        break;
+      case BEACH:
+        min = Color.GOLDENROD;
+        max = Color.LIGHTGOLDENRODYELLOW;
+        break;
+      case OCEAN:
+        max = new Color(0, 0.66, 1, 0.5);
+        break;
+    }
+    // Calculate the percentage through the terrains level
+    double t = (height - level.minHeight) / (level.maxHeight - level.minHeight);
+    // Linear interpolate between the min and max colour
+    return min.interpolate(max, t);
   }
 }
