@@ -217,8 +217,8 @@ public class RenderCivilisation extends RenderRoot<RenderGame> {
   /**
    * Sets the time of day represented by the angle of the sun.
    *
-   * @param angle angle of the sun: sunrise(0) -> midday (90) -> sunset(180)
-   *              -> midnight (270) -> sunrise (360)
+   * @param angle angle of the sun: sunrise(0) - midday (90) - sunset(180)
+   *              - midnight (270) - sunrise (360)
    */
   private void setTime(double angle) {
     // Update the angle of the sun/moon
