@@ -21,7 +21,7 @@ public class UIPanelTech extends BorderPane {
     super();
 
     Label currentlyResearchingHeading = new Label("Currently researching:");
-    currentlyResearching = new Label("Industrialisation");
+    currentlyResearching = new Label("Nothing");
     currentlyResearching.setFont(new Font(24));
     currentlyResearching.setPadding(new Insets(0, 0, 5, 0));
     progress = new ProgressIndicator(0.5);

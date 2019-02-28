@@ -8,6 +8,5 @@ public class RenderData<T>
     super();
     this.data = data;
   }
-
 }
 

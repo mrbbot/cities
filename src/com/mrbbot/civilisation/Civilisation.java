@@ -45,14 +45,10 @@ public class Civilisation extends Application implements ClientCreator, ServerCr
     primaryStage.setOnCloseRequest((event) -> {
       try {
         if (CLIENT != null) CLIENT.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      } catch (IOException ignored) { }
       try {
         if (SERVER != null) SERVER.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      } catch (IOException ignored) { }
       System.exit(0);
     });
     primaryStage.show();

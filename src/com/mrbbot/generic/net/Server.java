@@ -64,7 +64,9 @@ public class Server<T> extends BaseBroadcaster<T> implements Runnable {
           this
         );
       } catch (IOException e) {
-        e.printStackTrace();
+        if(!e.getMessage().equals("socket closed")) {
+          e.printStackTrace();
+        }
         open = false;
       }
     }
