@@ -225,8 +225,8 @@ public class City extends Living {
     );
 
     // Keep picking tiles from the queue until the specified number of tiles
-    // have been picked
-    while (newTiles > 0 && potentialTiles.size() >= newTiles) {
+    // have been picked or we run out of tiles
+    while (newTiles > 0 && potentialTiles.size() > 0) {
       // Get the next tile
       Tile tile = potentialTiles.remove();
       // Mark it as belonging to this city and add it
