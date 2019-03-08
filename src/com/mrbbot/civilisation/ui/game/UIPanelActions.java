@@ -180,10 +180,10 @@ public class UIPanelActions extends VBox implements EventHandler<ActionEvent> {
         // Set the default improvement
         if (actionsList.size() > 0) {
           actionsComboBox.setValue(actionsList.get(0));
-          boolean canImprove = tile.city == null
+          boolean cantImprove = tile.city == null
             || !tile.city.player.equals(unit.player);
-          actionsComboBox.setDisable(canImprove);
-          actionButton.setDisable(canImprove);
+          actionsComboBox.setDisable(cantImprove);
+          actionButton.setDisable(cantImprove);
         }
 
         // If the unit is already building something disable the button and

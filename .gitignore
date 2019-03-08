@@ -135,5 +135,6 @@ $RECYCLE.BIN/
 saves/*.yml
 
 meta/~$*.docx
+meta/~$*.pptx
 
 docs
