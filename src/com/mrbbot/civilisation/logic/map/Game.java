@@ -1119,7 +1119,7 @@ public class Game implements Mappable, TurnHandler {
     // Create the packets
     PacketUnitCreate[] packetUnitCreates = new PacketUnitCreate[]{
       new PacketUnitCreate(playerId, x, y, UnitType.SETTLER),
-      new PacketUnitCreate(playerId, x, y, UnitType.ROCKET)
+      new PacketUnitCreate(playerId, x, y, UnitType.WARRIOR)
     };
     // Handle them (server side only)
     for (PacketUnitCreate packetUnitCreate : packetUnitCreates)
