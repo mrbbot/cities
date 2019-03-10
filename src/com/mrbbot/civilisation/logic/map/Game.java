@@ -483,7 +483,7 @@ public class Game implements Mappable, TurnHandler {
   }
 
   /**
-   * Checks if the player already contains a player with the specified ID
+   * Checks if the game already contains a player with the specified ID
    *
    * @param id id to check
    * @return whether a player with that ID already exists
@@ -1119,7 +1119,7 @@ public class Game implements Mappable, TurnHandler {
     // Create the packets
     PacketUnitCreate[] packetUnitCreates = new PacketUnitCreate[]{
       new PacketUnitCreate(playerId, x, y, UnitType.SETTLER),
-      new PacketUnitCreate(playerId, x, y, UnitType.WARRIOR)
+      new PacketUnitCreate(playerId, x, y, UnitType.ROCKET)
     };
     // Handle them (server side only)
     for (PacketUnitCreate packetUnitCreate : packetUnitCreates)

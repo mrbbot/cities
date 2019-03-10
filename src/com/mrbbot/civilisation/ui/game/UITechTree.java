@@ -307,7 +307,6 @@ public class UITechTree extends ScrollPane {
         || details.unlockedTechs.contains(tech)
         || (tech.equals(details.currentlyUnlocking)
         && details.percentUnlocked == 1);
-      unlocked = true;
       // Check if the player can unlock this tech given its requirements
       boolean canUnlock = !unlocked &&
         details.currentlyUnlocking == null &&
