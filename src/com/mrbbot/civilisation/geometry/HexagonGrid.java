@@ -6,9 +6,11 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * Represents a 2D grid a hexagons and handles the maths for positioning hexagons relative to each other
+ * Represents a 2D grid a hexagons and handles the maths for positioning
+ * hexagons relative to each other
  *
- * @param <E> the type of the data associated with each hexagon (should implement {@link Traversable} for pathfinding)
+ * @param <E> the type of the data associated with each hexagon (should
+ *            implement {@link Traversable} for pathfinding)
  */
 public class HexagonGrid<E extends Traversable> implements Serializable {
   /**
@@ -25,22 +27,26 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   private final double radius;
 
   /**
-   * 2D array for storing the data associated with each tile. Objects within this array should be of type E. Every
-   * other tile has +-1 element than the previous row.
+   * 2D array for storing the data associated with each tile. Objects within
+   * this array should be of type E. Every other tile has +-1 element than the
+   * previous row.
    */
   private final Object[][] grid;
   /**
-   * 2D array for storing the hexagons which contain the data about tile positioning for this grid. Every other tile
-   * has +-1 element than the previous row.
+   * 2D array for storing the hexagons which contain the data about tile
+   * positioning for this grid. Every other tile has +-1 element than the
+   * previous row.
    */
   private final Hexagon[][] hexagonGrid;
 
   /**
-   * The distance from the midpoint of one edge to another midpoint of a hexagon
+   * The distance from the midpoint of one edge to another midpoint of a
+   * hexagon
    */
   private final double cw;    // cell width
   /**
-   * The distance from the center of a hexagon to the midpoint of an edge of the hexagon
+   * The distance from the center of a hexagon to the midpoint of an edge of
+   * the hexagon
    */
   private final double hcw;   // half cell width
   /**
@@ -81,11 +87,13 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
     this.height = height;
     this.radius = radius;
 
-    // Construct the grid arrays taking into account the extra element on alternating rows
+    // Construct the grid arrays taking into account the extra element on
+    // alternating rows
     grid = new Object[height][width + 1];
     hexagonGrid = new Hexagon[height][width + 1];
 
-    // Calculate constants for the grid that are used when laying out the hexagons
+    // Calculate constants for the grid that are used when laying out the
+    // hexagons
     cw = Hexagon.SQRT_3 * radius;    // cell width
     hcw = cw / 2;                    // half cell width
     ch = 3.0 / 2.0 * radius;         // cell height
@@ -99,7 +107,8 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   }
 
   /**
-   * Iterates through every position for a hexagon and creates a new {@link Hexagon} for that position.
+   * Iterates through every position for a hexagon and creates a new
+   * {@link Hexagon} for that position.
    */
   private void calculateHexagonGrid() {
     forEach((e, hex, x, y) -> hexagonGrid[y][x] = new Hexagon(
@@ -115,24 +124,27 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   }
 
   /**
-   * Determines whether a cell actually exists in the hexagon grid, taking into account alternating numbers of
-   * elements on each row
+   * Determines whether a cell actually exists in the hexagon grid, taking into
+   * account alternating numbers of elements on each row
    *
    * @param x x-coordinate of cell to check
    * @param y y-coordinate of cell to check
    * @return whether the cell exists
    */
   private boolean cellExists(int x, int y) {
-    return 0 <= x && x < grid[0].length && 0 <= y && y < grid.length && !(y % 2 == 0 && x > grid[0].length - 2);
+    return 0 <= x && x < grid[0].length
+      && 0 <= y && y < grid.length
+      && !(y % 2 == 0 && x > grid[0].length - 2);
   }
 
   /**
-   * Checks whether the specified neighbouring cell exists, sometimes taking into account the traversability of the
-   * cell.
+   * Checks whether the specified neighbouring cell exists, sometimes taking
+   * into account the traversability of the cell.
    *
    * @param x             x-coordinate of neighbouring cell to check
    * @param y             y-coordinate of neighbouring cell to check
-   * @param checkTraverse whether to check if the cell is traversable or not (used for pathfinding)
+   * @param checkTraverse whether to check if the cell is traversable or not
+   *                      (used for pathfinding)
    * @return whether the neighbouring cell exists
    */
   private boolean checkNeighbour(int x, int y, boolean checkTraverse) {
@@ -155,17 +167,22 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   }
 
   /**
-   * Gets the data associated with a cell called in the context of an adjacency check
+   * Gets the data associated with a cell called in the context of an adjacency
+   * check
    *
    * @param x             x-coordinate of cell
    * @param y             y-coordinate of cell
-   * @param checkTraverse whether to check if the cell is traversable or not (used for pathfinding)
+   * @param checkTraverse whether to check if the cell is traversable or not
+   *                      (used for pathfinding)
    * @param dx            offset added to the x-coordinate of the cell
-   * @return the data associated with the cell or null if the cell doesn't exist
+   * @return the data associated with the cell or null if the cell doesn't
+   * exist
    */
   private E getAdjacent(int x, int y, boolean checkTraverse, int dx) {
     // Check if the cell exists, if it does return it, otherwise return null
-    return checkNeighbour(x + dx, y, checkTraverse) ? get(x + dx, y) : null;
+    return checkNeighbour(x + dx, y, checkTraverse)
+      ? get(x + dx, y)
+      : null;
   }
 
   /**
@@ -173,8 +190,10 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
    *
    * @param x             x-coordinate to check to the top-left of
    * @param y             y-coordinate to check to the top-left of
-   * @param checkTraverse whether to check if the cell is traversable or not (used for pathfinding)
-   * @return the data associated with the top-left or null if the cell doesn't exist
+   * @param checkTraverse whether to check if the cell is traversable or not
+   *                      (used for pathfinding)
+   * @return the data associated with the top-left or null if the cell doesn't
+   * exist
    */
   public E getTopLeft(int x, int y, boolean checkTraverse) {
     return getAdjacent(x, y - 1, checkTraverse, -(y % 2));
@@ -185,8 +204,10 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
    *
    * @param x             x-coordinate to check to the top-right of
    * @param y             y-coordinate to check to the top-right of
-   * @param checkTraverse whether to check if the cell is traversable or not (used for pathfinding)
-   * @return the data associated with the top-right or null if the cell doesn't exist
+   * @param checkTraverse whether to check if the cell is traversable or not
+   *                      (used for pathfinding)
+   * @return the data associated with the top-right or null if the cell doesn't
+   * exist
    */
   public E getTopRight(int x, int y, boolean checkTraverse) {
     return getAdjacent(x + 1, y - 1, checkTraverse, -(y % 2));
@@ -197,8 +218,10 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
    *
    * @param x             x-coordinate to check to the left of
    * @param y             y-coordinate to check to the left of
-   * @param checkTraverse whether to check if the cell is traversable or not (used for pathfinding)
-   * @return the data associated with the left or null if the cell doesn't exist
+   * @param checkTraverse whether to check if the cell is traversable or not
+   *                      (used for pathfinding)
+   * @return the data associated with the left or null if the cell doesn't
+   * exist
    */
   public E getLeft(int x, int y, boolean checkTraverse) {
     return getAdjacent(x - 1, y, checkTraverse, 0);
@@ -209,8 +232,10 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
    *
    * @param x             x-coordinate to check to the right of
    * @param y             y-coordinate to check to the right of
-   * @param checkTraverse whether to check if the cell is traversable or not (used for pathfinding)
-   * @return the data associated with the right or null if the cell doesn't exist
+   * @param checkTraverse whether to check if the cell is traversable or not
+   *                      (used for pathfinding)
+   * @return the data associated with the right or null if the cell doesn't
+   * exist
    */
   public E getRight(int x, int y, boolean checkTraverse) {
     return getAdjacent(x + 1, y, checkTraverse, 0);
@@ -221,8 +246,10 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
    *
    * @param x             x-coordinate to check to the bottom-left of
    * @param y             y-coordinate to check to the bottom-left of
-   * @param checkTraverse whether to check if the cell is traversable or not (used for pathfinding)
-   * @return the data associated with the bottom-left or null if the cell doesn't exist
+   * @param checkTraverse whether to check if the cell is traversable or not
+   *                      (used for pathfinding)
+   * @return the data associated with the bottom-left or null if the cell
+   * doesn't exist
    */
   public E getBottomLeft(int x, int y, boolean checkTraverse) {
     return getAdjacent(x, y + 1, checkTraverse, -(y % 2));
@@ -233,8 +260,10 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
    *
    * @param x             x-coordinate to check to the bottom-right of
    * @param y             y-coordinate to check to the bottom-right of
-   * @param checkTraverse whether to check if the cell is traversable or not (used for pathfinding)
-   * @return the data associated with the bottom-right or null if the cell doesn't exist
+   * @param checkTraverse whether to check if the cell is traversable or not
+   *                      (used for pathfinding)
+   * @return the data associated with the bottom-right or null if the cell
+   * doesn't exist
    */
   public E getBottomRight(int x, int y, boolean checkTraverse) {
     return getAdjacent(x + 1, y + 1, checkTraverse, -(y % 2));
@@ -245,7 +274,8 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
    *
    * @param x             x-coordinate to get neighbours of
    * @param y             y-coordinate to get neighbours of
-   * @param checkTraverse whether to check if the cells are traversable or not (used for pathfinding)
+   * @param checkTraverse whether to check if the cells are traversable or not
+   *                      (used for pathfinding)
    * @return ArrayList of the neighbours' data
    */
   public ArrayList<E> getNeighbours(int x, int y, boolean checkTraverse) {
@@ -273,21 +303,25 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   }
 
   /**
-   * Finds the shortest path between (x1, y1) and (x2, y2) that does not exceed maxCost using Dijkstra's algorithm. If
-   * maxCost is exceeded, the function returns the path up until the cost is exceeded.
+   * Finds the shortest path between (x1, y1) and (x2, y2) that does not exceed
+   * maxCost using Dijkstra's algorithm. If maxCost is exceeded, the function
+   * returns the path up until the cost is exceeded.
    *
    * @param x1      start x-coordinate
    * @param y1      start y-coordinate
    * @param x2      end x-coordinate
    * @param y2      end y-coordinate
    * @param maxCost max cost of the path
-   * @return a path object containing information of the tiles in the path and the total cost of the path
+   * @return a path object containing information of the tiles in the path and
+   * the total cost of the path
    */
   public Path<E> findPath(int x1, int y1, int x2, int y2, int maxCost) {
     // Create a map for storing the cost of certain tiles for sorting the queue
     Map<E, Integer> costs = new HashMap<>();
-    // Create the queue for the frontier, sorting elements by their cost so the cheapest elements are at the front
-    PriorityQueue<E> frontier = new PriorityQueue<>(Comparator.comparingInt(costs::get));
+    // Create the queue for the frontier, sorting elements by their cost so the
+    // cheapest elements are at the front
+    PriorityQueue<E> frontier =
+      new PriorityQueue<>(Comparator.comparingInt(costs::get));
 
     // Create a map for storing the path back to the beginning
     Map<E, E> cameFrom = new HashMap<>();
@@ -310,8 +344,13 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
       E current = frontier.remove();
       // Check if this is the goal or doesn't exist
       if (current == null || current == goal) break;
-      // For every neighbour of the current tile... (making sure that the neighbour is traversable)
-      for (E next : getNeighbours(current.getX(), current.getY(), true)) {
+      // For every neighbour of the current tile... (making sure that the
+      // neighbour is traversable)
+      for (E next : getNeighbours(
+        current.getX(),
+        current.getY(),
+        true
+      )) {
         // Calculate the cost of getting to this tile
         int newCost = costSoFar.get(current) + next.getCost();
         // If this is a new tile or the cost of using this route is cheaper
@@ -332,7 +371,8 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
       path.add(current);
       current = cameFrom.get(current);
     }
-    // Reverse the order of this path so the start is at the beginning and the end is at the end
+    // Reverse the order of this path so the start is at the beginning and the
+    // end is at the end
     Collections.reverse(path);
 
     // Make sure the path doesn't exceed the max cost
@@ -362,7 +402,8 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   }
 
   /**
-   * Gets the hexagon (with position data) associated with the cell at the coordinate
+   * Gets the hexagon (with position data) associated with the cell at the
+   * coordinate
    *
    * @param x x-coordinate of cell
    * @param y y-coordinate of cell
@@ -374,7 +415,8 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   }
 
   /**
-   * Iterates through all possible hexes in the hexagon grid and calls the consumer with data for each cell
+   * Iterates through all possible hexes in the hexagon grid and calls the
+   * consumer with data for each cell
    *
    * @param consumer function to be called with details about the cell
    */
@@ -382,7 +424,8 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   public void forEach(HexagonConsumer<E> consumer) {
     // For every row...
     for (int y = 0; y < grid.length; y++) {
-      // For every column... (taking into account the alternating numbers of columns in rows)
+      // For every column... (taking into account the alternating numbers of
+      // columns in rows)
       for (int x = 0; x < grid[0].length - ((y + 1) % 2); x++) {
         // Send the details on the cell
         consumer.accept((E) grid[y][x], hexagonGrid[y][x], x, y);
@@ -391,7 +434,8 @@ public class HexagonGrid<E extends Traversable> implements Serializable {
   }
 
   /**
-   * Implementation of {@link Iterator} for iterating over the cells in a hexagon grid
+   * Implementation of {@link Iterator} for iterating over the cells in a
+   * hexagon grid
    */
   private class HexagonGridIterator implements Iterator<E> {
     /**
