@@ -76,7 +76,7 @@ public class UnitType extends CityBuildable {
     90,
     BASE_UNLOCK_ID + 1,
     Color.GREY,
-    2,
+    4,
     20,
     70,
     ABILITY_MOVEMENT + ABILITY_ATTACK
