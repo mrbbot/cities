@@ -63,8 +63,8 @@ public class Civilisation extends Application
     width = (int) screenBounds.getWidth();
     height = (int) screenBounds.getHeight();
     // The game should be fullscreen, but that can be annoying for testing
-    width = 1000; //1000 //1600
-    height = 600; //600 //900
+    //width = 1000; //1000 //1600
+    //height = 600; //600 //900
 
     // Create the initial connection screen, registering this as the client
     // and server creator
@@ -79,7 +79,7 @@ public class Civilisation extends Application
     // Set window details
     primaryStage.setTitle("Civilisation");
     primaryStage.setResizable(false);
-    //primaryStage.setFullScreen(true);
+    primaryStage.setFullScreen(true);
 
     // Terminate the client and server when the user requests the game exit by
     // clicking the window's close button
