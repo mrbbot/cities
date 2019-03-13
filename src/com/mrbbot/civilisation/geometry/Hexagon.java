@@ -36,7 +36,7 @@ public class Hexagon {
    */
   Hexagon(Point2D center, double radius) {
     this.c = center;
-    this.r = radius /*- 0.1*/; // - 0.1 puts a gap in between hexes
+    this.r = radius;
     calculateVertices();
   }
 
