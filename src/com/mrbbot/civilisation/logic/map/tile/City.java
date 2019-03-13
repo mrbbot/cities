@@ -502,7 +502,7 @@ public class City extends Living {
 
     // Add/subtract food to the counter
     excessFoodCounter += foodPerTurn;
-    // Calculate growth/starvation values
+    /*// Calculate growth/starvation values
     double starvationValue = 10 + Math.pow(1.25, citizens - 1);
     double growthValue = 10 + Math.pow(1.25, citizens);
     // Check if the city should grow/starve
@@ -514,7 +514,7 @@ public class City extends Living {
       // for updating
       grow(1);
       updatedTiles.addAll(tiles);
-    }
+    }*/
 
     // Increase global player science/gold counts by the counts for this city
     game.increasePlayerScienceBy(player.id, sciencePerTurn);

@@ -34,7 +34,7 @@ public class RenderCivilisation extends RenderRoot<RenderGame> {
    * Easy way to enable/disable lighting. Used for development as lighting can
    * be quite annoying.
    */
-  private final static boolean ENABLE_LIGHTING = true;
+  private final static boolean ENABLE_LIGHTING = false;
 
   /**
    * Last x-coordinate of drag. Used for calculating how much the screen was

@@ -1192,6 +1192,8 @@ public class Game implements Mappable, TurnHandler {
    * @return whether the item has been unlocked
    */
   public boolean playerHasUnlocked(String playerId, Unlockable unlockable) {
+    if(true) return true;
+
     // Get the unlock id of the item, and check it's not unlocked by default
     int unlockId = unlockable.getUnlockId();
     if (unlockId == 0x00) return true;
