@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * Represents a 2D grid a hexagons and handles the maths for positioning
+ * Represents a 2D grid of hexagons and handles the maths for positioning
  * hexagons relative to each other
  *
  * @param <E> the type of the data associated with each hexagon (should

@@ -1,7 +1,7 @@
 package com.mrbbot.civilisation.logic.map;
 
 /**
- * Enum for the different sizes a a map can be, used by the host/join screen to
+ * Enum for the different sizes a map can be, used by the host/join screen to
  * list available sizes.
  */
 public enum MapSize {

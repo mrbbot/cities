@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.function.Predicate;
 
 /**
- * Class representing a connection between a client and server or vice-versa
+ * Class representing a connection between a client and a server or vice-versa
  *
  * @param <T> type of data to be exchanged over the network
  */

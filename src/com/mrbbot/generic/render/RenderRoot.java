@@ -5,8 +5,8 @@ import javafx.scene.SubScene;
 import javafx.scene.paint.Color;
 
 /**
- * Root render object that handles creating a sub scene so that other objects
- * added to this can be scene. Also creates the camera for the scene.
+ * Root render object that handles creating a sub-scene so that other objects
+ * added to this can be seen. Also creates the camera for the scene.
  *
  * @param <T> render type that should be the root of the scene where all other
  *            children are added

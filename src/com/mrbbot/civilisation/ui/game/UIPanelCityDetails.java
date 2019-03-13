@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * UI panel for showing a cities details and the production list where new
+ * UI panel for showing a city's details and the production list where new
  * units and buildings can be built in the city.
  */
 @ClientOnly
