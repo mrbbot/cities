@@ -77,7 +77,7 @@ public class Civilisation extends Application
     // Set window details
     primaryStage.setTitle("Civilisation");
     primaryStage.setResizable(false);
-    primaryStage.setFullScreen(true);
+    //primaryStage.setFullScreen(true);
 
     // Terminate the client and server when the user requests the game exit by
     // clicking the window's close button
