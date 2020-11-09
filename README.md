@@ -1,39 +1,7 @@
-# Civilisation
+# Cities
 
-Computer Science Coursework
+A Civilisation clone written in Java for my A-level computing project.
 
-## Documentation Sections
+## Demo Video
 
-
-## Objectives
-
-
-
-## TODO List
-
-### Units
-- [x] Different types of unit
-- [x] Unit health/attacking
-- [x] Game UI, next turn, unit max moves
-
-### Cities
-- [x] Health points (ILiving?)
-- [x] Buildings in cities (UI requirement)
-- [x] Building in cities with gold instead of production
-- [x] Building units
-- [x] Finish improvements
-- [x] Attacking cities
-
-### Technology
-- [x] Unlocking
-
-### Misc
-- [x] Can settle only if no city (reflect in UI)
-- [x] In game chat
-- [x] Send game state to clients on join
-- [x] Upgrades
-- [x] Purchasing land
-- [x] Victories: blast off and all land belongs to one player
-- [x] Day/Night cycle (just use real time % 60)
-- [x] Create server from start screen with loading games
-- [ ] Documentation/commenting 
+[![Demo Video](https://img.youtube.com/vi/l34OCWZJshI/0.jpg)](https://www.youtube.com/watch?v=l34OCWZJshI)
